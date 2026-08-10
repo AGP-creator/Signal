@@ -25,17 +25,16 @@ export function RefreshButton() {
 
   return (
     <div className="flex items-center gap-2">
-      {msg && <span className="hidden text-[11px] text-[var(--muted)] lg:inline">{msg}</span>}
+      {msg && (
+        <span className="hidden max-w-[12rem] truncate text-[0.75rem] text-[var(--muted)] lg:inline">{msg}</span>
+      )}
       <button
         type="button"
         onClick={run}
         disabled={busy}
-        className={cn(
-          "rounded-full border border-[var(--line-strong)] bg-[var(--panel)] px-3 py-1.5 text-xs font-semibold text-[var(--text)] transition hover:border-[var(--signal)] hover:text-[var(--signal)]",
-          busy && "opacity-60",
-        )}
+        className={cn("btn btn-soft !py-1.5 !text-[0.8125rem]", busy && "opacity-60")}
       >
-        {busy ? "Refreshing…" : "Refresh pipeline"}
+        {busy ? "Refreshing…" : "Refresh"}
       </button>
     </div>
   );

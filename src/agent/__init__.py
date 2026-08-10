@@ -95,7 +95,9 @@ def get_brief(company_name: str) -> str:
         "",
         "## Cap table quality",
         f"Tier-1 count: {c.get('tier1_count')} ({', '.join(c.get('tier1_names') or [])}). "
-        f"Tier-2 count: {c.get('tier2_count')}. Investors: {', '.join(c.get('investors') or [])}.",
+        f"Tier-2 count: {c.get('tier2_count')} ({', '.join(c.get('tier2_names') or [])}). "
+        f"Tier-3 count: {c.get('tier3_count')} ({', '.join(c.get('tier3_names') or [])}). "
+        f"Investors: {', '.join(c.get('investors') or [])}.",
         "",
         "## Team & hiring",
         c.get("team_notes") or "",
@@ -130,11 +132,44 @@ def get_brief(company_name: str) -> str:
     return "\n".join(lines)
 
 
-def offline_answer(question: str) -> str:
+def _filter_sectors_for_question(question: str, sectors: list[dict[str, Any]]) -> list[dict[str, Any]]:
     q = question.lower()
+    ranked = sorted(sectors, key=lambda x: -(x.get("heat_score") or 0))
+    wants_ai_infra = any(
+        k in q
+        for k in (
+            "ai infra",
+            "ai infrastructure",
+            "infrastructure sub",
+            "compute stack",
+            "nobody is talking",
+            "nobody talking",
+        )
+    )
+    if wants_ai_infra or ("ai" in q and ("infra" in q or "sub-sector" in q or "subsector" in q)):
+        ai = [
+            s
+            for s in ranked
+            if "ai infrastructure" in (s.get("parent_theme") or "").lower()
+            or "ai-native" in (s.get("parent_theme") or "").lower()
+        ]
+        if len(ai) >= 3:
+            return ai[:3]
+        if ai:
+            return (ai + [s for s in ranked if s not in ai])[:3]
+    if "contrarian" in q or "nobody" in q:
+        contra = [s for s in ranked if (s.get("consensus_level") or "").lower() == "contrarian"]
+        if contra:
+            return (contra + [s for s in ranked if s not in contra])[:3]
+    return ranked[:3]
+
+
+def offline_answer(question: str) -> str:
+    q = question.lower().strip()
     companies = load_all_companies()
     sectors = load_table("sector_calls")
     peers = load_table("peer_activity")
+    commentary = load_table("commentary")
 
     if "60/40" in q or "rebalance" in q or "overweight" in q:
         mix = _mix(companies)
@@ -151,9 +186,11 @@ def offline_answer(question: str) -> str:
         )
 
     if "sector" in q and ("tomorrow" in q or "nobody" in q or "emerging" in q or "sub-sector" in q or "subsector" in q):
+        picked = _filter_sectors_for_question(question, sectors)
         lines = ["Sector of Tomorrow (from Signal heat map):", ""]
-        for s in sorted(sectors, key=lambda x: -(x.get("heat_score") or 0))[:3]:
-            lines.append(f"**{s['subsector']}** — {s['consensus_level']} (heat {s['heat_score']})")
+        for s in picked:
+            lines.append(f"**{s['subsector']}** — {s.get('consensus_level')} (heat {s.get('heat_score')})")
+            lines.append(f"Parent theme: {s.get('parent_theme')}")
             lines.append(s.get("why_thirdbase_cares") or "")
             evidence = s.get("evidence") or []
             if isinstance(evidence, list):
@@ -164,13 +201,28 @@ def offline_answer(question: str) -> str:
             lines.append("")
         return "\n".join(lines)
 
-    if "saying about" in q or "commentary" in q or "twitter" in q:
+    if "saying about" in q or (("commentary" in q or "twitter" in q) and "about" in q):
         for c in companies:
             if c["name"].lower() in q:
-                return get_brief(c["name"])
+                cms = [x for x in commentary if x.get("company_id") == c["id"]]
+                lines = [
+                    f"## What people are saying about {c['name']}",
+                    f"Pipeline stance: **{c.get('recommendation')}** · score {c.get('thesis_score')} · {c.get('relative_rank')}",
+                    "",
+                ]
+                if cms:
+                    for cm in cms:
+                        lines.append(
+                            f"- ({cm.get('source')}, {cm.get('sentiment')}, {cm.get('credibility_tier')}): "
+                            f"{cm.get('quote_or_summary')}"
+                        )
+                else:
+                    lines.append(c.get("commentary_summary") or "No discrete commentary captured yet.")
+                lines += ["", f"Full IC brief available via Search or: draft IC one-pager for {c['name']}."]
+                return "\n".join(lines)
         return "Specify a pipeline company to pull commentary."
 
-    if "quietly investing" in q or "who's" in q or "who is" in q:
+    if "quietly investing" in q or (("who's" in q or "who is" in q) and "invest" in q):
         theme_kw = None
         for kw in ("robot", "defense", "defence", "cyber", "fintech", "energy", "bio"):
             if kw in q:
@@ -187,15 +239,34 @@ def offline_answer(question: str) -> str:
         return "\n".join(lines) if hits else "No matching peer activity in pipeline."
 
     if "off-thesis" in q or "thesis shift" in q:
+        firm_filter = None
+        for firm in ("a16z", "andreessen", "sequoia", "lux", "ribbit", "tiger"):
+            if firm in q:
+                firm_filter = firm
+                break
         shifts = [p for p in peers if p.get("thesis_shift")]
+        if firm_filter:
+            shifts = [p for p in shifts if firm_filter in (p.get("firm") or "").lower()]
         if not shifts:
-            return "No thesis-shift flags currently in peer activity."
+            return "No thesis-shift flags currently in peer activity" + (
+                f" for {firm_filter}." if firm_filter else "."
+            )
         return "\n".join(f"- {p.get('firm')} → {p.get('company_name')}: {p.get('notes')}" for p in shifts)
 
-    if "brief" in q or "one-pager" in q or "one pager" in q:
-        for c in companies:
-            if c["name"].lower() in q:
-                return get_brief(c["name"])
+    # Company intelligence — pipeline brief or name lookup
+    for c in companies:
+        name = (c.get("name") or "").lower()
+        if name and name in q and (
+            "brief" in q
+            or "one-pager" in q
+            or "one pager" in q
+            or "research" in q
+            or "tell me about" in q
+            or "summar" in q
+            or q.strip() == name
+            or q.strip().startswith(name)
+        ):
+            return get_brief(c["name"])
 
     theme_map = {
         "defense": "Defence",
@@ -226,12 +297,18 @@ def offline_answer(question: str) -> str:
                 lines.append("")
             return "\n".join(lines) if hits else f"No {label} companies in pipeline."
 
+    # Bare company name → full brief if in pipeline
+    maybe = find_company_by_name(question.strip())
+    if maybe:
+        return get_brief(maybe["name"])
+
     top = [c for c in companies if c.get("recommendation") == "Deep Dive"][:5]
     lines = ["Top Deep Dive deals in the current pipeline:", ""]
     for c in top:
         lines.append(f"**{c['name']}** ({c.get('sector_theme')}) — score {c.get('thesis_score')}")
         lines.append(c.get("why_now") or "")
         lines.append("")
+    lines.append("_Tip: type a company name for a full IC brief. Use the Next.js /search page to research new names._")
     lines.append("_Offline mode: set ANTHROPIC_API_KEY for Claude partner-grade synthesis._")
     return "\n".join(lines)
 

@@ -20,11 +20,15 @@ def _norm(s: str) -> str:
     return re.sub(r"[^a-z0-9]+", "", s.lower())
 
 
-def classify_investors(investors: list[str], policy: dict[str, Any]) -> tuple[list[str], list[str], int, int]:
+def classify_investors(
+    investors: list[str], policy: dict[str, Any]
+) -> tuple[list[str], list[str], list[str], int, int, int]:
+    """Return Tier-1 / Tier-2 / Tier-3 (everyone else) names + counts."""
     tier1 = {_norm(x) for x in policy.get("tier1_firms", [])}
     tier2 = {_norm(x) for x in policy.get("tier2_firms", [])}
     t1_names: list[str] = []
     t2_names: list[str] = []
+    t3_names: list[str] = []
     for inv in investors:
         n = _norm(inv)
         if any(n == t or n in t or t in n for t in tier1):
@@ -33,7 +37,10 @@ def classify_investors(investors: list[str], policy: dict[str, Any]) -> tuple[li
         elif any(n == t or n in t or t in n for t in tier2):
             if inv not in t2_names:
                 t2_names.append(inv)
-    return t1_names, t2_names, len(t1_names), len(t2_names)
+        else:
+            if inv not in t3_names:
+                t3_names.append(inv)
+    return t1_names, t2_names, t3_names, len(t1_names), len(t2_names), len(t3_names)
 
 
 def _clamp(x: float, lo: float = 0.0, hi: float = 100.0) -> float:
@@ -206,15 +213,38 @@ def score_runway(company: dict[str, Any], policy: dict[str, Any]) -> float:
 def score_tam_exit(company: dict[str, Any], policy: dict[str, Any]) -> float:
     tam_b = company.get("tam_usd_b")
     min_b = policy["growth_targets"]["tam_usd_min"] / 1e9
+    gt = policy.get("growth_targets") or {}
+    exit_min = gt.get("exit_horizon_years_min", 3)
+    exit_max = gt.get("exit_horizon_years_max", 5)
+    exit_years = company.get("exit_horizon_years")
+    if exit_years is None:
+        # Infer from stage: growth / late = closer to exit window
+        stage = (company.get("stage") or "").lower()
+        if "growth" in stage or "series d" in stage or "series c" in stage:
+            exit_years = exit_min + 1
+        elif "series b" in stage:
+            exit_years = 4
+        else:
+            exit_years = 5
+
     if tam_b is None:
-        return 50.0
-    if tam_b >= min_b * 2:
-        return 90.0
-    if tam_b >= min_b:
-        return 80.0
-    if tam_b >= min_b * 0.5:
-        return 60.0
-    return 40.0
+        tam_score = 50.0
+    elif tam_b >= min_b * 2:
+        tam_score = 90.0
+    elif tam_b >= min_b:
+        tam_score = 80.0
+    elif tam_b >= min_b * 0.5:
+        tam_score = 60.0
+    else:
+        tam_score = 40.0
+
+    if exit_min <= exit_years <= exit_max:
+        exit_score = 90.0
+    elif exit_years < exit_min:
+        exit_score = 70.0  # possibly too near-term / late
+    else:
+        exit_score = 55.0  # long-dated vs 3–5yr preference
+    return _clamp(0.7 * tam_score + 0.3 * exit_score)
 
 
 def score_timing(company: dict[str, Any], as_of: Optional[date] = None) -> float:
@@ -256,11 +286,16 @@ def build_why_now(company: dict[str, Any], breakdown: dict[str, float]) -> str:
 
 
 def score_company(company: dict[str, Any], policy: dict[str, Any], as_of: Optional[date] = None) -> dict[str, Any]:
-    t1_names, t2_names, t1_count, t2_count = classify_investors(company.get("investors") or [], policy)
+    t1_names, t2_names, t3_names, t1_count, t2_count, t3_count = classify_investors(
+        company.get("investors") or [], policy
+    )
     company = {**company}
     company["tier1_names"] = t1_names
     company["tier1_count"] = t1_count
+    company["tier2_names"] = t2_names
     company["tier2_count"] = t2_count
+    company["tier3_names"] = t3_names
+    company["tier3_count"] = t3_count
 
     weights = policy["scoring_weights"]
     breakdown = {
@@ -279,10 +314,11 @@ def score_company(company: dict[str, Any], policy: dict[str, Any], as_of: Option
     company["thesis_score"] = round(total, 1)
 
     thresholds = policy["recommendation_thresholds"]
-    if total >= thresholds["deep_dive"] and t1_count >= 2:
+    # Deep Dive prefers Tier-1 density; exceptional scores without T1 still qualify
+    if total >= thresholds["deep_dive"] and (t1_count >= 2 or total >= thresholds["deep_dive"] + 5):
         rec = "Deep Dive"
     elif total >= thresholds["deep_dive"]:
-        rec = "Deep Dive"
+        rec = "Watch"  # high score but thin cap table → watch, not IC yet
     elif total >= thresholds["watch"]:
         rec = "Watch"
     else:

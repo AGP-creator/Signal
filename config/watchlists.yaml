@@ -206,6 +206,18 @@ gp_watchlist:
   - name: Packy McCormick
     handle: packym
     url: https://x.com/packym
+  - name: Elon Musk
+    handle: elonmusk
+    url: https://x.com/elonmusk
+  - name: Kauffman Fellows
+    handle: kauffmanfellows
+    url: https://x.com/kauffmanfellows
+  - name: Pat Grady
+    handle: gradypb
+    url: https://x.com/gradypb
+  - name: Wiz
+    handle: wizlikewizard
+    url: https://x.com/wizlikewizard
 
 peer_firms:
   - name: Andreessen Horowitz
@@ -388,12 +400,36 @@ peer_firms:
   - name: Samaipata
     aliases: []
     stated_focus: European marketplace / fintech
+  - name: 1752vc
+    aliases: ["1752"]
+    stated_focus: Early-stage technology
+  - name: Greylock
+    aliases: []
+    stated_focus: Enterprise, consumer, crypto
 
 rss_feeds:
   - name: TechCrunch
     url: https://techcrunch.com/feed/
   - name: Benedict Evans
     url: https://www.ben-evans.com/benedictevans?format=rss
+  - name: Not Boring
+    url: https://www.notboring.co/feed
+  - name: The Generalist
+    url: https://generalist.substack.com/feed
+  - name: Byrne Hobart / The Diff
+    url: https://www.thediff.co/feed
+  - name: Newcomer
+    url: https://www.newcomer.co/feed
+  - name: Stratechery
+    url: https://stratechery.com/feed/
+  - name: Axios
+    url: https://api.axios.com/feed/
+  - name: Reuters Technology
+    url: https://www.reutersagency.com/feed/?taxonomy=best-topics&post_type=best
+  - name: FT Technology
+    url: https://www.ft.com/technology?format=rss
+  - name: SEC Press
+    url: https://www.sec.gov/news/pressreleases.rss
 
 hn_topics:
   - startup
@@ -401,6 +437,37 @@ hn_topics:
   - AI
   - cybersecurity
   - robotics
+  - defense
+  - fintech
+  - nuclear
+  - venture capital
+
+# Founder radar — operators whose next newco is an immediate-alert path
+watched_operators:
+  - prior: DeepMind
+    aliases: [ex-DeepMind, DeepMind RL]
+    themes: [AI Infrastructure & Compute Stack, Robotics & Physical AI]
+  - prior: OpenAI
+    aliases: [ex-OpenAI]
+    themes: [AI Infrastructure & Compute Stack, AI-native stack]
+  - prior: Anduril
+    aliases: [ex-Anduril]
+    themes: [Defence Tech]
+  - prior: Palantir
+    aliases: [ex-Palantir]
+    themes: [Defence Tech, Cybersecurity]
+  - prior: Locus Robotics
+    aliases: [ex-Locus]
+    themes: [Robotics & Physical AI]
+  - prior: Scale AI
+    aliases: [ex-Scale]
+    themes: [AI Infrastructure & Compute Stack]
+  - prior: Databricks
+    aliases: [ex-Databricks]
+    themes: [AI Infrastructure & Compute Stack]
+  - prior: Stripe
+    aliases: [ex-Stripe]
+    themes: [Fintech & Financial Infrastructure]
 
 edgar:
   user_agent: Thirdbase Signal MVP contact@thirdbase.example

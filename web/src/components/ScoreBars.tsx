@@ -4,12 +4,12 @@ export function ScoreBars({ breakdown }: { breakdown?: Record<string, number> | 
   const entries = Object.entries(breakdown || {});
   if (!entries.length) return null;
   return (
-    <div className="space-y-3">
+    <div className="space-y-3.5">
       {entries.map(([k, v]) => (
         <div key={k}>
-          <div className="mb-1 flex justify-between text-xs text-[var(--muted)]">
+          <div className="mb-1.5 flex justify-between text-[0.8125rem] text-[var(--muted)]">
             <span className="capitalize">{k.replaceAll("_", " ")}</span>
-            <span className="mono">{v.toFixed(0)}</span>
+            <span className="mono text-[var(--text)]">{v.toFixed(0)}</span>
           </div>
           <div className="h-1.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
             <div

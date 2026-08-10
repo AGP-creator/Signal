@@ -38,15 +38,28 @@ Or use **Refresh pipeline** in the Next.js header (spawns the Python refresh).
 ## Pages
 
 - `/` Command center — Hot Deals, mix, alerts, sectors, news
+- `/meeting` Partner Meeting OS — auto Monday agenda (~90m)
+- `/search` Company research agent — type any name for a full IC brief
 - `/pipeline` Filterable scored table
-- `/company/[id]` Full IC-style brief
+- `/company/[id]` Full IC-style brief (+ comps + Diligence Stress Pack + IC trail + IC packet)
+- `/ic` IC Decision Trail — stages, DD checklist, votes, Pass spine
 - `/sectors` Sector of Tomorrow
-- `/peers` Activity + co-investor heatmap
+- `/peers` Competitor intelligence — firm radar, matrix, heatmap, activity
+- `/peers/[slug]` Peer firm dossier
+- `/lp` LP Process Desk — AI-in-process narrative LPs can diligence
+- `/library` News · Commentary · Watchlist · Stale (Excel tabs as UI)
+- `/judgment` Judgment OS — override ledger, miss retros, founder radar, freshness SLA, mix drift, digest A/B
 - `/digest` M/W/F email preview
 - `/chat` + ⌘K command palette
 
+Diligence Stress Pack (bear case, deck flags, work orders, meeting prep) ships on company pages and research briefs. Landscape: [docs/AGENTIC_VC_LANDSCAPE.md](docs/AGENTIC_VC_LANDSCAPE.md)
+
 ## Docs
 
+- [Coverage matrix](docs/COVERAGE.md) — brief requirements → what ships
+- [Partner conviction brief](docs/PARTNER_CONVICTION_BRIEF.md) — how to win the role vs other candidates (GP/LP narrative)
+- [CTO consultation brief](docs/CTO_CONSULTATION_BRIEF.md) — board-ready decisions (budget, stack, models, sell vs internal)
+- [Agentic VC landscape](docs/AGENTIC_VC_LANDSCAPE.md) — competitor agent features + use cases
 - [Product](docs/PRODUCT.md)
 - [Demo script](docs/DEMO_SCRIPT.md)
 - [Roadmap](docs/ROADMAP.md)

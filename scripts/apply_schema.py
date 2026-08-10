@@ -16,7 +16,10 @@ import httpx
 from dotenv import load_dotenv
 
 ROOT = Path(__file__).resolve().parents[1]
-SQL_PATH = ROOT / "supabase" / "migrations" / "001_init.sql"
+SQL_PATHS = [
+    ROOT / "supabase" / "migrations" / "001_init.sql",
+    ROOT / "supabase" / "migrations" / "002_peer_firms.sql",
+]
 PROJECT_REF = "ixnenoiggoijvawoykto"
 
 
@@ -49,7 +52,7 @@ def apply_via_management_api(sql: str, token: str) -> None:
 def main() -> int:
     load_dotenv(ROOT / ".env")
     load_dotenv(ROOT / "env.txt")
-    sql = SQL_PATH.read_text(encoding="utf-8")
+    sql = "\n\n".join(p.read_text(encoding="utf-8") for p in SQL_PATHS if p.exists())
 
     db_url = os.getenv("DATABASE_URL") or os.getenv("SUPABASE_DB_URL")
     access = os.getenv("SUPABASE_ACCESS_TOKEN") or os.getenv("SUPABASE_PAT")
@@ -69,7 +72,7 @@ def main() -> int:
     print("  B) SUPABASE_ACCESS_TOKEN=sbp_...  (Account -> Access Tokens)")
     print()
     print("Or sign in at the open Supabase SQL Editor and tell me 'logged in' so I can paste and run the SQL.")
-    print(f"SQL file: {SQL_PATH}")
+    print(f"SQL files: {', '.join(str(p) for p in SQL_PATHS)}")
     print(f"Editor: https://supabase.com/dashboard/project/{PROJECT_REF}/sql/new")
     return 2
 

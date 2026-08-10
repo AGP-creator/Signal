@@ -1,4 +1,4 @@
-import { getSupabaseServer } from "@/lib/supabase";
+import { restSelect } from "@/lib/rest";
 import type {
   AlertItem,
   Commentary,
@@ -10,70 +10,62 @@ import type {
 } from "@/lib/types";
 
 export async function fetchCompanies(): Promise<Company[]> {
-  const { data, error } = await getSupabaseServer()
-    .from("companies")
-    .select("*")
-    .order("thesis_score", { ascending: false });
-  if (error) throw error;
-  return (data || []) as Company[];
+  return restSelect<Company[]>("companies", {
+    order: "thesis_score.desc.nullslast",
+  });
 }
 
 export async function fetchCompany(idOrSlug: string): Promise<Company | null> {
-  const sb = getSupabaseServer();
-  const byId = await sb.from("companies").select("*").eq("id", idOrSlug).maybeSingle();
-  if (byId.data) return byId.data as Company;
-  const bySlug = await sb.from("companies").select("*").eq("slug", idOrSlug).maybeSingle();
-  return (bySlug.data as Company) || null;
+  const byId = await restSelect<Company[]>("companies", {
+    eq: { id: idOrSlug },
+    limit: 1,
+  });
+  if (byId?.[0]) return byId[0];
+  const bySlug = await restSelect<Company[]>("companies", {
+    eq: { slug: idOrSlug },
+    limit: 1,
+  });
+  return bySlug?.[0] || null;
 }
 
 export async function fetchCommentary(companyId?: string): Promise<Commentary[]> {
-  let q = getSupabaseServer().from("commentary").select("*");
-  if (companyId) q = q.eq("company_id", companyId);
-  const { data, error } = await q;
-  if (error) throw error;
-  return (data || []) as Commentary[];
+  return restSelect<Commentary[]>("commentary", {
+    eq: companyId ? { company_id: companyId } : undefined,
+  });
 }
 
 export async function fetchNews(): Promise<NewsItem[]> {
-  const { data, error } = await getSupabaseServer().from("news").select("*");
-  if (error) throw error;
-  return (data || []) as NewsItem[];
+  return restSelect<NewsItem[]>("news");
 }
 
 export async function fetchPeers(): Promise<PeerActivity[]> {
-  const { data, error } = await getSupabaseServer().from("peer_activity").select("*");
-  if (error) throw error;
-  return (data || []) as PeerActivity[];
+  return restSelect<PeerActivity[]>("peer_activity");
 }
 
 export async function fetchSectors(): Promise<SectorCall[]> {
-  const { data, error } = await getSupabaseServer()
-    .from("sector_calls")
-    .select("*")
-    .order("heat_score", { ascending: false });
-  if (error) throw error;
-  return (data || []) as SectorCall[];
+  return restSelect<SectorCall[]>("sector_calls", {
+    order: "heat_score.desc.nullslast",
+  });
 }
 
 export async function fetchAlerts(): Promise<AlertItem[]> {
-  const { data, error } = await getSupabaseServer().from("alerts").select("*");
-  if (error) throw error;
-  return (data || []) as AlertItem[];
+  return restSelect<AlertItem[]>("alerts");
 }
 
 export async function fetchLatestDigest(): Promise<DigestRow | null> {
-  const { data, error } = await getSupabaseServer()
-    .from("digests")
-    .select("*")
-    .order("created_at", { ascending: false })
-    .limit(1);
-  if (error) throw error;
-  return (data?.[0] as DigestRow) || null;
+  const rows = await restSelect<DigestRow[]>("digests", {
+    order: "created_at.desc",
+    limit: 1,
+  });
+  return rows?.[0] || null;
 }
 
 export async function fetchMeta(key: string): Promise<string> {
-  const { data } = await getSupabaseServer().from("meta").select("value").eq("key", key).maybeSingle();
-  return data?.value || "";
+  const rows = await restSelect<{ value: string }[]>("meta", {
+    eq: { key },
+    limit: 1,
+  });
+  return rows?.[0]?.value || "";
 }
 
 export async function fetchDashboard() {

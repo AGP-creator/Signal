@@ -18,6 +18,9 @@ export type Company = {
   tier1_count?: number | null;
   tier1_names?: string[];
   tier2_count?: number | null;
+  tier2_names?: string[];
+  tier3_count?: number | null;
+  tier3_names?: string[];
   headcount?: number | null;
   headcount_6m_growth_pct?: number | null;
   yoy_growth_pct?: number | null;
@@ -94,11 +97,49 @@ export type AlertItem = {
   created_at?: string;
 };
 
+export type DigestDeal = {
+  name: string;
+  score?: number | null;
+  recommendation?: string | null;
+  rationale?: string | null;
+  brief_id?: string | null;
+  brief_url?: string | null;
+  slug?: string | null;
+  sector?: string | null;
+};
+
+export type DigestSectorCall = {
+  subsector?: string;
+  consensus_level?: string;
+  why?: string;
+  top_companies?: string[];
+  parent_theme?: string;
+};
+
+export type DigestNewsItem = {
+  title?: string;
+  source?: string;
+  why?: string;
+  url?: string | null;
+};
+
+export type DigestPeerMove = {
+  firm?: string;
+  company?: string;
+  notes?: string;
+  thesis_shift?: boolean;
+};
+
 export type DigestRow = {
   id: string;
   subject?: string;
   generated_at?: string;
   markdown?: string;
   html?: string;
-  payload?: Record<string, unknown>;
+  payload?: {
+    deals?: DigestDeal[];
+    sector_calls?: DigestSectorCall[];
+    news?: DigestNewsItem[];
+    peer_moves?: DigestPeerMove[];
+  };
 };

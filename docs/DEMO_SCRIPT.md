@@ -28,10 +28,13 @@ Open `Thirdbase_Deal_Pipeline.xlsx`:
 1. **Cover** — last refreshed, methodology, seed vs live provenance  
 2. **Pipeline** — point at `why_now`, `thesis_score`, `relative_rank`, conditional formatting (Deep Dive / Watch / Pass)  
 3. **Hot Deals** — last 30 days, highest conviction only  
-4. **Co-investor Heatmap** — syndicate utility  
-5. **Stale** — “We never auto-delete. Partners decide.”
+4. **Peer Firm Dossiers / Co-investor Heatmap** — competitor intelligence  
+5. **Stale** — “We never auto-delete. Partners decide.”  
+6. **Judgment OS** — override fuel, miss retros, founder radar, freshness SLA, digest A/B  
 
 Line to use: *“Excel is intentional. Partners debate in sheets.”*
+
+Optional: open **Competitors** + **Judgment** in the Next.js UI — firm radar, thesis drift, and the X-factor judgment loop.
 
 ---
 
@@ -53,6 +56,24 @@ Call out any new signal or score movement.
 5. Optional stretch: *“Are we overweight tactical vs 60/40?”* or *“Draft an IC one-pager for [company].”*
 
 If Claude API key missing: offline retrieval mode still answers from DB with templated synthesis — say so transparently.
+
+---
+
+## 4b. Diligence Stress Pack (90s) — judgment edge vs coverage tools
+
+Open a **Deep Dive** company page (or `/search` → pipeline name). Scroll to **Diligence Stress Pack**:
+
+1. **Bull vs Bear** — show the counterfactual kill arguments side-by-side with fair bull counters  
+   > “Coverage tools summarize. We argue against ourselves before IC.”
+2. **Diligence plan** — work orders with close conditions + copy founder-only email (never auto-send)  
+3. **Meeting prep** — pre-call sheet with landmines from the bear case  
+4. Optional: **Deck flags** — paste sample deck text; show extracted claims vs blanks + red flags  
+5. **Copy IC packet** — packet now includes bear + required work orders + founder questions
+
+Chat demos:
+- *“Bear case for [Deep Dive company]”*  
+- *“Diligence plan for [company]”*  
+- *“Prep me for a call with [company]”*
 
 ---
 
@@ -93,5 +114,7 @@ Close line:
 - [ ] Use Thirdbase language (60/40, Tier-1, 40%+ YoY, ~3yr runway)  
 - [ ] Include recognizable peer firms (a16z, Sequoia, Lux, etc.)  
 - [ ] Show a sharp **Pass** with real reasoning  
+- [ ] Show **Bear case** on a Deep Dive (counterfactual agent)  
 - [ ] Never invent private valuations — say “estimated / reported”  
 - [ ] Separate judgment OS vs data connectors clearly  
+- [ ] Mention competitive landscape note: [`AGENTIC_VC_LANDSCAPE.md`](AGENTIC_VC_LANDSCAPE.md)  

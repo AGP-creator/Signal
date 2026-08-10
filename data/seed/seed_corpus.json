@@ -2058,6 +2058,36 @@
       "sentiment": "negative",
       "credibility_tier": "medium",
       "captured_at": "2025-11-15"
+    },
+    {
+      "id": "cm16",
+      "company_id": "c_synthforge",
+      "company_name": "SynthForge",
+      "source": "Twitter/X",
+      "quote_or_summary": "Elad Gil: watching a watched founder (ex-DeepMind RL) spin up a stealth synthetic-data / environment co adjacent to SynthForge.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-08"
+    },
+    {
+      "id": "cm17",
+      "company_id": "c_agentgate",
+      "company_name": "AgentGate",
+      "source": "Twitter/X",
+      "quote_or_summary": "Deedy: AgentGate RFPs feel real \u2014 security buyers finally budgeting for agent identity.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-06"
+    },
+    {
+      "id": "cm18",
+      "company_id": "c_latticeeval",
+      "company_name": "LatticeEval",
+      "source": "Twitter/X",
+      "quote_or_summary": "Sarah Guo: LatticeEval becoming the default harness inside two frontier labs she tracks.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-05"
     }
   ],
   "news": [
@@ -2348,6 +2378,54 @@
     },
     {
       "id": "pa17",
+      "firm": "Ribbit Capital",
+      "company_id": "c_swarmguard",
+      "company_name": "SwarmGuard",
+      "round": "Series B",
+      "date": "2026-05-05",
+      "theme": "Defence Tech",
+      "on_thesis_flag": false,
+      "thesis_shift": true,
+      "notes": "Ribbit (fintech-stated) into counter-UAS \u2014 off-focus peer move worth a call."
+    },
+    {
+      "id": "pa18",
+      "firm": "Tiger Global",
+      "company_id": "c_modnuc",
+      "company_name": "Modular Nucleus",
+      "round": "Series A",
+      "date": "2026-07-12",
+      "theme": "Energy-as-a-service",
+      "on_thesis_flag": false,
+      "thesis_shift": true,
+      "notes": "Tiger into modular nuclear / data-center power \u2014 growth firm stretching into energy hardtech."
+    },
+    {
+      "id": "pa19",
+      "firm": "Founders Fund",
+      "company_id": "c_latticeeval",
+      "company_name": "LatticeEval",
+      "round": "Series B",
+      "date": "2026-06-12",
+      "theme": "AI Infrastructure & Compute Stack",
+      "on_thesis_flag": true,
+      "thesis_shift": false,
+      "notes": "Eval infra co-invest with a16z."
+    },
+    {
+      "id": "pa20",
+      "firm": "Lux Capital",
+      "company_id": "c_orbitlens",
+      "company_name": "OrbitLens",
+      "round": "Series A",
+      "date": "2026-04-18",
+      "theme": "Defence Tech",
+      "on_thesis_flag": true,
+      "thesis_shift": false,
+      "notes": "Space + frontier science continuity."
+    },
+    {
+      "id": "pa21",
       "firm": "IVP",
       "company_id": "c_vectorloom",
       "company_name": "VectorLoom",
@@ -2359,7 +2437,7 @@
       "notes": "Growth infra."
     },
     {
-      "id": "pa18",
+      "id": "pa22",
       "firm": "Lightspeed",
       "company_id": "c_edgequanta",
       "company_name": "EdgeQuanta",
@@ -2369,11 +2447,90 @@
       "on_thesis_flag": true,
       "thesis_shift": false,
       "notes": "Edge inference."
+    },
+    {
+      "id": "pa23",
+      "firm": "a16z",
+      "company_id": "c_legalloom",
+      "company_name": "LegalLoom",
+      "round": "Series A",
+      "date": "2026-05-20",
+      "theme": "AI copilots replacing SaaS",
+      "on_thesis_flag": false,
+      "thesis_shift": true,
+      "notes": "a16z into legal copilots / vertical SaaS \u2014 stretch vs classic crypto/AI infra focus; investigate as thesis drift."
+    },
+    {
+      "id": "pa24",
+      "firm": "Sequoia Capital",
+      "company_id": "c_memecoin",
+      "company_name": "TokenTide",
+      "round": "Series A",
+      "date": "2025-09-01",
+      "theme": "Fintech & Financial Infrastructure",
+      "on_thesis_flag": false,
+      "thesis_shift": true,
+      "notes": "Sequoia into meme-adjacent crypto consumer \u2014 sharp off-thesis vs growth infra book."
     }
   ],
   "sector_calls": [
     {
       "id": "sc1",
+      "subsector": "RL environment factories for agents",
+      "parent_theme": "AI Infrastructure & Compute Stack",
+      "evidence": [
+        "arXiv velocity in agent simulation & environment design",
+        "Founder migration from robotics sim into agent RL infra",
+        "Fund formation language shifting from 'data labeling' to 'environment engineering'",
+        "GP watchlist chatter (Elad Gil, Deedy) on environment scarcity as the next bottleneck"
+      ],
+      "heat_score": 93,
+      "consensus_level": "Contrarian",
+      "top_companies": [
+        "SynthForge",
+        "EvalFarm",
+        "LatticeEval"
+      ],
+      "why_thirdbase_cares": "Upstream of model capability; scarce technical moats; early vs consensus 'apps' capital."
+    },
+    {
+      "id": "sc2",
+      "subsector": "Adversarial model-eval & red-team harnesses",
+      "parent_theme": "AI Infrastructure & Compute Stack",
+      "evidence": [
+        "Frontier labs posting eval / red-team roles faster than product eng",
+        "HN + arXiv spike in LLM evaluation methodologies",
+        "Enterprise buyers asking for continuous eval SLAs before production agents"
+      ],
+      "heat_score": 90,
+      "consensus_level": "Contrarian",
+      "top_companies": [
+        "LatticeEval",
+        "EvalFarm",
+        "GovernAI"
+      ],
+      "why_thirdbase_cares": "Mandatory layer for regulated AI deployment; high willingness-to-pay; Tier-1 already forming."
+    },
+    {
+      "id": "sc3",
+      "subsector": "Synthetic data & multimodal training pipelines",
+      "parent_theme": "AI Infrastructure & Compute Stack",
+      "evidence": [
+        "Open-source synthetic data repos accelerating contributor velocity",
+        "Founders leaving labeling vendors to build closed-loop synth pipelines",
+        "GP essays arguing real data alone cannot feed agent RL loops"
+      ],
+      "heat_score": 87,
+      "consensus_level": "Emerging",
+      "top_companies": [
+        "SynthForge",
+        "VectorLoom",
+        "AgentIDE"
+      ],
+      "why_thirdbase_cares": "Data moat + recurring infra spend; maps cleanly to 60% dominant tech bucket."
+    },
+    {
+      "id": "sc4",
       "subsector": "AI agent identity & authorization",
       "parent_theme": "Cybersecurity",
       "evidence": [
@@ -2391,25 +2548,7 @@
       "why_thirdbase_cares": "Sits at cyber \u00d7 AI infra intersection with regulatory complexity and platform potential."
     },
     {
-      "id": "sc2",
-      "subsector": "RL environment factories for agents",
-      "parent_theme": "AI Infrastructure & Compute Stack",
-      "evidence": [
-        "arXiv velocity in agent simulation & environment design",
-        "Founder migration from robotics sim into agent RL infra",
-        "Fund formation language shifting from 'data labeling' to 'environment engineering'"
-      ],
-      "heat_score": 88,
-      "consensus_level": "Contrarian",
-      "top_companies": [
-        "SynthForge",
-        "EvalFarm",
-        "LatticeEval"
-      ],
-      "why_thirdbase_cares": "Upstream of model capability; scarce technical moats; early vs consensus 'apps' capital."
-    },
-    {
-      "id": "sc3",
+      "id": "sc5",
       "subsector": "Modular nuclear for AI campuses",
       "parent_theme": "Energy-as-a-service",
       "evidence": [
@@ -2425,6 +2564,24 @@
         "KiloWatt Grid AI"
       ],
       "why_thirdbase_cares": "Physical backbone of AI economy; multi-year exit with strategic offtake narratives."
+    },
+    {
+      "id": "sc6",
+      "subsector": "Edge inference & on-device SLMs",
+      "parent_theme": "AI Infrastructure & Compute Stack",
+      "evidence": [
+        "Device OEMs hiring inference optimization teams",
+        "Research velocity in quantization / speculative decoding",
+        "Quiet fund formation around 'AI that works offline'"
+      ],
+      "heat_score": 82,
+      "consensus_level": "Emerging",
+      "top_companies": [
+        "EdgeQuanta",
+        "GPUMesh",
+        "AgentIDE"
+      ],
+      "why_thirdbase_cares": "Latency + privacy wedge before consensus cloud-only narrative peaks."
     }
   ],
   "signals": [
@@ -2460,6 +2617,17 @@
       "summary": "SMR software for AI data centers",
       "url": null,
       "observed_at": "2026-07-12"
+    },
+    {
+      "id": "sig4",
+      "company_id": "c_synthforge",
+      "company_name": "SynthForge",
+      "source": "seeded_social",
+      "signal_type": "founder_move",
+      "title": "Watched founder (ex-DeepMind) launching stealth RL environment co \u2014 flagged by Elad Gil",
+      "summary": "GP watchlist hit: founder newco matching AI infra thesis",
+      "url": "https://x.com/eladgil",
+      "observed_at": "2026-08-08"
     }
   ],
   "provenance": {

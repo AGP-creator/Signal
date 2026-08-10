@@ -5,11 +5,16 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 const SUGGESTIONS = [
-  "What are the best deals in defense tech right now?",
-  "Three AI infra sub-sectors nobody is talking about yet",
+  "Build Monday partner meeting agenda",
+  "LP process one-pager",
+  "What's on IC this week?",
+  "Research AgentGate",
+  "Bear case for AgentGate",
+  "Diligence plan for SwarmGuard",
+  "Prep me for a call with LatticeEval",
+  "What should Judgment OS flag this week?",
+  "Show founder radar hits",
   "Are we overweight tactical vs 60/40?",
-  "Who's quietly investing in robotics?",
-  "Show off-thesis bets from Sequoia",
 ];
 
 export function CommandPalette() {
@@ -58,21 +63,21 @@ export function CommandPalette() {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-start justify-center bg-black/70 px-4 pt-[12vh] backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-start justify-center bg-black/75 px-4 pt-[11vh] backdrop-blur-md"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           onClick={() => setOpen(false)}
         >
           <motion.div
-            initial={{ opacity: 0, y: 12, scale: 0.98 }}
+            initial={{ opacity: 0, y: 14, scale: 0.98 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8 }}
-            transition={{ duration: 0.2 }}
-            className="panel w-full max-w-2xl overflow-hidden shadow-2xl"
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            className="panel w-full max-w-2xl overflow-hidden !p-0 shadow-[var(--shadow-float)]"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="border-b border-[var(--line)] px-4 py-3">
+            <div className="border-b border-[var(--line)] px-5 py-4">
               <input
                 autoFocus
                 value={q}
@@ -80,18 +85,18 @@ export function CommandPalette() {
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && q.trim()) ask(q.trim());
                 }}
-                placeholder="Ask Signal like a partner…"
+                placeholder="Ask Signal — or type a company to research…"
                 className="w-full bg-transparent text-lg outline-none placeholder:text-[var(--faint)]"
               />
             </div>
-            <div className="max-h-[50vh] overflow-y-auto p-3 scrollbar-thin">
+            <div className="max-h-[50vh] overflow-y-auto p-2.5 scrollbar-thin">
               {!answer && (
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {SUGGESTIONS.map((s) => (
                     <button
                       key={s}
                       type="button"
-                      className="block w-full rounded-xl px-3 py-2 text-left text-sm text-[var(--muted)] hover:bg-[var(--panel-2)] hover:text-[var(--text)]"
+                      className="block w-full rounded-[10px] px-3.5 py-2.5 text-left text-[0.9375rem] text-[var(--muted)] transition hover:bg-white/[0.035] hover:text-[var(--text)]"
                       onClick={() => {
                         setQ(s);
                         ask(s);
@@ -100,9 +105,20 @@ export function CommandPalette() {
                       {s}
                     </button>
                   ))}
+                  <div className="my-2 h-px bg-[var(--line)]" />
                   <button
                     type="button"
-                    className="mt-2 block w-full rounded-xl px-3 py-2 text-left text-sm text-[var(--deep)] hover:bg-[var(--panel-2)]"
+                    className="block w-full rounded-[10px] px-3.5 py-2.5 text-left text-sm text-[var(--deep)] transition hover:bg-white/[0.035]"
+                    onClick={() => {
+                      setOpen(false);
+                      router.push("/search");
+                    }}
+                  >
+                    Open company search →
+                  </button>
+                  <button
+                    type="button"
+                    className="block w-full rounded-[10px] px-3.5 py-2.5 text-left text-sm text-[var(--deep)] transition hover:bg-white/[0.035]"
                     onClick={() => {
                       setOpen(false);
                       router.push("/chat");
@@ -112,17 +128,18 @@ export function CommandPalette() {
                   </button>
                 </div>
               )}
-              {busy && <p className="px-3 py-4 text-sm text-[var(--muted)]">Grounding in pipeline…</p>}
+              {busy && (
+                <div className="px-3.5 py-6">
+                  <div className="loading-bar w-36" />
+                  <p className="mt-3 text-[0.9375rem] text-[var(--muted)]">Grounding in pipeline…</p>
+                </div>
+              )}
               {answer && (
-                <div className="space-y-3 px-2 py-2">
-                  <pre className="whitespace-pre-wrap font-[var(--font-plex)] text-sm leading-relaxed text-[var(--text)]">
+                <div className="space-y-3 px-3 py-3">
+                  <pre className="whitespace-pre-wrap font-[var(--font-source)] text-[0.975rem] leading-relaxed text-[var(--text)]">
                     {answer}
                   </pre>
-                  <button
-                    type="button"
-                    className="text-xs text-[var(--signal)]"
-                    onClick={() => setAnswer(null)}
-                  >
+                  <button type="button" className="text-[0.8125rem] text-[var(--signal)]" onClick={() => setAnswer(null)}>
                     Ask another
                   </button>
                 </div>

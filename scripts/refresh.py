@@ -22,6 +22,14 @@ from src.digest import build_digest, evaluate_alerts
 from src.excel import build_workbook
 from src.ingest import run_live_ingest
 from src.ingest.dedupe import dedupe_companies
+from src.ingest.discovery import (
+    apply_live_signals_to_companies,
+    curate_news_from_signals,
+    enrich_sector_evidence,
+)
+from src.intelligence import build_peer_intelligence
+from src.intelligence.golden import build_golden_insights
+from src.intelligence.judgment import build_judgment_pack
 from src.scoring import load_thesis_policy, score_all
 
 SEED_PATH = ROOT / "data" / "seed" / "seed_corpus.json"
@@ -83,28 +91,75 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
     signals = list(seed.get("signals") or [])
 
     live_signals: list[dict] = []
+    discovered = 0
     if live:
         live_signals = [s.to_dict() for s in run_live_ingest()]
         signals.extend(live_signals)
-        for sig in live_signals:
-            title = (sig.get("title") or "").lower()
-            for c in companies:
-                if c["name"].lower() in title:
-                    c["last_signal_date"] = max(c.get("last_signal_date") or "", sig.get("observed_at") or "")
-                    c["sources"] = list(dict.fromkeys((c.get("sources") or []) + [sig.get("source") or "live"]))
+        companies, discovered = apply_live_signals_to_companies(companies, live_signals, policy)
+        news = curate_news_from_signals(news, live_signals, policy)
+        sector_calls = enrich_sector_evidence(sector_calls, live_signals)
 
     companies = dedupe_companies(companies)
     scored = score_all(companies, policy)
     attach_commentary_summaries(scored, commentary)
 
-    alerts = evaluate_alerts(scored, peer_activity)
+    # Soft portfolio mix check (60/40 target) — surfaces in meta for partners
+    dominant = sum(1 for c in scored if c.get("pipeline_bucket") == "dominant_tech_growth")
+    tactical = sum(1 for c in scored if c.get("pipeline_bucket") == "tactical_sector_agnostic")
+    total_bucketed = dominant + tactical or 1
+    mix_observed = {
+        "dominant_tech_growth": round(dominant / total_bucketed, 3),
+        "tactical_sector_agnostic": round(tactical / total_bucketed, 3),
+        "target_dominant": (policy.get("portfolio_mix") or {}).get("dominant_tech_growth", 0.6),
+        "target_tactical": (policy.get("portfolio_mix") or {}).get("tactical_sector_agnostic", 0.4),
+    }
+
+    alerts = evaluate_alerts(scored, peer_activity, commentary=commentary, signals=signals)
     digest = build_digest(scored, sector_calls, news, peer_activity)
+    peer_intel = build_peer_intelligence(scored, peer_activity)
+    golden = build_golden_insights(scored, peer_intel)
+    judgment = build_judgment_pack(scored, peer_activity, commentary, news, alerts)
 
     # Persist to Supabase (source of truth)
     upsert_companies(scored)
     replace_table("commentary", commentary)
     replace_table("news", news)
     replace_table("peer_activity", peer_activity)
+    try:
+        replace_table(
+            "peer_firms",
+            [
+                {
+                    "id": f["id"],
+                    "slug": f["slug"],
+                    "name": f["name"],
+                    "aliases": f.get("aliases") or [],
+                    "stated_focus": f.get("stated_focus"),
+                    "deal_count": f.get("deal_count") or 0,
+                    "lead_count": f.get("lead_count") or 0,
+                    "deep_dive_count": f.get("deep_dive_count") or 0,
+                    "thesis_shift_count": f.get("thesis_shift_count") or 0,
+                    "off_thesis_count": f.get("off_thesis_count") or 0,
+                    "drift_score": f.get("drift_score"),
+                    "focus_alignment": f.get("focus_alignment"),
+                    "conviction_score": f.get("conviction_score"),
+                    "watch_priority": f.get("watch_priority"),
+                    "top_themes": f.get("top_themes") or [],
+                    "top_stages": f.get("top_stages") or [],
+                    "top_coinvestors": f.get("top_coinvestors") or [],
+                    "last_activity_date": f.get("last_activity_date"),
+                    "deals": f.get("deals") or [],
+                    "recent_activity": f.get("recent_activity") or [],
+                    "thesis_shifts": f.get("thesis_shifts") or [],
+                    "intel_summary": f.get("intel_summary"),
+                    "payload": f,
+                }
+                for f in peer_intel.get("firms") or []
+            ],
+        )
+    except Exception as exc:
+        # Table may not exist until 002_peer_firms.sql is applied — meta snapshot still works
+        set_meta("peer_firms_error", str(exc)[:500])
     replace_table(
         "sector_calls",
         [
@@ -117,7 +172,18 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
         ],
     )
     replace_table("signals", [_signal_row(s) for s in signals])
-    replace_table("alerts", alerts)
+    replace_table("alerts", [
+        {
+            "id": a["id"],
+            "alert_type": a.get("alert_type"),
+            "severity": a.get("severity"),
+            "title": a.get("title"),
+            "body": a.get("body"),
+            "company_id": a.get("company_id"),
+            "created_at": a.get("created_at"),
+        }
+        for a in alerts
+    ])
     replace_table(
         "digests",
         [
@@ -141,6 +207,34 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
     set_meta("last_refreshed", refreshed)
     set_meta("provenance", json.dumps(seed.get("provenance") or {}))
     set_meta("live_signal_count", str(len(live_signals)))
+    set_meta("discovered_companies", str(discovered))
+    set_meta("portfolio_mix", json.dumps(mix_observed))
+    # Compact snapshot for UI / chat (full firm list can be large)
+    set_meta(
+        "peer_intelligence",
+        json.dumps(
+            {
+                "generated_at": peer_intel.get("generated_at"),
+                "firm_count": peer_intel.get("firm_count"),
+                "active_peer_count": peer_intel.get("active_peer_count"),
+                "thesis_shift_count": peer_intel.get("thesis_shift_count"),
+                "top_watch": peer_intel.get("top_watch"),
+                "sector_bets": peer_intel.get("sector_bets"),
+                "heatmap": peer_intel.get("heatmap"),
+                "matrix": peer_intel.get("matrix"),
+                "comparables": peer_intel.get("comparables"),
+                "firms": peer_intel.get("firms"),
+                "thesis_shifts": peer_intel.get("thesis_shifts"),
+                "golden": golden,
+            }
+        ),
+    )
+    (OUT_DIR / "peer_intelligence.json").write_text(
+        json.dumps({**peer_intel, "golden": golden}, indent=2), encoding="utf-8"
+    )
+    (OUT_DIR / "golden_insights.json").write_text(json.dumps(golden, indent=2), encoding="utf-8")
+    (OUT_DIR / "judgment_pack.json").write_text(json.dumps(judgment, indent=2), encoding="utf-8")
+    set_meta("judgment_os", json.dumps(judgment))
 
     xlsx = build_workbook(
         scored,
@@ -154,6 +248,11 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
                 "Supabase-backed pipeline · seed corpus + live adapters "
                 f"({len(live_signals)} signals): EDGAR, HN, RSS."
             ),
+            "peer_firms": peer_intel.get("firms") or [],
+            "heatmap": peer_intel.get("heatmap") or [],
+            "golden_insights": golden.get("insights") or [],
+            "golden_brief": golden.get("brief") or {},
+            "judgment": judgment,
         },
         out_path=OUT_DIR / "Thirdbase_Deal_Pipeline.xlsx",
     )
@@ -174,7 +273,11 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
         "pass": sum(1 for c in scored if c.get("recommendation") == "Pass"),
         "stale": sum(1 for c in scored if c.get("is_stale")),
         "live_signals": len(live_signals),
+        "discovered_companies": discovered,
+        "portfolio_mix": mix_observed,
         "alerts": len(alerts),
+        "peer_firms": peer_intel.get("firm_count"),
+        "thesis_shifts": peer_intel.get("thesis_shift_count"),
         "xlsx": str(xlsx),
         "digest": str(digest_path),
         "email": mail_result,

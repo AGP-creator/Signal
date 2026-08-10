@@ -135,7 +135,7 @@ def build_workbook(
     out_path = Path(out_path) if out_path else DEFAULT_OUT
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
-    as_of = date(2026, 8, 9)
+    as_of = date.today()
     hot_cutoff_days = 30
 
     wb = Workbook()
@@ -321,13 +321,115 @@ def build_workbook(
         peer_rows,
     )
 
+    # Firm dossiers (competitor intelligence)
+    firm_ws = wb.create_sheet("Peer Firm Dossiers")
+    firm_rows = []
+    for f in meta.get("peer_firms") or []:
+        themes = ", ".join(
+            t.get("theme") if isinstance(t, dict) else str(t)
+            for t in (f.get("top_themes") or [])[:3]
+        )
+        firm_rows.append(
+            [
+                f.get("name"),
+                f.get("stated_focus"),
+                f.get("deal_count"),
+                f.get("lead_count"),
+                f.get("deep_dive_count"),
+                f.get("drift_score"),
+                f.get("focus_alignment"),
+                f.get("conviction_score"),
+                f.get("watch_priority"),
+                f.get("thesis_shift_count"),
+                themes,
+                f.get("last_activity_date"),
+                f.get("intel_summary"),
+            ]
+        )
+    _write_rows(
+        firm_ws,
+        [
+            "firm",
+            "stated_focus",
+            "deal_count",
+            "lead_count",
+            "deep_dive_count",
+            "drift_score",
+            "focus_alignment",
+            "conviction_score",
+            "watch_priority",
+            "thesis_shifts",
+            "top_themes",
+            "last_activity",
+            "intel_summary",
+        ],
+        firm_rows,
+    )
+
+    # Golden insights (partner action layer)
+    gold = wb.create_sheet("Golden Insights")
+    brief = meta.get("golden_brief") or {}
+    gold["A1"] = "Partner competitor brief"
+    gold["A1"].font = Font(name="Calibri", size=16, bold=True, color="1B2A4A")
+    gold["A2"] = brief.get("headline") or ""
+    gold["A3"] = "Must do"
+    gold["B3"] = " | ".join(brief.get("must_do") or [])
+    gold["A4"] = "Proprietary"
+    gold["B4"] = ", ".join(brief.get("proprietary") or [])
+    gold_rows = [
+        [g.get("urgency"), g.get("kind"), g.get("title"), g.get("insight"), g.get("action"), g.get("score")]
+        for g in (meta.get("golden_insights") or [])
+    ]
+    # write table starting row 6
+    headers = ["urgency", "kind", "title", "insight", "action", "score"]
+    for i, h in enumerate(headers, 1):
+        gold.cell(6, i, h)
+    for r_idx, row in enumerate(gold_rows, 7):
+        for c_idx, val in enumerate(row, 1):
+            gold.cell(r_idx, c_idx, val)
+    for col in range(1, len(headers) + 1):
+        cell = gold.cell(6, col)
+        cell.fill = HEADER_FILL
+        cell.font = HEADER_FONT
+    gold.freeze_panes = "A7"
+    _autosize(gold)
+    gold.column_dimensions["D"].width = 55
+    gold.column_dimensions["E"].width = 45
+
     # Co-investor Heatmap
     heat = wb.create_sheet("Co-investor Heatmap")
-    _write_rows(
-        heat,
-        ["firm_a", "firm_b", "coinvest_count", "shared_themes", "last_shared_deal", "last_date"],
-        _coinvestor_pairs(companies),
-    )
+    heat_meta = meta.get("heatmap") or []
+    if heat_meta:
+        _write_rows(
+            heat,
+            [
+                "firm_a",
+                "firm_b",
+                "coinvest_count",
+                "shared_themes",
+                "last_shared_deal",
+                "last_date",
+                "syndicate_score",
+            ],
+            [
+                [
+                    h.get("firm_a"),
+                    h.get("firm_b"),
+                    h.get("coinvest_count"),
+                    ", ".join(h.get("shared_themes") or []),
+                    h.get("last_shared_deal"),
+                    h.get("last_shared_date"),
+                    h.get("syndicate_score"),
+                ]
+                for h in heat_meta
+            ],
+        )
+    else:
+        _write_rows(
+            heat,
+            ["firm_a", "firm_b", "coinvest_count", "shared_themes", "last_shared_deal", "last_date"],
+            _coinvestor_pairs(companies),
+        )
 
     # News
     news_ws = wb.create_sheet("News Worth Reading")
@@ -387,6 +489,70 @@ def build_workbook(
         ["company", "sector_theme", "stage", "last_signal_date", "thesis_score", "recommendation", "review_status"],
         stale_rows,
     )
+
+    # Judgment OS (X-factor layer)
+    judgment = meta.get("judgment") or {}
+    jws = wb.create_sheet("Judgment OS")
+    jws["A1"] = "Judgment OS — Thirdbase edge layer"
+    jws["A1"].font = Font(name="Calibri", size=16, bold=True, color="1B2A4A")
+    jws["A2"] = judgment.get("headline") or ""
+    jws["A3"] = "Must do"
+    jws["B3"] = " | ".join(judgment.get("must_do") or [])
+    jws["A4"] = "Edge"
+    jws["B4"] = judgment.get("edge_note") or ""
+    mix = judgment.get("mix") or {}
+    jws["A5"] = "Mix drift"
+    jws["B5"] = (
+        f"{mix.get('dominant_pct')}/{mix.get('tactical_pct')} · {mix.get('status')} · "
+        f"{mix.get('alarm') or mix.get('counsel') or ''}"
+    )
+
+    jws["A7"] = "Miss retrospectives"
+    miss_headers = ["company", "then_rec", "then_score", "severity", "now_signal", "lesson", "action"]
+    for i, h in enumerate(miss_headers, 1):
+        jws.cell(8, i, h)
+        jws.cell(8, i).fill = HEADER_FILL
+        jws.cell(8, i).font = HEADER_FONT
+    for r_idx, m in enumerate(judgment.get("misses") or [], 9):
+        for c_idx, key in enumerate(miss_headers, 1):
+            jws.cell(r_idx, c_idx, m.get(key))
+
+    fr_start = 9 + len(judgment.get("misses") or []) + 2
+    jws.cell(fr_start, 1, "Founder radar")
+    fr_headers = ["founder", "prior", "urgency", "company", "signal", "action", "source"]
+    for i, h in enumerate(fr_headers, 1):
+        jws.cell(fr_start + 1, i, h)
+        jws.cell(fr_start + 1, i).fill = HEADER_FILL
+        jws.cell(fr_start + 1, i).font = HEADER_FONT
+    for r_idx, f in enumerate(judgment.get("founder_radar") or [], fr_start + 2):
+        for c_idx, key in enumerate(fr_headers, 1):
+            jws.cell(r_idx, c_idx, f.get(key))
+
+    fx_start = fr_start + 2 + len(judgment.get("founder_radar") or []) + 2
+    jws.cell(fx_start, 1, "Evidence freshness SLA")
+    fx_headers = ["company", "overall", "score_confidence", "stale_fields"]
+    for i, h in enumerate(fx_headers, 1):
+        jws.cell(fx_start + 1, i, h)
+        jws.cell(fx_start + 1, i).fill = HEADER_FILL
+        jws.cell(fx_start + 1, i).font = HEADER_FONT
+    for r_idx, f in enumerate(judgment.get("freshness") or [], fx_start + 2):
+        for c_idx, key in enumerate(fx_headers, 1):
+            jws.cell(r_idx, c_idx, f.get(key))
+
+    dg_start = fx_start + 2 + len(judgment.get("freshness") or []) + 2
+    jws.cell(dg_start, 1, "Digest selectivity A/B")
+    dg_headers = ["variant", "deal_cap", "precision_proxy", "partner_minutes", "deals", "note"]
+    for i, h in enumerate(dg_headers, 1):
+        jws.cell(dg_start + 1, i, h)
+        jws.cell(dg_start + 1, i).fill = HEADER_FILL
+        jws.cell(dg_start + 1, i).font = HEADER_FONT
+    for r_idx, d in enumerate(judgment.get("digest_ab") or [], dg_start + 2):
+        for c_idx, key in enumerate(dg_headers, 1):
+            jws.cell(r_idx, c_idx, d.get(key))
+
+    _autosize(jws)
+    jws.column_dimensions["E"].width = 48
+    jws.column_dimensions["F"].width = 42
 
     wb.save(out_path)
     return out_path
