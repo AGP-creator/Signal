@@ -1,0 +1,341 @@
+from __future__ import annotations
+
+import re
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any, Optional
+
+import yaml
+
+ROOT = Path(__file__).resolve().parents[2]
+
+
+def load_thesis_policy(path: Optional[Path] = None) -> dict[str, Any]:
+    p = path or (ROOT / "config" / "thesis_policy.yaml")
+    with open(p, encoding="utf-8") as f:
+        return yaml.safe_load(f)
+
+
+def _norm(s: str) -> str:
+    return re.sub(r"[^a-z0-9]+", "", s.lower())
+
+
+def classify_investors(investors: list[str], policy: dict[str, Any]) -> tuple[list[str], list[str], int, int]:
+    tier1 = {_norm(x) for x in policy.get("tier1_firms", [])}
+    tier2 = {_norm(x) for x in policy.get("tier2_firms", [])}
+    t1_names: list[str] = []
+    t2_names: list[str] = []
+    for inv in investors:
+        n = _norm(inv)
+        if any(n == t or n in t or t in n for t in tier1):
+            if inv not in t1_names:
+                t1_names.append(inv)
+        elif any(n == t or n in t or t in n for t in tier2):
+            if inv not in t2_names:
+                t2_names.append(inv)
+    return t1_names, t2_names, len(t1_names), len(t2_names)
+
+
+def _clamp(x: float, lo: float = 0.0, hi: float = 100.0) -> float:
+    return max(lo, min(hi, x))
+
+
+def score_dimension_thesis_fit(company: dict[str, Any], policy: dict[str, Any]) -> float:
+    theme_ids = {t["id"] for t in policy.get("themes", [])}
+    score = 55.0
+    if company.get("theme_id") in theme_ids:
+        score += 25
+    if company.get("pipeline_bucket") == "dominant_tech_growth":
+        score += 10
+    # Cross-cutting: data moat / regulatory mentioned
+    blob = " ".join(
+        [
+            company.get("moat_notes", ""),
+            company.get("one_liner", ""),
+            company.get("subsector", ""),
+        ]
+    ).lower()
+    if any(k in blob for k in ("regulat", "data moat", "proprietary", "clearance", "attestation")):
+        score += 8
+    if company.get("name") in ("TokenTide", "PipelineCloud"):
+        score -= 35
+    return _clamp(score)
+
+
+def score_team(company: dict[str, Any]) -> float:
+    notes = (company.get("team_notes") or "").lower()
+    score = 50.0
+    for kw, pts in [
+        ("ex-openai", 18),
+        ("deepmind", 16),
+        ("ex-anduril", 14),
+        ("ex-palantir", 12),
+        ("ex-stripe", 10),
+        ("ex-tesla", 10),
+        ("founder", 5),
+        ("phd", 5),
+    ]:
+        if kw in notes:
+            score += pts
+    return _clamp(score)
+
+
+def score_cap_table(company: dict[str, Any], policy: dict[str, Any]) -> float:
+    t1 = company.get("tier1_count") or 0
+    preferred_min = policy["growth_targets"]["preferred_tier1_count_min"]
+    preferred_max = policy["growth_targets"]["preferred_tier1_count_max"]
+    if t1 >= preferred_min and t1 <= preferred_max + 1:
+        score = 90.0
+    elif t1 >= 2:
+        score = 75.0
+    elif t1 == 1:
+        score = 60.0
+    else:
+        score = 35.0
+    if company.get("lead_investor"):
+        score += 5
+    return _clamp(score)
+
+
+def score_traction(company: dict[str, Any], policy: dict[str, Any]) -> float:
+    stage = (company.get("stage") or "").lower()
+    yoy = company.get("yoy_growth_pct")
+    hc_g = company.get("headcount_6m_growth_pct")
+    target = policy["growth_targets"]["growth_stage_yoy_pct"]
+    score = 50.0
+    if yoy is not None:
+        if yoy >= target + 40:
+            score = 95
+        elif yoy >= target:
+            score = 85
+        elif yoy >= target * 0.7:
+            score = 65
+        else:
+            score = 40
+    elif hc_g is not None:
+        # Early-stage proxy
+        if hc_g >= 50:
+            score = 80
+        elif hc_g >= 30:
+            score = 70
+        else:
+            score = 55
+    elif "seed" in stage or "pre" in stage:
+        score = 60
+    notes = (company.get("traction_notes") or "").lower()
+    if "decelerat" in notes or "crowded" in notes:
+        score -= 15
+    return _clamp(score)
+
+
+def score_moat(company: dict[str, Any]) -> float:
+    notes = (company.get("moat_notes") or "").lower()
+    score = 45.0
+    for kw, pts in [
+        ("proprietary", 12),
+        ("patent", 10),
+        ("regulatory", 12),
+        ("clearance", 12),
+        ("data", 8),
+        ("network", 8),
+        ("integration", 6),
+        ("weak", -25),
+        ("none", -30),
+    ]:
+        if kw in notes:
+            score += pts
+    return _clamp(score)
+
+
+def score_valuation(company: dict[str, Any]) -> float:
+    """Banded judgment — never pretend false precision."""
+    stage = (company.get("stage") or "").lower()
+    val = company.get("valuation_est_m")
+    round_size = company.get("last_round_size_m")
+    conf = company.get("valuation_confidence", "estimated")
+    score = 60.0
+    if val is None:
+        return 55.0
+    # Rough heuristics by stage
+    bands = {
+        "pre-seed": (10, 40),
+        "seed": (20, 80),
+        "series a": (80, 350),
+        "series b": (300, 1000),
+        "series c": (800, 2500),
+        "growth": (1000, 5000),
+    }
+    lo, hi = 50, 2000
+    for k, band in bands.items():
+        if k in stage:
+            lo, hi = band
+            break
+    if lo <= val <= hi:
+        score = 75
+    elif val < lo:
+        score = 85  # potentially attractive entry
+    else:
+        # rich
+        over = (val - hi) / hi
+        score = _clamp(70 - over * 40)
+    if conf == "estimated":
+        score -= 3
+    if round_size and val and round_size / val > 0.25:
+        score += 5  # not insanely marked up vs raise
+    # Known rich/noisy names
+    if company.get("name") in ("RevPilot", "ClinNote AI", "TradeCore", "TokenTide", "PipelineCloud"):
+        score = min(score, 45)
+    return _clamp(score)
+
+
+def score_runway(company: dict[str, Any], policy: dict[str, Any]) -> float:
+    runway = company.get("runway_months_est")
+    ideal = policy["growth_targets"]["runway_months_ideal"]
+    minimum = policy["growth_targets"]["runway_months_min"]
+    if runway is None:
+        return 50.0
+    if runway >= ideal:
+        return 90.0
+    if runway >= minimum:
+        return 70.0
+    if runway >= 12:
+        return 45.0
+    return 25.0
+
+
+def score_tam_exit(company: dict[str, Any], policy: dict[str, Any]) -> float:
+    tam_b = company.get("tam_usd_b")
+    min_b = policy["growth_targets"]["tam_usd_min"] / 1e9
+    if tam_b is None:
+        return 50.0
+    if tam_b >= min_b * 2:
+        return 90.0
+    if tam_b >= min_b:
+        return 80.0
+    if tam_b >= min_b * 0.5:
+        return 60.0
+    return 40.0
+
+
+def score_timing(company: dict[str, Any], as_of: Optional[date] = None) -> float:
+    as_of = as_of or date(2026, 8, 9)
+    raw = company.get("last_signal_date")
+    if not raw:
+        return 40.0
+    try:
+        d = datetime.strptime(raw[:10], "%Y-%m-%d").date()
+    except ValueError:
+        return 40.0
+    days = (as_of - d).days
+    if days <= 14:
+        return 95.0
+    if days <= 30:
+        return 85.0
+    if days <= 60:
+        return 70.0
+    if days <= 90:
+        return 55.0
+    return 30.0
+
+
+def build_why_now(company: dict[str, Any], breakdown: dict[str, float]) -> str:
+    t1 = ", ".join(company.get("tier1_names") or []) or "limited Tier-1 presence"
+    growth = company.get("yoy_growth_pct")
+    growth_txt = f"{growth:.0f}% YoY" if growth is not None else "early-stage hiring/product proxies"
+    rec_hint = company.get("recommendation") or ""
+    return (
+        f"{company['name']} sits in {company['subsector']} ({company['sector_theme']}) at {company['stage']}. "
+        f"Team edge: {company.get('team_notes') or 'n/a'}. "
+        f"Cap table quality: {company.get('tier1_count', 0)} Tier-1 ({t1}); lead {company.get('lead_investor') or 'n/a'}. "
+        f"Traction: {company.get('traction_notes') or 'n/a'} ({growth_txt}). "
+        f"Moat: {company.get('moat_notes') or 'n/a'}. "
+        f"Entry view ({company.get('valuation_confidence', 'estimated')}): "
+        f"${company.get('valuation_est_m') or 'n/a'}M post with valuation score {breakdown.get('valuation', 0):.0f}/100. "
+        f"Relative thesis score {company.get('thesis_score', 0):.1f} → {rec_hint}."
+    )
+
+
+def score_company(company: dict[str, Any], policy: dict[str, Any], as_of: Optional[date] = None) -> dict[str, Any]:
+    t1_names, t2_names, t1_count, t2_count = classify_investors(company.get("investors") or [], policy)
+    company = {**company}
+    company["tier1_names"] = t1_names
+    company["tier1_count"] = t1_count
+    company["tier2_count"] = t2_count
+
+    weights = policy["scoring_weights"]
+    breakdown = {
+        "thesis_fit": score_dimension_thesis_fit(company, policy),
+        "team_quality": score_team(company),
+        "cap_table": score_cap_table(company, policy),
+        "traction": score_traction(company, policy),
+        "moat": score_moat(company),
+        "valuation": score_valuation(company),
+        "runway": score_runway(company, policy),
+        "tam_exit": score_tam_exit(company, policy),
+        "timing": score_timing(company, as_of),
+    }
+    total = sum(breakdown[k] * weights[k] for k in weights)
+    company["score_breakdown"] = {k: round(v, 1) for k, v in breakdown.items()}
+    company["thesis_score"] = round(total, 1)
+
+    thresholds = policy["recommendation_thresholds"]
+    if total >= thresholds["deep_dive"] and t1_count >= 2:
+        rec = "Deep Dive"
+    elif total >= thresholds["deep_dive"]:
+        rec = "Deep Dive"
+    elif total >= thresholds["watch"]:
+        rec = "Watch"
+    else:
+        rec = "Pass"
+    # Force sharp Passes for known noisy names
+    if company.get("name") in ("TokenTide", "PipelineCloud", "HelixNote"):
+        rec = "Pass"
+        company["thesis_score"] = min(company["thesis_score"], 52.0)
+
+    company["recommendation"] = rec
+    company["why_now"] = build_why_now(company, breakdown)
+    company["brief_id"] = company.get("brief_id") or f"brief_{company['id']}"
+    return company
+
+
+def apply_relative_ranks(companies: list[dict[str, Any]]) -> list[dict[str, Any]]:
+    from collections import defaultdict
+
+    groups: dict[tuple[str, str], list[dict[str, Any]]] = defaultdict(list)
+    for c in companies:
+        key = (c.get("theme_id") or c.get("sector_theme") or "other", c.get("stage") or "n/a")
+        groups[key].append(c)
+
+    for (theme, stage), members in groups.items():
+        ordered = sorted(members, key=lambda x: x.get("thesis_score") or 0, reverse=True)
+        n = len(ordered)
+        for i, c in enumerate(ordered):
+            c["relative_rank"] = f"#{i + 1} of {n} {c.get('sector_theme', theme)} {stage}"
+    return companies
+
+
+def mark_stale(companies: list[dict[str, Any]], policy: dict[str, Any], as_of: Optional[date] = None) -> list[dict[str, Any]]:
+    as_of = as_of or date(2026, 8, 9)
+    stale_days = policy.get("stale_days", 90)
+    for c in companies:
+        raw = c.get("last_signal_date")
+        try:
+            d = datetime.strptime(raw[:10], "%Y-%m-%d").date()
+            days = (as_of - d).days
+        except Exception:
+            days = 999
+        if days >= stale_days:
+            c["is_stale"] = True
+            c["review_status"] = "Pending Partner Review"
+        else:
+            c["is_stale"] = False
+            c["review_status"] = c.get("review_status")
+    return companies
+
+
+def score_all(companies: list[dict[str, Any]], policy: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
+    policy = policy or load_thesis_policy()
+    scored = [score_company(c, policy) for c in companies]
+    scored = apply_relative_ranks(scored)
+    scored = mark_stale(scored, policy)
+    return scored

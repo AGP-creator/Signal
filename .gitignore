@@ -1,0 +1,13 @@
+.py
+__pycache__/
+.venv/
+venv/
+data/output/
+*.xlsx
+.pytest_cache/
+.streamlit/
+.env
+env.txt
+*.pyc
+.DS_Store
+.supabase/

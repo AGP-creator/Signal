@@ -1,0 +1,203 @@
+product_name: Signal
+firm: Thirdbase
+portfolio_mix:
+  dominant_tech_growth: 0.60
+  tactical_sector_agnostic: 0.40
+
+scoring_weights:
+  thesis_fit: 0.20
+  team_quality: 0.15
+  cap_table: 0.15
+  traction: 0.15
+  moat: 0.10
+  valuation: 0.10
+  runway: 0.05
+  tam_exit: 0.05
+  timing: 0.05
+
+recommendation_thresholds:
+  deep_dive: 78
+  watch: 58
+
+growth_targets:
+  growth_stage_yoy_pct: 40
+  runway_months_ideal: 36
+  runway_months_min: 18
+  tam_usd_min: 1000000000
+  preferred_tier1_count_min: 3
+  preferred_tier1_count_max: 4
+  exit_horizon_years_min: 3
+  exit_horizon_years_max: 5
+
+stale_days: 90
+hot_deals_days: 30
+
+themes:
+  - id: ai_infra
+    name: AI Infrastructure & Compute Stack
+    subsectors:
+      - Synthetic data & RL environments
+      - Model eval infrastructure
+      - Inference optimization & SLMs
+      - Edge inference
+      - Vector DBs & multimodal pipelines
+      - Enterprise AI data governance
+      - Data center & energy backbone
+  - id: cybersecurity
+    name: Cybersecurity
+    subsectors:
+      - Identity security for AI agents
+      - Cloud security
+      - Critical infrastructure protection
+      - Supply chain security
+      - AI-native SOC
+  - id: defence
+    name: Defence Tech
+    subsectors:
+      - Autonomous systems
+      - Cyber defense
+      - Space & satellite intelligence
+      - SpaceTech
+      - Counter-UAS & drone swarm
+      - C4ISR & battlefield intelligence
+  - id: robotics
+    name: Robotics & Physical AI
+    subsectors:
+      - Industrial automation
+      - Humanoid robots
+      - Logistics & fulfillment
+      - Robotic simulation
+  - id: energy
+    name: Energy-as-a-service
+    subsectors:
+      - Advanced nuclear & modular data center power
+      - Grid infrastructure
+      - Demand response
+  - id: ai_native_stack
+    name: AI-native stack
+    subsectors:
+      - GPU clouds & alt compute
+      - Data infrastructure
+      - Model tooling (fine-tune, eval, orchestration)
+      - AI-native developer environments & agents
+      - Edge AI infra
+  - id: ai_manufacturing
+    name: AI in manufacturing
+    subsectors:
+      - Industrial copilots
+      - Process optimization
+  - id: ai_copilots
+    name: AI copilots replacing SaaS
+    subsectors:
+      - Sales copilots
+      - Legal copilots
+      - Finance copilots
+  - id: voice_multimodal
+    name: Voice, Audio & Multimodal AI
+    subsectors:
+      - Voice synthesis
+      - Real-time audio AI
+      - Conversational AI
+      - Ambient interfaces
+      - Multimodal foundation models
+  - id: fintech
+    name: Fintech & Financial Infrastructure
+    subsectors:
+      - AI-native banking infrastructure
+      - FX & payments infrastructure
+      - Crypto / digital assets infrastructure
+      - Embedded finance & BaaS
+      - Brokerage & trading infrastructure
+      - RegTech
+      - Wealth management AI
+  - id: materials
+    name: Materials Science & Advanced Manufacturing
+    subsectors:
+      - Advanced materials discovery
+      - Materials for AI hardware
+      - Industrial chemicals & process materials
+  - id: biotech
+    name: BioTech & Health AI
+    subsectors:
+      - Drug discovery & molecular AI
+      - Genomics data platforms
+      - Medical imaging AI
+      - Clinical trial optimization
+      - Clinical documentation & workflow AI
+
+cross_cutting_preferences:
+  - Proprietary data moat
+  - Regulatory complexity
+  - Large addressable labor cost
+  - Category rank 1-3
+  - 40%+ YoY growth
+  - Tier-1 cap table
+
+tier1_firms:
+  - Andreessen Horowitz
+  - a16z
+  - Sequoia Capital
+  - Sequoia
+  - Lux Capital
+  - Founders Fund
+  - Lightspeed Venture Partners
+  - Lightspeed
+  - Index Ventures
+  - Bessemer Venture Partners
+  - Bessemer
+  - Insight Partners
+  - IVP
+  - Coatue
+  - Coatue Management
+  - Altimeter
+  - Altimeter Capital
+  - Tiger Global
+  - Tiger Global Management
+  - Thrive Capital
+  - Thrive
+  - Conviction
+  - Khosla Ventures
+  - Khosla
+  - Shield Capital
+  - 8VC
+  - Ribbit Capital
+  - Ribbit
+  - Spark Capital
+  - Benchmark
+  - Greylock
+  - Accel
+  - General Catalyst
+  - Kleiner Perkins
+  - NEA
+  - GV
+  - Redpoint
+  - Felicis
+  - Initialized Capital
+
+tier2_firms:
+  - Gradient Ventures
+  - Silver Lake
+  - Haystack
+  - Y Combinator
+  - USV
+  - Union Square Ventures
+  - 137 Ventures
+  - Peak XV Partners
+  - NFX
+  - Primary Venture Partners
+  - Obvious Ventures
+  - Dragonfly
+  - Picus Capital
+  - Basis Set Ventures
+  - Kindred Ventures
+  - Antler
+  - Entrepreneurs First
+
+stages:
+  - Pre-Seed
+  - Seed
+  - Series A
+  - Series B
+  - Series C
+  - Series D+
+  - Growth

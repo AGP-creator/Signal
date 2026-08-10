@@ -1,0 +1,409 @@
+gp_watchlist:
+  - name: Molly O'Shea
+    handle: mollysoshea
+    url: https://x.com/mollysoshea
+  - name: Arfur Rock
+    handle: arfurrock
+    url: https://x.com/arfurrock
+  - name: Deedy
+    handle: deedydas
+    url: https://x.com/deedydas
+  - name: Ramtin Naimi
+    handle: ramtinnaimi
+    url: https://x.com/ramtinnaimi
+  - name: Alex Klein
+    handle: alexklein0x
+    url: https://x.com/alexklein0x
+  - name: Elad Gil
+    handle: eladgil
+    url: https://x.com/eladgil
+  - name: Everett Randle
+    handle: everettrandle
+    url: https://x.com/everettrandle
+  - name: The Information
+    handle: theinformation
+    url: https://x.com/theinformation
+  - name: Rick Gerson
+    handle: rick_gerson
+    url: https://x.com/rick_gerson
+  - name: David George
+    handle: davidgeorge83
+    url: https://x.com/davidgeorge83
+  - name: Beth Turner
+    handle: elizabethturner
+    url: https://x.com/elizabethturner
+  - name: Jaya Gupta
+    handle: jayagup10
+    url: https://x.com/jayagup10
+  - name: Anjney Midha
+    handle: anjneymidha
+    url: https://x.com/anjneymidha
+  - name: Chetan Puttagunta
+    handle: chetanp
+    url: https://x.com/chetanp
+  - name: Andrew Reed
+    handle: andrew__reed
+    url: https://x.com/andrew__reed
+  - name: Keith Rabois
+    handle: rabois
+    url: https://x.com/rabois
+  - name: Colossus
+    handle: colossusmag
+    url: https://x.com/colossusmag
+  - name: David Senra
+    handle: davidsenra
+    url: https://x.com/davidsenra
+  - name: Uncapped
+    handle: uncapped_pod
+    url: https://x.com/uncapped_pod
+  - name: David Haber
+    handle: dhaber
+    url: https://x.com/dhaber
+  - name: Ravi Gupta
+    handle: guptark22
+    url: https://x.com/guptark22
+  - name: Mark Goldberg
+    handle: mark_goldberg_
+    url: https://x.com/mark_goldberg_
+  - name: Varun Gupta
+    handle: varungupta
+    url: https://x.com/varungupta
+  - name: Delian Asparouhov
+    handle: zebulgar
+    url: https://x.com/zebulgar
+  - name: Kevin Hartz
+    handle: kevinhartz
+    url: https://x.com/kevinhartz
+  - name: Tom Hulme
+    handle: thulme
+    url: https://x.com/thulme
+  - name: Kyle Harrison
+    handle: kwharrison13
+    url: https://x.com/kwharrison13
+  - name: Nikunj Kothari
+    handle: nikunj
+    url: https://x.com/nikunj
+  - name: Aditya Agarwal
+    handle: adityaag
+    url: https://x.com/adityaag
+  - name: Miles Grimshaw
+    handle: milesgrimshaw
+    url: https://x.com/milesgrimshaw
+  - name: Shaun Maguire
+    handle: shaunmmaguire
+    url: https://x.com/shaunmmaguire
+  - name: Brad Gerstner
+    handle: altcap
+    url: https://x.com/altcap
+  - name: Martin Casado
+    handle: martin_casado
+    url: https://x.com/martin_casado
+  - name: Bill Ackman
+    handle: billackman
+    url: https://x.com/billackman
+  - name: Logan Bartlett
+    handle: loganbartlett
+    url: https://x.com/loganbartlett
+  - name: Gavin Baker
+    handle: gavinsbaker
+    url: https://x.com/gavinsbaker
+  - name: Jamin Ball
+    handle: jaminball
+    url: https://x.com/jaminball
+  - name: Sarah Wang
+    handle: sarahdingwang
+    url: https://x.com/sarahdingwang
+  - name: Sarah Guo
+    handle: saranormous
+    url: https://x.com/saranormous
+  - name: TBPN
+    handle: tbpn
+    url: https://x.com/tbpn
+  - name: Trae Stephens
+    handle: traestephens
+    url: https://x.com/traestephens
+  - name: Josh Wolfe
+    handle: wolfejosh
+    url: https://x.com/wolfejosh
+  - name: George Kurtz
+    handle: george_kurtz
+    url: https://x.com/george_kurtz
+  - name: Jason Lemkin
+    handle: jasonlk
+    url: https://x.com/jasonlk
+  - name: Chamath Palihapitiya
+    handle: chamath
+    url: https://x.com/chamath
+  - name: David Sacks
+    handle: davidsacks
+    url: https://x.com/davidsacks
+  - name: Bill Gurley
+    handle: bgurley
+    url: https://x.com/bgurley
+  - name: Cem Sertoglu
+    handle: csertoglu
+    url: https://x.com/csertoglu
+  - name: Rex Salisbury
+    handle: rex_woodbury
+    url: https://x.com/rex_woodbury
+  - name: Eric Newcomer
+    handle: ericnewcomer
+    url: https://x.com/ericnewcomer
+  - name: Ian Rountree
+    handle: ianrountree
+    url: https://x.com/ianrountree
+  - name: Vinod Khosla
+    handle: vkhosla
+    url: https://x.com/vkhosla
+  - name: Marc Andreessen
+    handle: pmarca
+    url: https://x.com/pmarca
+  - name: Paul Graham
+    handle: paulg
+    url: https://x.com/paulg
+  - name: Sam Altman
+    handle: sama
+    url: https://x.com/sama
+  - name: Patrick Collison
+    handle: patrickc
+    url: https://x.com/patrickc
+  - name: Tobi Lutke
+    handle: tobi
+    url: https://x.com/tobi
+  - name: Aswath Damodaran
+    handle: aswathdamodaran
+    url: https://x.com/aswathdamodaran
+  - name: Morgan Housel
+    handle: morganhousel
+    url: https://x.com/morganhousel
+  - name: Byrne Hobart
+    handle: byrnehobart
+    url: https://x.com/byrnehobart
+  - name: Mario Gabriele
+    handle: mariogabriele
+    url: https://x.com/mariogabriele
+  - name: Howard Lindzon
+    handle: howardlindzon
+    url: https://x.com/howardlindzon
+  - name: Beezer Clarkson
+    handle: beezer232
+    url: https://x.com/beezer232
+  - name: Alex Konrad
+    handle: alexrkonrad
+    url: https://x.com/alexrkonrad
+  - name: Dan Primack
+    handle: danprimack
+    url: https://x.com/danprimack
+  - name: Katie Roof
+    handle: katie_roof
+    url: https://x.com/katie_roof
+  - name: Semil Shah
+    handle: semil
+    url: https://x.com/semil
+  - name: Hunter Walk
+    handle: hunterwalk
+    url: https://x.com/hunterwalk
+  - name: Packy McCormick
+    handle: packym
+    url: https://x.com/packym
+
+peer_firms:
+  - name: Andreessen Horowitz
+    aliases: [a16z]
+    stated_focus: AI, bio, crypto, fintech, games, infra
+  - name: Sequoia Capital
+    aliases: [Sequoia]
+    stated_focus: Multi-stage technology
+  - name: Lux Capital
+    aliases: [Lux]
+    stated_focus: Deep tech, frontier science
+  - name: Conviction
+    aliases: []
+    stated_focus: AI application layer
+  - name: Gradient Ventures
+    aliases: []
+    stated_focus: AI-first startups
+  - name: Ribbit Capital
+    aliases: [Ribbit]
+    stated_focus: Fintech
+  - name: Shield Capital
+    aliases: []
+    stated_focus: National security, cyber, space
+  - name: 8VC
+    aliases: []
+    stated_focus: Bio, defense, enterprise
+  - name: Thrive Capital
+    aliases: [Thrive]
+    stated_focus: Internet, software, fintech
+  - name: Redpoint
+    aliases: []
+    stated_focus: Enterprise, consumer, crypto
+  - name: Altimeter Capital
+    aliases: [Altimeter]
+    stated_focus: Growth tech
+  - name: Coatue Management
+    aliases: [Coatue]
+    stated_focus: Growth tech, public/private
+  - name: Tiger Global Management
+    aliases: [Tiger Global, Tiger]
+    stated_focus: Growth internet
+  - name: IVP
+    aliases: []
+    stated_focus: Growth-stage technology
+  - name: Bessemer Venture Partners
+    aliases: [Bessemer]
+    stated_focus: Cloud, vertical SaaS, fintech
+  - name: Insight Partners
+    aliases: [Insight]
+    stated_focus: Scale-up software
+  - name: Founders Fund
+    aliases: []
+    stated_focus: Frontier tech, aerospace, AI
+  - name: Lightspeed Venture Partners
+    aliases: [Lightspeed]
+    stated_focus: Enterprise, consumer, health, fintech
+  - name: Khosla Ventures
+    aliases: [Khosla]
+    stated_focus: Climate, AI, health, frontier
+  - name: Spark Capital
+    aliases: [Spark]
+    stated_focus: Consumer, enterprise, crypto
+  - name: Benchmark
+    aliases: []
+    stated_focus: Early-stage technology
+  - name: Accel
+    aliases: []
+    stated_focus: Multi-stage technology
+  - name: General Catalyst
+    aliases: []
+    stated_focus: Multi-stage, transformation
+  - name: Y Combinator
+    aliases: [YC]
+    stated_focus: Early-stage seed
+  - name: Felicis Ventures
+    aliases: [Felicis]
+    stated_focus: Early-stage technology
+  - name: Initialized Capital
+    aliases: [Initialized]
+    stated_focus: Seed
+  - name: Index Ventures
+    aliases: [Index]
+    stated_focus: Multi-stage
+  - name: GV
+    aliases: [Google Ventures]
+    stated_focus: Multi-stage
+  - name: NEA
+    aliases: []
+    stated_focus: Multi-stage
+  - name: Kleiner Perkins
+    aliases: []
+    stated_focus: Multi-stage
+  - name: Peak XV Partners
+    aliases: [Peak XV]
+    stated_focus: India / SEA technology
+  - name: NFX
+    aliases: []
+    stated_focus: Network effects
+  - name: Dragonfly
+    aliases: []
+    stated_focus: Crypto
+  - name: Picus Capital
+    aliases: []
+    stated_focus: Early-stage Europe
+  - name: Basis Set Ventures
+    aliases: []
+    stated_focus: AI automation
+  - name: Kindred Ventures
+    aliases: []
+    stated_focus: Seed technology
+  - name: Antler
+    aliases: []
+    stated_focus: Day-zero founding
+  - name: Entrepreneurs First
+    aliases: [EF]
+    stated_focus: Talent-first founding
+  - name: Obvious Ventures
+    aliases: []
+    stated_focus: World-positive companies
+  - name: Primary Venture Partners
+    aliases: [Primary]
+    stated_focus: NYC early-stage
+  - name: 137 Ventures
+    aliases: []
+    stated_focus: Late-stage secondary
+  - name: Seraphim Space
+    aliases: []
+    stated_focus: Space tech
+  - name: Quantonation Ventures
+    aliases: [Quantonation]
+    stated_focus: Quantum technologies
+  - name: Breakout Ventures
+    aliases: []
+    stated_focus: Deep science
+  - name: Scout Ventures
+    aliases: []
+    stated_focus: Early-stage
+  - name: 2048 Ventures
+    aliases: []
+    stated_focus: Pre-seed deep tech
+  - name: Voyager Ventures
+    aliases: []
+    stated_focus: Climate / energy
+  - name: Sante Ventures
+    aliases: []
+    stated_focus: Healthcare
+  - name: StageOne Ventures
+    aliases: []
+    stated_focus: Israeli enterprise
+  - name: b2venture
+    aliases: []
+    stated_focus: European early-stage
+  - name: Social Leverage
+    aliases: []
+    stated_focus: Fintech / consumer
+  - name: Layer Global
+    aliases: []
+    stated_focus: Crypto infrastructure
+  - name: Rosberg Ventures
+    aliases: []
+    stated_focus: Early-stage
+  - name: CAVU Consumer Partners
+    aliases: []
+    stated_focus: Consumer
+  - name: CoFound
+    aliases: []
+    stated_focus: Early-stage
+  - name: Haystack
+    aliases: []
+    stated_focus: Seed
+  - name: Silver Lake
+    aliases: []
+    stated_focus: Tech private equity
+  - name: USV
+    aliases: [Union Square Ventures]
+    stated_focus: Thesis-driven technology
+  - name: SlateVC
+    aliases: []
+    stated_focus: Early-stage
+  - name: Samaipata
+    aliases: []
+    stated_focus: European marketplace / fintech
+
+rss_feeds:
+  - name: TechCrunch
+    url: https://techcrunch.com/feed/
+  - name: Benedict Evans
+    url: https://www.ben-evans.com/benedictevans?format=rss
+
+hn_topics:
+  - startup
+  - funding
+  - AI
+  - cybersecurity
+  - robotics
+
+edgar:
+  user_agent: Thirdbase Signal MVP contact@thirdbase.example
+  form_types:
+    - D
+  max_results: 25
