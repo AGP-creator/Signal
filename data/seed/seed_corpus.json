@@ -1991,7 +1991,7 @@
     },
     {
       "id": "cm9",
-      "company_id": "c_pipelinecloud",
+      "company_id": "c_genericcrm",
       "company_name": "PipelineCloud",
       "source": "Hacker News",
       "quote_or_summary": "Dismissed as 'AI sticker on CRM' \u2014 little technical differentiation.",

@@ -611,7 +611,7 @@ def commentary() -> list[dict]:
         dict(id="cm8", company_id="c_gpumesh", company_name="GPUMesh", source="Twitter/X",
              quote_or_summary="Infra GPs noting utilization advantage vs pure capacity plays.",
              sentiment="positive", credibility_tier="high", captured_at="2026-07-10"),
-        dict(id="cm9", company_id="c_pipelinecloud", company_name="PipelineCloud", source="Hacker News",
+        dict(id="cm9", company_id="c_genericcrm", company_name="PipelineCloud", source="Hacker News",
              quote_or_summary="Dismissed as 'AI sticker on CRM' — little technical differentiation.",
              sentiment="negative", credibility_tier="medium", captured_at="2025-07-20"),
         dict(id="cm10", company_id="c_voicewire", company_name="VoiceWire", source="Twitter/X",
