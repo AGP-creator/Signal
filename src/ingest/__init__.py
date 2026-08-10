@@ -6,6 +6,7 @@ from typing import Any, Optional
 import yaml
 
 from src.ingest.adapters import EdgarFormDAdapter, HackerNewsAdapter, RSSAdapter
+from src.ingest.arxiv import ArxivAdapter
 from src.ingest.base import NormalizedSignal, StubConnector
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -27,10 +28,12 @@ def run_live_ingest(watchlists: Optional[dict[str, Any]] = None) -> list[Normali
         ),
         HackerNewsAdapter(queries=wl.get("hn_topics"), max_hits=12),
         RSSAdapter(feeds=wl.get("rss_feeds") or []),
-        # Phase-2 stubs (no-op) — present for architecture honesty
+        ArxivAdapter(),
         StubConnector("pitchbook"),
         StubConnector("crunchbase"),
         StubConnector("coresignal"),
+        StubConnector("harmonic"),
+        StubConnector("dealroom"),
     ]
     out: list[NormalizedSignal] = []
     for a in adapters:

@@ -159,8 +159,10 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
     )
 
     digest_path = OUT_DIR / "digest_latest.md"
-    digest_path.write_text(digest["markdown"], encoding="utf-8")
-    (OUT_DIR / "digest_latest.html").write_text(digest["html"], encoding="utf-8")
+    from src.digest.emailer import send_email, write_digest_previews
+
+    write_digest_previews(digest, OUT_DIR)
+    mail_result = send_email(digest["subject"], digest["html"], digest["markdown"])
     (OUT_DIR / "alerts_latest.json").write_text(json.dumps(alerts, indent=2), encoding="utf-8")
 
     summary = {
@@ -175,6 +177,7 @@ def run_refresh(live: bool = True) -> dict[str, Any]:
         "alerts": len(alerts),
         "xlsx": str(xlsx),
         "digest": str(digest_path),
+        "email": mail_result,
         "last_refreshed": refreshed,
         "verify_count": len(load_all_companies()),
     }

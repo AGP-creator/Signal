@@ -261,4 +261,26 @@ with tab_brief:
     names = [c.get("name") for c in companies]
     pick = st.selectbox("Company", names) if names else None
     if pick and st.button("Generate IC brief"):
-        st.markdown(get_brief(pick))
+        brief = get_brief(pick)
+        st.session_state["brief_text"] = brief
+        st.markdown(brief)
+    if pick and st.button("Export IC brief PDF"):
+        from src.digest.pdf_brief import export_brief_pdf
+
+        brief = st.session_state.get("brief_text") or get_brief(pick)
+        path = export_brief_pdf(brief, pick, ROOT / "data" / "output" / "briefs")
+        st.success(f"Wrote {path}")
+        if path.suffix == ".pdf":
+            st.download_button(
+                "Download PDF",
+                data=path.read_bytes(),
+                file_name=path.name,
+                mime="application/pdf",
+            )
+
+st.markdown("---")
+st.subheader("On-demand sector scan")
+thesis = st.text_input("Describe a thesis or sector", value="AI agent identity security")
+if st.button("Run sector scan"):
+    with st.spinner("Scanning pipeline…"):
+        st.markdown(chat(f"What are the best deals for this thesis right now: {thesis}"))
