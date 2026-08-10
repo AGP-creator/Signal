@@ -1,52 +1,54 @@
-# Signal — Thirdbase Deal Sourcing Agent
+# Signal
 
-Self-maintaining deal intelligence OS: thesis scoring, Supabase pipeline store, living Excel workbook, M/W/F digests, alerts, and partner chat.
+Thirdbase deal intelligence OS — Next.js partner UI + Python pipeline + Supabase.
 
-## Setup
+## Quick start (UI)
+
+```powershell
+cd "E:\535 west\web"
+npm install
+npm run dev
+```
+
+Open http://localhost:3000
+
+Copy `.env` → `web/.env.local` (already done if you followed setup). Needs:
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `SUPABASE_SECRET_KEY` (server)
+
+## Pipeline refresh
 
 ```powershell
 cd "E:\535 west"
-python -m venv .venv
 .\.venv\Scripts\activate
-pip install -r requirements.txt
-```
-
-Create `.env` (never commit):
-
-```
-SUPABASE_URL=https://YOUR_PROJECT.supabase.co
-SUPABASE_PUBLISHABLE_KEY=sb_publishable_...
-SUPABASE_SECRET_KEY=sb_secret_...
-```
-
-### One-time schema
-
-1. Open [SQL Editor](https://supabase.com/dashboard/project/ixnenoiggoijvawoykto/sql/new)
-2. Paste [`supabase/migrations/001_init.sql`](supabase/migrations/001_init.sql)
-3. Run
-
-Optional: set `DATABASE_URL` and `python scripts/apply_schema.py`.
-
-### Refresh + demo
-
-```powershell
-python scripts\generate_seed.py
 python scripts\refresh.py
-streamlit run app.py
 ```
 
-Optional: `ANTHROPIC_API_KEY` for Claude chat (offline grounded mode works without it).
+Or use **Refresh pipeline** in the Next.js header (spawns the Python refresh).
 
-## Architecture
+## Stack
 
-- **Supabase** — source of truth (companies, signals, commentary, news, peers, sectors, alerts, digests)
-- **Scoring** — Thirdbase thesis weights in `config/thesis_policy.yaml`
-- **Excel** — regenerated partner workbook on each refresh
-- **Ingest** — EDGAR Form D, Hacker News, RSS (+ Phase-2 connector stubs)
-- **Agent** — grounded Q&A over the live pipeline
+| Layer | Tech |
+|-------|------|
+| Partner OS UI | Next.js 15, Tailwind 4, Framer Motion |
+| Data | Supabase Postgres |
+| Scoring / ingest / Excel | Python (`scripts/refresh.py`) |
+
+## Pages
+
+- `/` Command center — Hot Deals, mix, alerts, sectors, news
+- `/pipeline` Filterable scored table
+- `/company/[id]` Full IC-style brief
+- `/sectors` Sector of Tomorrow
+- `/peers` Activity + co-investor heatmap
+- `/digest` M/W/F email preview
+- `/chat` + ⌘K command palette
 
 ## Docs
 
 - [Product](docs/PRODUCT.md)
 - [Demo script](docs/DEMO_SCRIPT.md)
 - [Roadmap](docs/ROADMAP.md)
+
+Repo: https://github.com/AGP-creator/Signal
