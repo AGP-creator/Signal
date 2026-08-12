@@ -26,10 +26,11 @@ export function rowToCompany(row: Record<string, unknown> | Company | null | und
     }
     return { ...(payload as Company), ...flat } as Company;
   }
-  const { payload: _drop, created_at: _c, updated_at: _u, ...rest } = row as Record<
-    string,
-    unknown
-  > & { payload?: unknown; created_at?: unknown; updated_at?: unknown };
+  const rest: Record<string, unknown> = {};
+  for (const [k, v] of Object.entries(row)) {
+    if (k === "payload" || k === "created_at" || k === "updated_at") continue;
+    rest[k] = v;
+  }
   return rest as Company;
 }
 
