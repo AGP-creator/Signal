@@ -55,6 +55,16 @@ export type Company = {
     signal_type?: string | null;
     url?: string | null;
   } | null;
+  /** Partner keep/archive/refresh stamps (also mirrored in review_status) */
+  partner_decision?: string | null;
+  /** Recent pipeline update events from discovery / maintenance */
+  update_events?: {
+    at?: string | null;
+    kind?: string | null;
+    note?: string | null;
+  }[];
+  /** Full company dict as stored by Python upsert — merged by rowToCompany */
+  payload?: Record<string, unknown> | null;
 };
 
 export type Commentary = {

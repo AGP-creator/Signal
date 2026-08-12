@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import {
   buildDiligencePack,
   companyToSubject,
@@ -15,15 +15,17 @@ import {
 import type { CompanyBrief } from "@/lib/research";
 import type { Commentary, Company, PeerActivity } from "@/lib/types";
 import { EmptyState, Panel, SegItem, Segmented } from "@/components/ui";
+import { IcPacketButton } from "@/components/IcPacketButton";
+import { cn } from "@/lib/utils";
 
 function SeverityChip({ s }: { s: "high" | "medium" | "low" }) {
-  const color =
-    s === "high" ? "var(--danger)" : s === "medium" ? "var(--warn)" : "var(--faint)";
-  return (
-    <span className="label-caps" style={{ color }}>
-      {s}
-    </span>
-  );
+  const tone =
+    s === "high"
+      ? "chip-danger"
+      : s === "medium"
+        ? "chip-warn"
+        : "chip";
+  return <span className={cn("chip text-[0.65rem]", tone)}>{s}</span>;
 }
 
 function BearPanel({ bear }: { bear: BearCase }) {
@@ -31,7 +33,7 @@ function BearPanel({ bear }: { bear: BearCase }) {
     <div className="grid gap-5 lg:grid-cols-2">
       <Panel className="border-[var(--danger)]/30 bg-[var(--danger-dim)]">
         <div className="label-caps text-[var(--danger)]">Bear case · counterfactual</div>
-        <h3 className="display mt-2 text-2xl font-bold">{bear.headline}</h3>
+        <h3 className="title mt-2 text-[1.35rem] md:text-[1.5rem]">{bear.headline}</h3>
         <p className="mt-2 text-sm text-[var(--muted)]">{bear.conviction_gate}</p>
         <div className="mt-5 space-y-4">
           {bear.kill_arguments.map((k) => (
@@ -48,7 +50,7 @@ function BearPanel({ bear }: { bear: BearCase }) {
       </Panel>
       <Panel>
         <div className="label-caps text-[var(--ok)]">Bull counters · fair</div>
-        <h3 className="display mt-2 text-2xl font-bold">What still argues for the deal</h3>
+        <h3 className="title mt-2 text-[1.35rem] md:text-[1.5rem]">What still argues for the deal</h3>
         <ul className="mt-4 space-y-2.5 text-sm">
           {bear.bull_counterpoints.length === 0 && <EmptyState>No strong bull counters on file.</EmptyState>}
           {bear.bull_counterpoints.map((b) => (
@@ -90,7 +92,7 @@ function PlanPanel({ plan }: { plan: DiligencePlan }) {
         <div className="flex flex-wrap items-start justify-between gap-3">
           <div>
             <div className="label-caps text-[var(--deep)]">Diligence plan</div>
-            <h3 className="display mt-2 text-2xl font-bold">Work orders</h3>
+            <h3 className="title mt-2 text-[1.35rem] md:text-[1.5rem]">Work orders</h3>
           </div>
           <div className="flex flex-wrap gap-2">
             {(Object.entries(plan.area_risk) as [string, string][]).map(([a, r]) => (
@@ -148,7 +150,7 @@ function MeetingPanel({ prep }: { prep: MeetingPrep }) {
   return (
     <Panel>
       <div className="label-caps text-[var(--signal)]">Meeting prep</div>
-      <h3 className="display mt-2 text-2xl font-bold">{prep.headline}</h3>
+      <h3 className="title mt-2 text-[1.35rem] md:text-[1.5rem]">{prep.headline}</h3>
       <div className="mt-5 grid gap-5 md:grid-cols-2">
         <div>
           <div className="label-caps">Context</div>
@@ -218,7 +220,7 @@ function DeckPanel({
   return (
     <Panel>
       <div className="label-caps text-[var(--deep)]">Deck ingest</div>
-      <h3 className="display mt-2 text-2xl font-bold">Claims + red flags</h3>
+      <h3 className="title mt-2 text-[1.35rem] md:text-[1.5rem]">Claims + red flags</h3>
       <p className="mt-2 text-sm text-[var(--muted)]">
         Paste pitch-deck text. Signal extracts metrics it can see and leaves blanks blank — never invents.
       </p>
@@ -296,11 +298,13 @@ export function DiligenceStressPack({
   commentary,
   peers,
   initialDeck,
+  headerAction,
 }: {
   subject: DiligenceSubject;
   commentary?: Commentary[];
   peers?: PeerActivity[];
   initialDeck?: DeckAnalysis | null;
+  headerAction?: ReactNode;
 }) {
   const [deck, setDeck] = useState<DeckAnalysis | null>(initialDeck || null);
   const [deckText, setDeckText] = useState<string | undefined>();
@@ -359,6 +363,7 @@ export function DiligenceStressPack({
           <div className="label-caps text-[var(--signal)]">Diligence Stress Pack</div>
           <h2 className="display mt-1 text-3xl font-bold">Pressure-test</h2>
         </div>
+        {headerAction}
       </div>
       <Segmented aria-label="Diligence stress sections" className="seg-scroll">
         {tabs.map((t) => (
@@ -391,6 +396,14 @@ export function DiligenceStressPackFromCompany({
       subject={companyToSubject(company)}
       commentary={commentary}
       peers={peers}
+      headerAction={
+        <IcPacketButton
+          company={company}
+          commentary={commentary || []}
+          comps={[]}
+          peers={peers || []}
+        />
+      }
     />
   );
 }

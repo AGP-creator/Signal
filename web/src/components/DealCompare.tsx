@@ -94,15 +94,40 @@ export function DealCompare({
 
   function toggle(id: string) {
     setSelected((prev) => {
-      if (prev.includes(id)) return prev.filter((x) => x !== id);
-      if (prev.length >= 4) return [...prev.slice(1), id];
-      return [...prev, id];
+      let next: string[];
+      if (prev.includes(id)) next = prev.filter((x) => x !== id);
+      else if (prev.length >= 4) next = [...prev.slice(1), id];
+      else next = [...prev, id];
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        if (next.length) url.searchParams.set("ids", next.join(","));
+        else url.searchParams.delete("ids");
+        window.history.replaceState({}, "", url.toString());
+      }
+      return next;
     });
   }
 
   function loadStack() {
     const ids = rankedIds.filter((id) => knownIds.includes(id)).slice(0, 4);
-    if (ids.length >= 2) setSelected(ids);
+    if (ids.length >= 2) {
+      setSelected(ids);
+      if (typeof window !== "undefined") {
+        const url = new URL(window.location.href);
+        url.searchParams.set("ids", ids.join(","));
+        window.history.replaceState({}, "", url.toString());
+      }
+    }
+  }
+
+  function downloadMd() {
+    const blob = new Blob([pack.markdown], { type: "text/markdown;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `compare-${selectedCompanies.map((c) => c.slug || c.name).join("-").slice(0, 60)}.md`;
+    a.click();
+    URL.revokeObjectURL(url);
   }
 
   async function copyMd() {
@@ -127,6 +152,11 @@ export function DealCompare({
             <button type="button" className="btn btn-soft btn-sm" onClick={copyMd}>
               {copied ? "Copied ✓" : "Copy compare.md"}
             </button>
+            {selectedCompanies.length >= 2 ? (
+              <button type="button" className="btn btn-ghost btn-sm" onClick={downloadMd}>
+                Download .md
+              </button>
+            ) : null}
           </>
         }
       />
@@ -240,7 +270,7 @@ export function DealCompare({
               <div className="mt-5">
                 <div className="label-caps">Thesis score</div>
                 <BarChart
-                  height={120}
+                  height={156}
                   className="mt-2"
                   series={selectedCompanies.map((c) => ({
                     label: c.name.slice(0, 8),

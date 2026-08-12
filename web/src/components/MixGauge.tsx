@@ -45,23 +45,25 @@ export function MixGauge({
         {tacticalPct}
       </div>
       <div className="mt-1 text-[0.8125rem] text-[var(--muted)]">Dominant / Tactical · 60/40</div>
-      <div className="mt-4 flex h-2 overflow-hidden rounded-full bg-[var(--panel-2)]">
-        <motion.div
-          className="h-full bg-[var(--signal)]"
-          initial={{ width: 0 }}
-          animate={{ width: `${dominantPct}%` }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
-        />
-        <motion.div
-          className="h-full bg-[var(--deep)] opacity-80"
-          initial={{ width: 0 }}
-          animate={{ width: `${tacticalPct}%` }}
-          transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
-        />
+      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
+        <div className="flex h-full w-full">
+          <motion.div
+            className="h-full bg-[var(--signal)]"
+            initial={{ width: 0 }}
+            animate={{ width: `${dominantPct}%` }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1] }}
+          />
+          <motion.div
+            className="h-full bg-[var(--deep)] opacity-85"
+            initial={{ width: 0 }}
+            animate={{ width: `${tacticalPct}%` }}
+            transition={{ duration: 0.85, ease: [0.22, 1, 0.36, 1], delay: 0.08 }}
+          />
+        </div>
       </div>
-      <div className="mt-2 flex justify-between text-[0.7rem] text-[var(--faint)]">
-        <span>Dominant</span>
-        <span>Tactical</span>
+      <div className="mt-2.5 flex justify-between text-[0.7rem] text-[var(--faint)]">
+        <span>Dominant · {dominantPct}%</span>
+        <span>Tactical · {tacticalPct}%</span>
       </div>
       {alarm && (
         <p

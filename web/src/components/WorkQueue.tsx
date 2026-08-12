@@ -220,7 +220,7 @@ export function WorkQueueBoard({
           <Panel>
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h2 className="title text-[1.2rem]">{queue.headline}</h2>
-              <div className="flex gap-1">
+              <div className="flex flex-wrap items-center gap-1">
                 {(["all", "high", "required"] as const).map((f) => (
                   <button
                     key={f}
@@ -234,6 +234,25 @@ export function WorkQueueBoard({
                     {f}
                   </button>
                 ))}
+                <button
+                  type="button"
+                  className="btn btn-ghost btn-sm ml-1"
+                  onClick={async () => {
+                    const md = [
+                      `# Work queue`,
+                      ``,
+                      queue.counsel,
+                      ``,
+                      ...filtered.map(
+                        (i) =>
+                          `- **[${i.risk}] ${i.company_name}** — ${i.title}${i.required ? " _(required)_" : ""}\n  ${i.detail}`,
+                      ),
+                    ].join("\n");
+                    await navigator.clipboard.writeText(md);
+                  }}
+                >
+                  Copy list
+                </button>
               </div>
             </div>
             <div className="mt-2">

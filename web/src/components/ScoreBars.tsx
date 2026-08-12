@@ -44,9 +44,9 @@ export function ScoreBars({ breakdown }: { breakdown?: Record<string, number> | 
             {meta?.criterion ? (
               <p className="mt-0.5 text-[0.7rem] leading-snug text-[var(--faint)]">{meta.criterion}</p>
             ) : null}
-            <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
+            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--panel-2)]">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[var(--deep)] to-[var(--signal)] transition-[width] duration-300"
+                className="h-full rounded-full bg-gradient-to-r from-[var(--deep)] to-[var(--signal)] transition-[width] duration-500"
                 style={{ width: `${Math.max(4, Math.min(100, score))}%` }}
               />
             </div>

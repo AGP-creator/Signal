@@ -29,7 +29,15 @@ export function Page({
   narrow?: boolean;
 }) {
   return (
-    <div className={cn("space-y-9", narrow && "mx-auto max-w-3xl", className)}>{children}</div>
+    <div
+      className={cn(
+        "min-w-0 space-y-[var(--section-gap)]",
+        narrow && "mx-auto max-w-3xl",
+        className,
+      )}
+    >
+      {children}
+    </div>
   );
 }
 
@@ -49,14 +57,23 @@ export function PageHeader({
   className?: string;
 }) {
   return (
-    <header className={cn("animate-in border-b border-[var(--line)] pb-8", className)}>
+    <header className={cn("animate-in border-b border-[var(--line)] pb-6 md:pb-8", className)}>
       {eyebrow ? <Eyebrow live={live}>{eyebrow}</Eyebrow> : null}
-      <div className="flex flex-wrap items-end justify-between gap-5">
-        <div className="max-w-2xl">
-          <h1 className={cn("title text-[1.9rem] md:text-[2.25rem]", eyebrow && "mt-2.5")}>
+      <div className="flex flex-wrap items-end justify-between gap-4 md:gap-5">
+        <div className="min-w-0 max-w-2xl">
+          <h1
+            className={cn(
+              "title text-[clamp(1.55rem,4.2vw,2.25rem)]",
+              eyebrow && "mt-2.5",
+            )}
+          >
             {title}
           </h1>
-          {description ? <p className="body-muted mt-3 max-w-xl text-[0.95rem]">{description}</p> : null}
+          {description ? (
+            <p className="body-muted mt-2.5 max-w-xl text-[0.925rem] md:mt-3 md:text-[0.95rem]">
+              {description}
+            </p>
+          ) : null}
         </div>
         {actions ? <div className="flex flex-wrap items-center gap-2">{actions}</div> : null}
       </div>
@@ -405,12 +422,33 @@ export function ToneBadge({
 
 export function EmptyState({
   children,
+  title,
+  action,
+  compact,
   className,
 }: {
   children: React.ReactNode;
+  title?: string;
+  action?: React.ReactNode;
+  compact?: boolean;
   className?: string;
 }) {
-  return <p className={cn("body-muted", className)}>{children}</p>;
+  const framed = title != null || action != null || compact != null;
+  if (!framed) {
+    return <p className={cn("body-muted", className)}>{children}</p>;
+  }
+  return (
+    <div className={cn("empty-state", compact && "empty-state-compact", className)}>
+      {!compact ? (
+        <span className="empty-state-icon" aria-hidden>
+          ◌
+        </span>
+      ) : null}
+      {title ? <div className="empty-state-title">{title}</div> : null}
+      <div className="empty-state-body">{children}</div>
+      {action ? <div className="empty-state-action">{action}</div> : null}
+    </div>
+  );
 }
 
 export function BackLink({ href, children }: { href: string; children: React.ReactNode }) {

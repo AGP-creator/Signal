@@ -19,7 +19,11 @@ import { type DealTrail } from "@/lib/icTrail";
 import { loadMergedTrails } from "@/lib/icStore";
 import { buildLpDeskPack, type LpDeskPack } from "@/lib/lpDesk";
 import { loadOverrides } from "@/lib/overrideStore";
-import { applyStaleReviews, loadStaleReviews } from "@/lib/staleReviewStore";
+import {
+  applyStaleReviews,
+  hydrateStaleReviews,
+  loadStaleReviews,
+} from "@/lib/staleReviewStore";
 import type {
   AlertItem,
   Commentary,
@@ -95,6 +99,7 @@ export function LpDesk({
 
   useEffect(() => {
     const sync = () => setStaleTick((n) => n + 1);
+    void hydrateStaleReviews().then(sync);
     window.addEventListener("signal:stale-reviews-changed", sync);
     window.addEventListener("signal:overrides-changed", sync);
     return () => {
@@ -228,7 +233,9 @@ export function LpDesk({
             </Panel>
 
             <div className="space-y-4">
-              <MixGauge dominantPct={mix.dominantPct} tacticalPct={mix.tacticalPct} />
+              <Panel className="!p-4 md:!p-5">
+                <MixGauge dominantPct={mix.dominantPct} tacticalPct={mix.tacticalPct} />
+              </Panel>
               <Panel>
                 <Eyebrow>Process health</Eyebrow>
                 <div className="mt-4 grid grid-cols-2 gap-4">

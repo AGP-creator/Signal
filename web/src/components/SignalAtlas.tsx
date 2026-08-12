@@ -417,7 +417,7 @@ function MapTab({
                               ? "var(--deep)"
                               : "var(--faint)"
                       }
-                      stroke="var(--bg)"
+                      stroke="var(--panel)"
                       strokeWidth={0.45}
                       opacity={0.95}
                     />

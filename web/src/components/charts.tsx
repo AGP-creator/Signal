@@ -12,6 +12,32 @@ function extent(values: number[], pad = 0.08) {
   return { min: min - span * pad, max: max + span * pad, span };
 }
 
+function shortLabel(label: string, max = 10) {
+  if (label.length <= max) return label;
+  return `${label.slice(0, Math.max(1, max - 1))}…`;
+}
+
+function ChartEmpty({
+  label = "No data yet",
+  className,
+  height,
+}: {
+  label?: string;
+  className?: string;
+  height?: number;
+}) {
+  return (
+    <div
+      className={cn("chart-empty", className)}
+      style={height ? { minHeight: height } : undefined}
+      role="img"
+      aria-label={label}
+    >
+      <span className="chart-empty-title">{label}</span>
+    </div>
+  );
+}
+
 export function AreaChart({
   series,
   height = 180,
@@ -26,10 +52,10 @@ export function AreaChart({
   formatValue?: (v: number) => string;
 }) {
   const gid = useId().replace(/:/g, "");
-  if (!series.length) return null;
+  if (!series.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
-  const pad = { t: 16, r: 12, b: 28, l: 40 };
+  const pad = { t: 16, r: 12, b: 28, l: 44 };
   const { max, span } = extent(series.map((p) => p.value));
   const xs = series.map((_, i) => pad.l + (i * (w - pad.l - pad.r)) / Math.max(series.length - 1, 1));
   const ys = series.map((p) => pad.t + ((max - p.value) / span) * (h - pad.t - pad.b));
@@ -41,7 +67,7 @@ export function AreaChart({
       <svg viewBox={`0 0 ${w} ${h}`} className="h-auto w-full" role="img">
         <defs>
           <linearGradient id={`areaFill-${gid}`} x1="0" y1="0" x2="0" y2="1">
-            <stop offset="0%" stopColor={color} stopOpacity="0.35" />
+            <stop offset="0%" stopColor={color} stopOpacity="0.38" />
             <stop offset="100%" stopColor={color} stopOpacity="0.02" />
           </linearGradient>
         </defs>
@@ -51,19 +77,20 @@ export function AreaChart({
           return (
             <g key={t}>
               <line x1={pad.l} x2={w - pad.r} y1={y} y2={y} stroke="var(--line)" strokeWidth="1" />
-              <text x={pad.l - 6} y={y + 3} textAnchor="end" className="fill-[var(--faint)]" fontSize="9" fontFamily="var(--font-mono)">
+              <text x={pad.l - 6} y={y + 3} textAnchor="end" className="fill-[var(--faint)]" fontSize="9.5" fontFamily="var(--font-mono)">
                 {formatValue(val)}
               </text>
             </g>
           );
         })}
         <path d={area} fill={`url(#areaFill-${gid})`} />
-        <path d={line} fill="none" stroke={color} strokeWidth="2.25" strokeLinejoin="round" />
+        <path d={line} fill="none" stroke={color} strokeWidth="2.35" strokeLinejoin="round" />
         {xs.map((x, i) => (
           <g key={series[i].label}>
-            <circle cx={x} cy={ys[i]} r="3.5" fill="var(--panel)" stroke={color} strokeWidth="2" />
-            <text x={x} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9">
-              {series[i].label}
+            <title>{`${series[i].label}: ${formatValue(series[i].value)}`}</title>
+            <circle cx={x} cy={ys[i]} r="3.75" fill="var(--panel)" stroke={color} strokeWidth="2" />
+            <text x={x} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9.5">
+              {shortLabel(series[i].label, 8)}
             </text>
           </g>
         ))}
@@ -91,10 +118,10 @@ export function DualLineChart({
   formatA?: (v: number) => string;
   formatB?: (v: number) => string;
 }) {
-  if (!a.length) return null;
+  if (!a.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
-  const pad = { t: 16, r: 12, b: 36, l: 40 };
+  const pad = { t: 18, r: 14, b: 36, l: 44 };
   const labels = a.map((p) => p.label);
   const extA = extent(a.map((p) => p.value));
   const extB = extent(b.map((p) => p.value));
@@ -117,17 +144,35 @@ export function DualLineChart({
         </span>
       </div>
       <svg viewBox={`0 0 ${w} ${h}`} className="h-auto w-full" role="img">
-        <path d={line(xs, ya)} fill="none" stroke="var(--signal)" strokeWidth="2.25" strokeLinejoin="round" />
-        <path d={line(xs, yb)} fill="none" stroke="var(--warn)" strokeWidth="2" strokeDasharray="4 3" strokeLinejoin="round" />
+        {[0, 0.5, 1].map((t) => {
+          const y = pad.t + t * (h - pad.t - pad.b);
+          return (
+            <line key={t} x1={pad.l} x2={w - pad.r} y1={y} y2={y} stroke="var(--line)" strokeWidth="1" />
+          );
+        })}
+        <path d={line(xs, ya)} fill="none" stroke="var(--signal)" strokeWidth="2.35" strokeLinejoin="round" />
+        <path
+          d={line(xs, yb)}
+          fill="none"
+          stroke="var(--warn)"
+          strokeWidth="2.1"
+          strokeDasharray="4 3"
+          strokeLinejoin="round"
+        />
         {xs.map((x, i) => (
-          <text key={labels[i]} x={x} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9">
-            {labels[i]}
-          </text>
+          <g key={labels[i]}>
+            <title>{`${labels[i]} · ${aLabel}: ${formatA(a[i]?.value ?? 0)} · ${bLabel}: ${formatB(b[i]?.value ?? 0)}`}</title>
+            <circle cx={x} cy={ya[i]} r="3.25" fill="var(--panel)" stroke="var(--signal)" strokeWidth="2" />
+            <circle cx={x} cy={yb[i]} r="3" fill="var(--panel)" stroke="var(--warn)" strokeWidth="1.75" />
+            <text x={x} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9.5">
+              {shortLabel(labels[i], 8)}
+            </text>
+          </g>
         ))}
-        <text x={pad.l} y={12} className="fill-[var(--faint)]" fontSize="9" fontFamily="var(--font-mono)">
+        <text x={pad.l} y={12} className="fill-[var(--faint)]" fontSize="9.5" fontFamily="var(--font-mono)">
           {formatA(extA.max)}
         </text>
-        <text x={w - pad.r} y={12} textAnchor="end" className="fill-[var(--faint)]" fontSize="9" fontFamily="var(--font-mono)">
+        <text x={w - pad.r} y={12} textAnchor="end" className="fill-[var(--faint)]" fontSize="9.5" fontFamily="var(--font-mono)">
           {formatB(extB.max)}
         </text>
       </svg>
@@ -137,7 +182,7 @@ export function DualLineChart({
 
 export function BarChart({
   series,
-  height = 160,
+  height = 168,
   className,
   color = "var(--signal)",
   formatValue = (v) => `${Math.round(v)}`,
@@ -148,10 +193,10 @@ export function BarChart({
   color?: string;
   formatValue?: (v: number) => string;
 }) {
-  if (!series.length) return null;
+  if (!series.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
-  const pad = { t: 20, r: 8, b: 28, l: 8 };
+  const pad = { t: 22, r: 8, b: 30, l: 8 };
   const max = Math.max(...series.map((p) => p.value), 1);
   const gap = 8;
   const barW = (w - pad.l - pad.r - gap * (series.length - 1)) / series.length;
@@ -159,18 +204,42 @@ export function BarChart({
   return (
     <div className={cn("w-full", className)}>
       <svg viewBox={`0 0 ${w} ${h}`} className="h-auto w-full" role="img">
+        <line
+          x1={pad.l}
+          x2={w - pad.r}
+          y1={h - pad.b}
+          y2={h - pad.b}
+          stroke="var(--line)"
+          strokeWidth="1"
+        />
         {series.map((p, i) => {
           const bh = ((p.value / max) * (h - pad.t - pad.b)) || 2;
           const x = pad.l + i * (barW + gap);
           const y = h - pad.b - bh;
           return (
             <g key={p.label}>
-              <rect x={x} y={y} width={barW} height={bh} rx="4" fill={color} opacity={0.85 - i * 0.04} />
-              <text x={x + barW / 2} y={y - 6} textAnchor="middle" className="fill-[var(--text)]" fontSize="9" fontFamily="var(--font-mono)">
+              <title>{`${p.label}: ${formatValue(p.value)}`}</title>
+              <rect
+                x={x}
+                y={y}
+                width={barW}
+                height={bh}
+                rx="4"
+                fill={color}
+                opacity={0.9 - Math.min(i, 6) * 0.04}
+              />
+              <text
+                x={x + barW / 2}
+                y={y - 6}
+                textAnchor="middle"
+                className="fill-[var(--text)]"
+                fontSize="9.5"
+                fontFamily="var(--font-mono)"
+              >
                 {formatValue(p.value)}
               </text>
-              <text x={x + barW / 2} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9">
-                {p.label}
+              <text x={x + barW / 2} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9.5">
+                {shortLabel(p.label, 9)}
               </text>
             </g>
           );
@@ -198,12 +267,14 @@ export function DonutChart({
   const cy = 80;
   const circ = 2 * Math.PI * r;
   let offset = 0;
+  const visible = slices.filter((s) => s.pct > 0);
+  if (!visible.length) return <ChartEmpty className={className} label="No mix yet" />;
 
   return (
     <div className={cn("flex flex-wrap items-center gap-5", className)}>
-      <svg width={size} height={size} viewBox="0 0 160 160" className="shrink-0">
+      <svg width={size} height={size} viewBox="0 0 160 160" className="shrink-0" role="img">
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--panel-2)" strokeWidth="18" />
-        {slices.map((s) => {
+        {visible.map((s) => {
           const len = (s.pct / 100) * circ;
           const el = (
             <circle
@@ -218,7 +289,9 @@ export function DonutChart({
               strokeDashoffset={-offset}
               transform={`rotate(-90 ${cx} ${cy})`}
               strokeLinecap="butt"
-            />
+            >
+              <title>{`${s.label}: ${s.pct}%`}</title>
+            </circle>
           );
           offset += len;
           return el;
@@ -229,13 +302,13 @@ export function DonutChart({
           </text>
         ) : null}
         {centerLabel ? (
-          <text x={cx} y={cy + 14} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9">
+          <text x={cx} y={cy + 14} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9.5">
             {centerLabel}
           </text>
         ) : null}
       </svg>
       <div className="min-w-[10rem] space-y-2">
-        {slices.map((s) => (
+        {visible.map((s) => (
           <div key={s.label} className="flex items-center justify-between gap-3 text-[0.8125rem]">
             <span className="inline-flex items-center gap-2 text-[var(--muted)]">
               <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />
@@ -259,7 +332,7 @@ export function RadarChart({
   className?: string;
 }) {
   const entries = Object.entries(scores);
-  if (entries.length < 3) return null;
+  if (entries.length < 3) return <ChartEmpty className={className} label="Need 3+ scores" />;
   const n = entries.length;
   const cx = size / 2;
   const cy = size / 2;
@@ -316,14 +389,16 @@ export function SparkBars({
   className?: string;
   color?: string;
 }) {
+  if (!values.length) return <div className={cn("h-8", className)} />;
   const max = Math.max(...values, 1);
   return (
-    <div className={cn("flex h-8 items-end gap-0.5", className)}>
+    <div className={cn("flex h-9 items-end gap-[3px]", className)} role="img" aria-label="Spark bars">
       {values.map((v, i) => (
         <div
           key={i}
-          className="w-1.5 rounded-sm opacity-80"
-          style={{ height: `${Math.max(12, (v / max) * 100)}%`, background: color }}
+          className="min-w-[3px] flex-1 rounded-sm opacity-85 transition-[height] duration-300"
+          title={String(v)}
+          style={{ height: `${Math.max(14, (v / max) * 100)}%`, background: color }}
         />
       ))}
     </div>
@@ -342,7 +417,7 @@ export function GrowthBarChart({
   className?: string;
   formatValue?: (v: number) => string;
 }) {
-  if (!series.length) return null;
+  if (!series.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
   const pad = { t: 22, r: 8, b: 28, l: 8 };
@@ -405,7 +480,7 @@ export function WaterfallChart({
   className?: string;
   formatValue?: (v: number) => string;
 }) {
-  if (!steps.length) return null;
+  if (!steps.length) return <ChartEmpty className={className} height={height} />;
   const w = 440;
   const h = height;
   const pad = { t: 24, r: 10, b: 32, l: 10 };
@@ -629,7 +704,7 @@ export function ValuationStepChart({
   formatValue?: (v: number) => string;
 }) {
   const gid = useId().replace(/:/g, "");
-  if (!series.length) return null;
+  if (!series.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
   const pad = { t: 28, r: 16, b: 28, l: 44 };
@@ -712,7 +787,7 @@ export function GroupedBarChart({
   className?: string;
   colors?: string[];
 }) {
-  if (!groups.length || !seriesKeys.length) return null;
+  if (!groups.length || !seriesKeys.length) return <ChartEmpty className={className} height={height} />;
   const w = 520;
   const h = height;
   const pad = { t: 18, r: 8, b: 42, l: 8 };
@@ -794,13 +869,13 @@ export function FunnelChart({
   className?: string;
   height?: number;
 }) {
-  if (!steps.length) return null;
+  if (!steps.length) return <ChartEmpty className={className} height={height} />;
   const w = 420;
   const h = height;
-  const pad = { t: 8, r: 110, b: 8, l: 8 };
+  const pad = { t: 8, r: 118, b: 8, l: 8 };
   const max = Math.max(...steps.map((s) => s.count), 1);
   const rowH = (h - pad.t - pad.b) / steps.length;
-  const colors = ["var(--signal)", "var(--deep)", "var(--ok)", "var(--warn)", "var(--faint)"];
+  const colors = ["var(--signal)", "var(--deep)", "var(--ok)", "var(--warn)", "var(--muted)"];
 
   return (
     <div className={cn("w-full", className)}>
@@ -817,23 +892,26 @@ export function FunnelChart({
           const d = `M${cx - topHalf},${y0} L${cx + topHalf},${y0} L${cx + botHalf},${y1} L${cx - botHalf},${y1} Z`;
           return (
             <g key={s.label}>
-              <path d={d} fill={colors[i % colors.length]} opacity={0.82 - i * 0.07} />
+              <path d={d} fill={colors[i % colors.length]} opacity={0.88 - i * 0.06} />
               <text
                 x={cx}
                 y={(y0 + y1) / 2 + 4}
                 textAnchor="middle"
-                className="fill-white"
+                fill="var(--signal-ink)"
                 fontSize="11"
                 fontFamily="var(--font-mono)"
                 fontWeight="600"
+                paintOrder="stroke"
+                stroke="rgba(0,0,0,0.22)"
+                strokeWidth="2.5"
               >
                 {s.count}
               </text>
               <text
-                x={w - pad.r + 8}
+                x={w - pad.r + 10}
                 y={(y0 + y1) / 2 + 4}
                 className="fill-[var(--muted)]"
-                fontSize="10"
+                fontSize="10.5"
               >
                 {s.label}
                 {s.pct != null ? ` · ${s.pct}%` : ""}
@@ -854,7 +932,7 @@ export function TensionBars({
   rows: { id: string; title: string; severity: "high" | "medium" | "low"; left: string; right: string }[];
   className?: string;
 }) {
-  if (!rows.length) return null;
+  if (!rows.length) return <ChartEmpty className={className} />;
   const sevPct = { high: 92, medium: 62, low: 34 };
   const sevColor = {
     high: "var(--danger)",
@@ -913,7 +991,7 @@ export function BenchmarkBars({
               <span className="text-[var(--muted)]">{r.label}</span>
               <span className="mono text-[var(--text)]">{r.format}</span>
             </div>
-            <div className="h-2 overflow-hidden rounded-full bg-[var(--panel-2)]">
+            <div className="h-2.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
               <div
                 className="h-full rounded-full transition-[width] duration-500"
                 style={{
@@ -939,7 +1017,7 @@ export function ExitWaterfallChart({
   className?: string;
   height?: number;
 }) {
-  if (!rows.length) return null;
+  if (!rows.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
   const pad = { t: 16, r: 12, b: 28, l: 12 };
@@ -995,14 +1073,14 @@ export function HeatMatrix({
   selected?: { i: number; j: number } | null;
 }) {
   const n = labels.length;
-  if (!n) return null;
+  if (!n) return <ChartEmpty className={className} label="No heat map yet" />;
   const short = (s: string) => {
     if (s.length <= 10) return s;
     const parts = s.split(/\s+/);
     if (parts[0].length <= 10) return parts[0];
     return `${s.slice(0, 8)}…`;
   };
-  const cell = 30;
+  const cell = 34;
 
   return (
     <div className={cn("w-full overflow-x-auto", className)}>

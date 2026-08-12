@@ -10,6 +10,7 @@ import {
   EmptyState,
   MiniStat,
   OsBanner,
+  Panel,
   RecBadge,
   SectionTitle,
   Stat,
@@ -19,7 +20,11 @@ import { loadMergedTrails } from "@/lib/icStore";
 import { buildGpDeskPack, type GpDeskPack, type GpQueueItem } from "@/lib/gpDesk";
 import { loadOverrides } from "@/lib/overrideStore";
 import { companyPath } from "@/lib/paths";
-import { applyStaleReviews, loadStaleReviews } from "@/lib/staleReviewStore";
+import {
+  applyStaleReviews,
+  hydrateStaleReviews,
+  loadStaleReviews,
+} from "@/lib/staleReviewStore";
 import type {
   AlertItem,
   Commentary,
@@ -85,6 +90,7 @@ export function GpDashboard({
 
   useEffect(() => {
     const sync = () => setStaleTick((n) => n + 1);
+    void hydrateStaleReviews().then(sync);
     window.addEventListener("signal:stale-reviews-changed", sync);
     window.addEventListener("signal:overrides-changed", sync);
     return () => {
@@ -469,12 +475,12 @@ export function GpDashboard({
           </span>
         </button>
         {showAnalytics && (
-          <div className="mt-6 grid gap-6 md:grid-cols-2 xl:grid-cols-4 animate-in">
-            <div>
+          <div className="mt-6 grid gap-4 md:grid-cols-2 xl:grid-cols-4 animate-in">
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Recommendation</div>
               <DonutChart
-                className="mt-3"
-                size={130}
+                className="mt-auto pt-2"
+                size={136}
                 centerLabel="book"
                 centerValue={String(
                   pack.recommendation.reduce((a, r) => a + r.count, 0),
@@ -485,42 +491,42 @@ export function GpDashboard({
                   color: ["var(--signal)", "var(--warn)", "var(--faint)", "var(--deep)"][i % 4],
                 }))}
               />
-            </div>
-            <div>
+            </Panel>
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Score bands</div>
               <BarChart
-                className="mt-3"
-                height={140}
+                className="mt-auto pt-2"
+                height={156}
                 series={pack.score_bands.map((r) => ({
                   label: r.label,
                   value: r.count,
                 }))}
               />
-            </div>
-            <div>
+            </Panel>
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Stage</div>
               <BarChart
-                className="mt-3"
-                height={140}
+                className="mt-auto pt-2"
+                height={156}
                 color="var(--deep)"
                 series={pack.stages.map((r) => ({
-                  label: r.label.length > 8 ? `${r.label.slice(0, 7)}…` : r.label,
+                  label: r.label,
                   value: r.count,
                 }))}
               />
-            </div>
-            <div>
+            </Panel>
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Tier-1 quality</div>
               <BarChart
-                className="mt-3"
-                height={140}
+                className="mt-auto pt-2"
+                height={156}
                 color="var(--ok)"
                 series={pack.tier1_quality.map((r) => ({
-                  label: r.label.length > 8 ? `${r.label.slice(0, 7)}…` : r.label,
+                  label: r.label,
                   value: r.count,
                 }))}
               />
-            </div>
+            </Panel>
           </div>
         )}
       </section>

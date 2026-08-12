@@ -11,18 +11,36 @@ import {
 } from "@/lib/chatStore";
 
 const SUGGESTIONS = [
-  "Knows what a great deal looks like",
-  "Show contested war rooms",
-  "What did we miss?",
-  "Venture agent core intelligence",
+  "Monday partner agenda",
+  "Are we overweight tactical vs 60/40?",
+  "What are three AI infrastructure sub-sectors nobody is talking about yet?",
   "Top Deep Dive deals",
-  "Anti-consensus names on Partner Edge",
-  "Sector of tomorrow",
-  "Deal Sourcing & Discovery",
-  "Map AI infra market",
-  "Show launch feed",
-  "Peer thesis shifts",
+  "What did we miss?",
+  "News worth reading",
   "Open deal pipeline workbook",
+  "Knows what a great deal looks like",
+  "Sector of tomorrow",
+  "Peer thesis shifts",
+  "Anti-consensus names on Partner Edge",
+  "Map AI infra market",
+  "Where should partner attention go this week",
+];
+
+const NAV_JUMPS = [
+  { label: "Desk", href: "/", aliases: ["home", "desk"] },
+  { label: "Meeting", href: "/meeting", aliases: ["agenda", "monday"] },
+  { label: "Pipeline", href: "/pipeline", aliases: ["book", "deals"] },
+  { label: "Workbook", href: "/workbook", aliases: ["excel"] },
+  { label: "Chat", href: "/chat", aliases: ["ask"] },
+  { label: "Digest", href: "/digest", aliases: ["email"] },
+  { label: "Research", href: "/search", aliases: ["scout", "search"] },
+  { label: "Compare", href: "/compare", aliases: ["vs"] },
+  { label: "Judgment", href: "/judgment", aliases: ["overrides"] },
+  { label: "Work queue", href: "/work", aliases: ["diligence", "queue"] },
+  { label: "Library", href: "/library", aliases: ["news", "stale"] },
+  { label: "Find", href: "/find", aliases: ["omni"] },
+  { label: "Venture agent", href: "/os", aliases: ["agent", "os"] },
+  { label: "Forge", href: "/forge", aliases: ["win", "attention", "monday moves"] },
 ];
 
 type SearchTrail = { name: string; display: string };
@@ -35,6 +53,16 @@ export function CommandPalette() {
   const [busy, setBusy] = useState(false);
   const [pendingAsk, setPendingAsk] = useState<string | null>(null);
   const router = useRouter();
+
+  const navHits = (() => {
+    const needle = q.trim().toLowerCase();
+    if (!needle || needle.length < 1) return NAV_JUMPS.slice(0, 6);
+    return NAV_JUMPS.filter(
+      (n) =>
+        n.label.toLowerCase().includes(needle) ||
+        n.aliases.some((a) => a.includes(needle) || needle.includes(a)),
+    ).slice(0, 8);
+  })();
 
   useEffect(() => {
     const onKey = (e: KeyboardEvent) => {
@@ -123,8 +151,8 @@ export function CommandPalette() {
     <AnimatePresence>
       {open && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-start justify-center px-4 pt-[12vh] backdrop-blur-md"
-          style={{ background: "var(--overlay)" }}
+          className="fixed inset-0 z-50 flex items-start justify-center px-3 pt-[max(4.5rem,12dvh)] backdrop-blur-md sm:px-4"
+          style={{ background: "var(--overlay)", paddingBottom: "var(--safe-bottom)" }}
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -150,10 +178,32 @@ export function CommandPalette() {
                 className="w-full bg-transparent text-[1.05rem] font-medium outline-none placeholder:font-normal placeholder:text-[var(--faint)]"
               />
             </div>
-            <div className="max-h-[45vh] overflow-y-auto p-2 scrollbar-thin">
+            <div className="max-h-[min(52dvh,28rem)] overflow-y-auto p-2 scrollbar-thin sm:max-h-[45vh]">
               {!answer && (
                 <div className="space-y-0.5">
-                  {SUGGESTIONS.map((s) => (
+                  {q.trim() && navHits.length > 0 ? (
+                    <>
+                      <div className="px-3.5 pb-1 pt-2 label-caps">Jump</div>
+                      {navHits.map((n) => (
+                        <button
+                          key={n.href}
+                          type="button"
+                          className="block w-full rounded-[var(--radius)] px-3.5 py-2.5 text-left text-[0.875rem] font-medium text-[var(--text)] transition hover:bg-[var(--panel-2)]"
+                          onClick={() => {
+                            setOpen(false);
+                            router.push(n.href);
+                          }}
+                        >
+                          {n.label}
+                          <span className="ml-2 mono text-[0.7rem] text-[var(--faint)]">{n.href}</span>
+                        </button>
+                      ))}
+                      <div className="my-2 mx-3 h-px bg-[var(--line)]" />
+                    </>
+                  ) : null}
+                  {SUGGESTIONS.filter(
+                    (s) => !q.trim() || s.toLowerCase().includes(q.trim().toLowerCase()),
+                  ).map((s) => (
                     <button
                       key={s}
                       type="button"

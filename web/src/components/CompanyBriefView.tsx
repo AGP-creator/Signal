@@ -84,6 +84,21 @@ export function CompanyBriefView({ brief }: { brief: CompanyBrief }) {
           </Eyebrow>
           <h2 className="display mt-3 text-[2.5rem] md:text-[3.25rem]">{brief.name}</h2>
           <p className="body-muted mt-2.5 text-[1.05rem]">{cleanProse(brief.one_liner) || brief.one_liner}</p>
+          {scout ? (
+            <div
+              className="mt-4 rounded-[var(--radius)] border border-[var(--warn)]/35 bg-[var(--warn-dim)] px-4 py-3"
+              role="status"
+            >
+              <div className="text-[0.8125rem] font-semibold text-[var(--warn)]">
+                Scout brief — not IC-ready
+              </div>
+              <p className="mt-1 text-[0.8125rem] leading-relaxed text-[var(--muted)]">
+                External coverage only. Recommendation capped at Watch
+                {displayRec === "Pass" ? " (or Pass)" : ""}. Score marked est. — promote to
+                pipeline before IC.
+              </p>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap gap-x-2 gap-y-1 text-[0.8125rem] text-[var(--muted)]">
             <span>{brief.sector_theme || "—"}</span>
             <span className="text-[var(--faint)]">·</span>
@@ -101,7 +116,7 @@ export function CompanyBriefView({ brief }: { brief: CompanyBrief }) {
         <div className="text-right">
           <RecBadge rec={displayRec} />
           <div
-            className={`mono mt-3 text-[2.75rem] ${scout ? "text-[var(--muted)]" : "text-[var(--signal)]"}`}
+            className={`hero-metric mono mt-3 ${scout ? "text-[var(--muted)]" : "text-[var(--signal)]"}`}
           >
             {brief.thesis_score != null ? (
               <>
@@ -236,14 +251,14 @@ export function CompanyBriefView({ brief }: { brief: CompanyBrief }) {
           ) : null}
           <div className="space-y-5">
             {score != null ? (
-              <Panel className="flex flex-wrap items-center justify-around gap-4 !py-5">
+              <Panel className="gauge-card flex flex-wrap items-center justify-around gap-4 !py-5">
                 <GaugeChart
                   value={score}
                   max={100}
                   label="Thesis"
                   sub={scout ? "estimated" : "pipeline score"}
                   color={scout ? "var(--muted)" : "var(--signal)"}
-                  size={150}
+                  size={158}
                 />
                 {brief.runway_months_est != null ? (
                   <GaugeChart
@@ -259,7 +274,7 @@ export function CompanyBriefView({ brief }: { brief: CompanyBrief }) {
                           ? "var(--warn)"
                           : "var(--ok)"
                     }
-                    size={150}
+                    size={158}
                   />
                 ) : null}
               </Panel>
@@ -267,7 +282,7 @@ export function CompanyBriefView({ brief }: { brief: CompanyBrief }) {
             {radarScores && Object.keys(radarScores).length >= 3 ? (
               <Panel>
                 <div className="label-caps">Thesis radar</div>
-                <RadarChart scores={radarScores} size={210} className="mt-2" />
+                <RadarChart scores={radarScores} size={224} className="mt-2" />
               </Panel>
             ) : null}
           </div>

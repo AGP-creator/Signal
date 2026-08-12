@@ -5,6 +5,7 @@ import type { Company } from "@/lib/types";
 import { RecBadge } from "@/components/ui";
 import { getDemoFinancials } from "@/lib/demoFinancials";
 import { companyPath } from "@/lib/paths";
+import { evaluateThirdbaseCriteria } from "@/lib/thirdbaseCriteria";
 import { fmtMoneyM, fmtPct } from "@/lib/utils";
 import { cleanProse } from "@/lib/digestFormat";
 
@@ -12,6 +13,9 @@ export function DealCard({ company, index = 0 }: { company: Company; index?: num
   const pack = getDemoFinancials(company.slug) || getDemoFinancials(company.id);
   const spark = pack?.quarters.map((q) => q.arr_m) || [];
   const href = companyPath({ id: company.id, slug: company.slug }) || `/company/${company.id}`;
+  const criteria = evaluateThirdbaseCriteria(company);
+  const runway =
+    company.runway_months_est != null ? `${company.runway_months_est} mo runway` : null;
 
   return (
     <Link
@@ -29,6 +33,7 @@ export function DealCard({ company, index = 0 }: { company: Company; index?: num
               company.subsector || company.sector_theme,
               company.stage,
               company.relative_rank?.match(/^#[\d\s]+of\s+\d+/)?.[0] || null,
+              runway,
             ]
               .filter(Boolean)
               .join(" · ")}
@@ -38,6 +43,9 @@ export function DealCard({ company, index = 0 }: { company: Company; index?: num
           <RecBadge rec={company.recommendation} />
           <div className="mono mt-2.5 text-[1.3rem] font-semibold text-[var(--signal)]">
             {company.thesis_score?.toFixed(0)}
+          </div>
+          <div className="mono mt-1 text-[0.65rem] text-[var(--faint)]">
+            criteria {criteria.met}/{criteria.items.length}
           </div>
           {spark.length ? (
             <div className="mt-2 flex justify-end">

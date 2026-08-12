@@ -481,7 +481,7 @@ export function InterestDesk({ companies }: { companies: Company[] }) {
                 {schedule.meetings.map((m) => (
                   <div
                     key={m.company_id}
-                    className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--bg)] px-3 py-3"
+                    className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel-2)] px-3 py-3"
                   >
                     <div className="flex flex-wrap items-baseline justify-between gap-2">
                       <div className="font-semibold">

@@ -10,23 +10,55 @@ import type {
   SignalItem,
 } from "@/lib/types";
 
+/**
+ * Mirror Python `row_to_company`: merge JSON `payload` into flat columns so
+ * funding_rounds, product_notes, tier2/3 names, discovery_origin, etc. survive PostgREST reads.
+ * Flat columns win when non-null (fresher stamps from PATCH / refresh).
+ */
+export function rowToCompany(row: Record<string, unknown> | Company | null | undefined): Company | null {
+  if (!row || typeof row !== "object") return null;
+  const payload = (row as { payload?: unknown }).payload;
+  if (payload && typeof payload === "object" && (payload as { id?: string }).id) {
+    const flat: Record<string, unknown> = {};
+    for (const [k, v] of Object.entries(row)) {
+      if (k === "payload" || k === "created_at" || k === "updated_at") continue;
+      if (v !== null && v !== undefined) flat[k] = v;
+    }
+    return { ...(payload as Company), ...flat } as Company;
+  }
+  const { payload: _drop, created_at: _c, updated_at: _u, ...rest } = row as Record<
+    string,
+    unknown
+  > & { payload?: unknown; created_at?: unknown; updated_at?: unknown };
+  return rest as Company;
+}
+
+function rowsToCompanies(rows: unknown): Company[] {
+  if (!Array.isArray(rows)) return [];
+  return rows
+    .map((r) => rowToCompany(r as Record<string, unknown>))
+    .filter((c): c is Company => Boolean(c?.id));
+}
+
 export async function fetchCompanies(): Promise<Company[]> {
-  return restSelect<Company[]>("companies", {
+  const rows = await restSelect<Record<string, unknown>[]>("companies", {
     order: "thesis_score.desc.nullslast",
   });
+  return rowsToCompanies(rows);
 }
 
 export async function fetchCompany(idOrSlug: string): Promise<Company | null> {
-  const byId = await restSelect<Company[]>("companies", {
+  const byId = await restSelect<Record<string, unknown>[]>("companies", {
     eq: { id: idOrSlug },
     limit: 1,
   });
-  if (byId?.[0]) return byId[0];
-  const bySlug = await restSelect<Company[]>("companies", {
+  const fromId = rowToCompany(byId?.[0]);
+  if (fromId) return fromId;
+  const bySlug = await restSelect<Record<string, unknown>[]>("companies", {
     eq: { slug: idOrSlug },
     limit: 1,
   });
-  return bySlug?.[0] || null;
+  return rowToCompany(bySlug?.[0]);
 }
 
 export async function fetchCommentary(companyId?: string): Promise<Commentary[]> {

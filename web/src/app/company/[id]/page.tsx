@@ -8,12 +8,14 @@ import { IcTrailPanel } from "@/components/IcTrailPanel";
 import { LikeButton } from "@/components/LikeButton";
 import { OverridePanel } from "@/components/OverridePanel";
 import { PartnerLogPanel } from "@/components/PartnerLog";
+import { TrackCompanyView } from "@/components/RecentViews";
 import { ScoreBars } from "@/components/ScoreBars";
 import { SourceCoveragePanel } from "@/components/SourceCoveragePanel";
 import { GreatDealPanel } from "@/components/GreatDealDesk";
 import { ThesisCriteriaPanel } from "@/components/ThesisCriteriaPanel";
 import { RadarChart } from "@/components/charts";
 import { BackLink, Block, EmptyState, Meta, Panel, RecBadge } from "@/components/ui";
+import { CompanyQuickActions } from "@/components/CompanyQuickActions";
 import { fetchCommentary, fetchCompanies, fetchCompany, fetchPeers } from "@/lib/data";
 import { buildCommentaryIntel, postureTone } from "@/lib/commentaryIntel";
 import { resolveFundingRounds, resolveProductNotes } from "@/lib/companyBrief";
@@ -78,6 +80,13 @@ export default async function CompanyPage({
 
   return (
     <div className="space-y-9 animate-in">
+      <TrackCompanyView
+        id={company.id}
+        slug={company.slug}
+        name={company.name}
+        recommendation={company.recommendation}
+        thesis_score={company.thesis_score}
+      />
       <div className="flex flex-wrap items-start justify-between gap-6 border-b border-[var(--line)] pb-8">
         <div className="min-w-0 max-w-2xl">
           <BackLink href="/pipeline">Pipeline</BackLink>
@@ -132,13 +141,10 @@ export default async function CompanyPage({
                 Financials desk →
               </Link>
             ) : null}
-            <Link
-              href={`/compare?ids=${encodeURIComponent(company.id)}`}
-              className="btn btn-ghost btn-sm"
-            >
-              Compare →
-            </Link>
             <LikeButton companyId={company.id} />
+          </div>
+          <div className="mt-3">
+            <CompanyQuickActions companyId={company.id} companyName={company.name} />
           </div>
         </div>
         <div className="text-right">

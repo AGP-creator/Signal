@@ -23,17 +23,19 @@ Show PRODUCT one-liner slide if using a deck; otherwise go straight to **Desk** 
 
 ## 2. Monday path (90s)
 
-1. **Desk (`/`)** — Hot Deals (5), high alerts, 60/40 mix. Click **Open Monday agenda**.
-2. **Meeting (`/meeting`)** — ~90m partner agenda auto-built from Hot Deals, IC, alerts, stale.
-3. **Download Excel** — `Thirdbase_Deal_Pipeline.xlsx` is the debate surface:
+1. **Desk (`/`)** — Hot Deals (5), high alerts, 60/40 mix. Primary CTAs: **Open Forge** · **Open Monday agenda** · **Download Excel** · **Show a Pass**.
+2. **Forge (`/forge`)** — Win Reality + Attention Capital + three Monday Moves (the X-factor).
+3. **Meeting (`/meeting`)** — ~90m partner agenda auto-built from Hot Deals, IC, alerts, stale.
+4. **Download Excel** — `Thirdbase_Deal_Pipeline.xlsx` is the debate surface:
    - Pipeline · Hot Deals · Peer dossiers · Stale · Judgment OS
-4. Show one **Pass** (e.g. TokenTide / PipelineCloud) — “Selectivity is the product.”
+5. Show one **Pass** (e.g. TokenTide / PipelineCloud) — “Selectivity is the product.” Desk → **Show a Pass** opens `/pipeline?rec=Pass`.
 
-Line: *“Excel is intentional. Partners debate in sheets. The OS allocates attention.”*
+Line: *“Excel is intentional. Partners debate in sheets. Forge allocates attention to deals we can win.”*
 
-Skip `/atlas`, `/edge` and `/os` unless asked — they live under **More → Labs**.
+Primary nav: Desk · Meeting · Pipeline · Workbook · Chat · Digest · Research.  
+Forge lives under **More → Labs** and as the Desk primary CTA. Skip `/atlas`, `/edge` and `/os` unless asked.
 
-**If they ask “what about Harmonic / Affinity / Bessemer?”** (90s): open `/atlas` → Market map (“Map AI infra…”) → Warm paths → Growth bands. Line: *“They own databases and inbox graphs. Atlas is how Thirdbase forms a thesis and walks into IC — without becoming another CRM.”*
+**If they ask “what about Harmonic / Affinity / Bessemer?”** (90s): open `/atlas` → Market map (“Map AI infra…”) → Warm paths → Growth bands. Line: *“They own databases and inbox graphs. Atlas is how Thirdbase forms a thesis and walks into IC — without becoming another CRM. Forge is how we spend partner hours only where we can win.”*
 
 ---
 
@@ -85,9 +87,18 @@ Open a **Deep Dive** company page. Scroll to **Diligence Stress Pack**:
 
 ---
 
-## 6. Close (60s)
+## 6. Close — Signal Forge X-factor (90s)
+
+Open `/forge` (Desk → **Open Forge**, or More → Labs → Forge):
+
+1. **Monday Moves** — three irreversible commits before lunch. Hit **Commit move** on #1.
+2. **Win Reality** — pick a Deep Dive. Show win % ≠ thesis score (forces: warm path, timing, check fit, competition).
+3. **Attention Capital** — partner hours as scarce AUM; call out any **attention drain**.
+
+Line: *“Harmonic finds companies. Affinity finds paths. Auryn writes memos. Forge answers the only question that decides careers: where should scarce partner attention go — and can Thirdbase actually win?”*
 
 > We built the judgment layer and Monday ritual first. Databases plug in as connectors.  
-> If partners won’t open the digest without being chased — we failed.
+> If partners won’t open the digest without being chased — we failed.  
+> Forge is why they open it: it tells them what to do before noon.
 
 Optional stretch (only if time): Judgment OS, Competitors, LP Desk — not the core path.

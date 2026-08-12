@@ -244,36 +244,26 @@ export function WorkbookDesk({
 
       {tab === "pipeline" && (
         <div className="space-y-5 animate-in">
-          <div className="grid gap-3 sm:grid-cols-3">
-            <Panel className="!p-4">
+          <div className="viz-strip">
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Recommendation</div>
-              <div className="mt-2 flex flex-wrap items-center gap-3">
+              <div className="mt-auto flex flex-1 flex-wrap items-center gap-3 pt-2">
                 <DonutChart
-                  size={88}
-                  centerLabel=""
+                  size={108}
+                  centerLabel="book"
                   centerValue={String(companies.length)}
                   slices={recSlices}
+                  className="!gap-3"
                 />
-                <div className="space-y-1 text-[0.75rem] text-[var(--muted)]">
-                  {recSlices.map((s) => (
-                    <div key={s.label} className="flex items-center gap-2">
-                      <span
-                        className="h-2 w-2 shrink-0 rounded-full"
-                        style={{ background: s.color }}
-                      />
-                      {s.label} · {s.n}
-                    </div>
-                  ))}
-                </div>
               </div>
             </Panel>
-            <Panel className="!p-4">
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Thesis score bands</div>
-              <BarChart height={96} className="mt-2" series={scoreBands} color="var(--signal)" />
+              <BarChart height={148} className="mt-auto pt-2" series={scoreBands} color="var(--signal)" />
             </Panel>
-            <Panel className="!p-4">
+            <Panel className="viz-card !p-4">
               <div className="label-caps">Pipeline job</div>
-              <p className="mt-3 text-[0.875rem] leading-relaxed text-[var(--muted)]">
+              <p className="mt-auto pt-3 text-[0.875rem] leading-relaxed text-[var(--muted)]">
                 Full scored book: why now, thesis score, relative rank, recommendation — the shared
                 object of argument regenerated on every refresh.
               </p>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Manrope } from "next/font/google";
 import { AppShell } from "@/components/AppShell";
 import "./globals.css";
@@ -18,6 +18,16 @@ const mono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Signal | Thirdbase",
   description: "Thesis-ranked deal intelligence for Thirdbase partners.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#e8eef6" },
+    { media: "(prefers-color-scheme: dark)", color: "#07090f" },
+  ],
 };
 
 const themeInit = `

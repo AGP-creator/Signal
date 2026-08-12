@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { EmptyState, SegItem, Segmented } from "@/components/ui";
 import {
   OMNI_TYPE_LABELS,
@@ -36,6 +36,12 @@ export function OmniSearch({
 }) {
   const [q, setQ] = useState("");
   const [type, setType] = useState<OmniType | "All">("All");
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const prefill = new URLSearchParams(window.location.search).get("q")?.trim();
+    if (prefill) setQ(prefill);
+  }, []);
 
   const hits = useMemo(
     () =>

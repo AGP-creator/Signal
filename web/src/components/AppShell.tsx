@@ -3,34 +3,33 @@
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Search } from "lucide-react";
 import { CommandPalette } from "@/components/CommandPalette";
 import { RefreshButton } from "@/components/RefreshButton";
+import { ShortcutsHelp } from "@/components/ShortcutsHelp";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
-/** High-traffic path — unique intel first; keep short so the bar never wraps. */
+/** High-traffic Monday path — unique intel first; keep short so the bar never wraps. */
 const PRIMARY = [
   { href: "/", label: "Desk" },
-  { href: "/os", label: "Agent" },
-  { href: "/deals", label: "Deals" },
+  { href: "/meeting", label: "Meeting" },
   { href: "/pipeline", label: "Pipeline" },
-  { href: "/source", label: "Discovery" },
   { href: "/workbook", label: "Workbook" },
   { href: "/chat", label: "Chat" },
+  { href: "/digest", label: "Digest" },
+  { href: "/search", label: "Research" },
 ];
 
 const MORE = [
+  { href: "/deals", label: "Great deals", group: "Partner", blurb: "Noise vs outstanding" },
   { href: "/compare", label: "Compare", group: "Partner", blurb: "Side-by-side conviction" },
   { href: "/log", label: "Partner Log", group: "Partner", blurb: "Shared notes & threads" },
-  { href: "/edge", label: "Partner Edge", group: "Partner", blurb: "Anti-consensus radar" },
   { href: "/judgment", label: "Judgment", group: "Partner", blurb: "Overrides & misses" },
   { href: "/gp", label: "GP Desk", group: "Partner", blurb: "Partner operating view" },
   { href: "/ic", label: "IC Trail", group: "Partner", blurb: "Stage & checklist" },
   { href: "/work", label: "Work queue", group: "Partner", blurb: "Diligence handoffs" },
-  { href: "/meeting", label: "Partner Meeting", group: "Partner", blurb: "Optional agenda helper" },
   { href: "/interest", label: "Interest Desk", group: "Partner", blurb: "Partner watchlists + Excel" },
-  { href: "/digest", label: "Digest", group: "Intel", blurb: "M/W/F priority mail" },
   { href: "/competitors", label: "Competitors", group: "Intel", blurb: "Firm list & analytics" },
   { href: "/peers", label: "Competitor OS", group: "Intel", blurb: "Peer heat & syndicates" },
   { href: "/firms", label: "VC Firms", group: "Intel", blurb: "Firm watchlist tracker" },
@@ -39,12 +38,15 @@ const MORE = [
   { href: "/launch", label: "Launch Feed", group: "Intel", blurb: "New signals" },
   { href: "/directory", label: "Directory", group: "Intel", blurb: "Firm book" },
   { href: "/find", label: "Find", group: "Intel", blurb: "Cross-corpus search" },
-  { href: "/search", label: "Research", group: "Intel", blurb: "IC / scout briefs" },
-  { href: "/atlas", label: "Atlas", group: "AI", blurb: "Market map" },
+  { href: "/source", label: "Discovery", group: "Intel", blurb: "Deal sourcing agent" },
+  { href: "/os", label: "Venture agent", group: "Labs", blurb: "Core intelligence pillars" },
+  { href: "/forge", label: "Forge", group: "Labs", blurb: "Win reality × attention" },
+  { href: "/edge", label: "Partner Edge", group: "Labs", blurb: "Anti-consensus radar" },
+  { href: "/atlas", label: "Atlas", group: "Labs", blurb: "Market map vs Harmonic/Affinity" },
   { href: "/lp", label: "LP Desk", group: "External", blurb: "LP narrative" },
 ] as const;
 
-const GROUPS = ["Partner", "Intel", "AI", "External"] as const;
+const GROUPS = ["Partner", "Intel", "Labs", "External"] as const;
 
 const PRIMARY_HREFS = new Set(PRIMARY.map((p) => p.href));
 
@@ -66,6 +68,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   const [modKey, setModKey] = useState<string | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const moreRef = useRef<HTMLDivElement>(null);
+  const mobileNavRef = useRef<HTMLDivElement>(null);
 
   const moreActive = MORE.some(
     (item) => !PRIMARY_HREFS.has(item.href) && isActive(pathname, item.href),
@@ -78,6 +81,16 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMoreOpen(false);
+  }, [pathname]);
+
+  useEffect(() => {
+    const strip = mobileNavRef.current;
+    if (!strip) return;
+    const active = strip.querySelector<HTMLElement>('[data-active="true"]');
+    if (!active) return;
+    const target =
+      active.offsetLeft - strip.clientWidth / 2 + active.offsetWidth / 2;
+    strip.scrollTo({ left: Math.max(0, target), behavior: "smooth" });
   }, [pathname]);
 
   useEffect(() => {
@@ -96,22 +109,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
   }, []);
 
   return (
-    <div className="relative z-10 min-h-screen">
-      <header className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--header-bg)] shadow-[0_1px_0_color-mix(in_srgb,var(--signal)_12%,transparent)] backdrop-blur-2xl">
-        <div className="flex h-[var(--header-h)] w-full items-center gap-4 px-5 md:gap-6 md:px-8">
+    <div className="relative z-10 min-h-screen min-h-[100dvh]">
+      <header
+        className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--header-bg)] shadow-[0_1px_0_color-mix(in_srgb,var(--signal)_12%,transparent)] backdrop-blur-2xl"
+        style={{ paddingTop: "var(--safe-top)" }}
+      >
+        <div className="shell-rail flex h-[var(--header-h)] items-center gap-3 md:gap-5">
           <Link href="/" className="group flex shrink-0 items-center gap-2.5">
             <span className="brand-mark transition group-hover:brightness-110" aria-hidden>
               S
             </span>
             <span className="flex items-baseline gap-2">
-              <span className="display text-[1.2rem] leading-tight tracking-tight">Signal</span>
+              <span className="display text-[1.15rem] leading-tight tracking-tight sm:text-[1.2rem]">
+                Signal
+              </span>
               <span className="hidden text-[0.6rem] font-semibold tracking-[0.18em] text-[var(--faint)] sm:inline">
                 THIRDBASE
               </span>
             </span>
           </Link>
 
-          <nav className="hidden min-w-0 flex-1 items-center gap-0.5 lg:flex" aria-label="Primary">
+          <nav
+            className="hidden min-w-0 flex-1 items-center gap-0.5 xl:flex"
+            aria-label="Primary"
+          >
             {PRIMARY.map((item) => {
               const active = isActive(pathname, item.href);
               return (
@@ -145,7 +166,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               {moreOpen && (
                 <div
                   role="menu"
-                  className="absolute left-0 top-[calc(100%+0.55rem)] z-50 max-h-[min(32rem,calc(100vh-var(--header-h)-1.25rem))] w-[min(42rem,calc(100vw-2rem))] overflow-y-auto overscroll-contain rounded-[var(--radius-xl)] border border-[var(--line)] bg-[var(--panel-elevated)] shadow-[var(--shadow-float)] animate-in scrollbar-thin"
+                  className="absolute left-0 top-[calc(100%+0.55rem)] z-50 max-h-[min(32rem,calc(100dvh-var(--header-h)-1.25rem))] w-[min(42rem,calc(100vw-2rem))] overflow-y-auto overscroll-contain rounded-[var(--radius-xl)] border border-[var(--line)] bg-[var(--panel-elevated)] shadow-[var(--shadow-float)] animate-in scrollbar-thin"
                 >
                   <div className="grid gap-0 sm:grid-cols-2">
                     {GROUPS.map((group) => {
@@ -191,26 +212,30 @@ export function AppShell({ children }: { children: React.ReactNode }) {
             </div>
           </nav>
 
-          <div className="ml-auto flex shrink-0 items-center gap-1.5">
+          <div className="ml-auto flex shrink-0 items-center gap-1">
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("signal:open-command"))}
-              className="btn btn-ghost btn-sm hidden sm:inline-flex"
+              className="btn btn-ghost btn-sm inline-flex"
+              aria-label="Ask Signal"
             >
-              <span>Ask</span>
+              <Search className="h-3.5 w-3.5 sm:hidden" strokeWidth={2} aria-hidden />
+              <span className="hidden sm:inline">Ask</span>
               {modKey ? (
-                <kbd className="mono rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--panel-2)] px-1.5 py-0.5 text-[0.6rem] text-[var(--faint)]">
+                <kbd className="mono hidden rounded-[var(--radius-sm)] border border-[var(--line)] bg-[var(--panel-2)] px-1.5 py-0.5 text-[0.6rem] text-[var(--faint)] sm:inline">
                   {modKey}K
                 </kbd>
               ) : null}
             </button>
+            <ShortcutsHelp />
             <ThemeToggle />
             <RefreshButton />
           </div>
         </div>
 
         <div
-          className="flex w-full gap-0.5 overflow-x-auto px-4 pb-2.5 scrollbar-thin lg:hidden"
+          ref={mobileNavRef}
+          className="nav-strip flex shell-rail scrollbar-thin xl:hidden"
           aria-label="Sections"
         >
           {MOBILE_NAV.map((item) => {
@@ -219,7 +244,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
               <Link
                 key={item.href}
                 href={item.href}
-                className="nav-link shrink-0"
+                className="nav-link"
                 data-active={active ? "true" : "false"}
               >
                 {item.label}
@@ -229,7 +254,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="w-full px-5 py-7 md:px-8 md:py-10">{children}</main>
+      <main className="shell-main">{children}</main>
       <CommandPalette />
     </div>
   );

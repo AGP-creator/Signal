@@ -9,12 +9,20 @@ import { loadMergedTrails } from "@/lib/icStore";
 import {
   buildMeetingMatch,
   consumeInterestMeetingHandoff,
-  loadInterest,
   type InterestMeetingHandoff,
   type MatchMeeting,
 } from "@/lib/interest";
 import { loadOverrides } from "@/lib/overrideStore";
-import { applyStaleReviews, loadStaleReviews } from "@/lib/staleReviewStore";
+import {
+  applyStaleReviews,
+  hydrateStaleReviews,
+  loadStaleReviews,
+} from "@/lib/staleReviewStore";
+import {
+  fetchWatchlists,
+  itemsToInterest,
+  loadWatchlistPartner,
+} from "@/lib/watchlists";
 import { buildMeetingPack, type AgendaItem, type MeetingPack } from "@/lib/meeting";
 import type {
   AlertItem,
@@ -91,6 +99,7 @@ export function MeetingOS({
 
   useEffect(() => {
     const sync = () => setStaleTick((n) => n + 1);
+    void hydrateStaleReviews().then(sync);
     window.addEventListener("signal:stale-reviews-changed", sync);
     window.addEventListener("signal:overrides-changed", sync);
     return () => {
@@ -100,23 +109,37 @@ export function MeetingOS({
   }, []);
 
   useEffect(() => {
-    const handoff = consumeInterestMeetingHandoff();
-    if (handoff?.meetings?.length) {
-      setInterestHandoff(handoff);
-      return;
-    }
-    if (fromInterest) {
-      const schedule = buildMeetingMatch(companies, loadInterest());
-      if (schedule.meetings.length) {
-        setInterestHandoff({
-          created_at: new Date().toISOString(),
-          meetings: schedule.meetings,
-          unmatched_liked: schedule.unmatched_liked,
-          counsel: schedule.counsel,
-          average_quality: schedule.average_quality,
-        });
+    let cancelled = false;
+    async function loadInterestAgenda() {
+      const handoff = consumeInterestMeetingHandoff();
+      if (handoff?.meetings?.length) {
+        if (!cancelled) setInterestHandoff(handoff);
+        return;
+      }
+      if (!fromInterest) return;
+      try {
+        const partner = loadWatchlistPartner();
+        const snap = await fetchWatchlists(partner);
+        if (cancelled) return;
+        const interest = itemsToInterest(snap.items || []);
+        const schedule = buildMeetingMatch(companies, interest);
+        if (schedule.meetings.length) {
+          setInterestHandoff({
+            created_at: new Date().toISOString(),
+            meetings: schedule.meetings,
+            unmatched_liked: schedule.unmatched_liked,
+            counsel: schedule.counsel,
+            average_quality: schedule.average_quality,
+          });
+        }
+      } catch {
+        // no DB watchlist — leave default meeting pack
       }
     }
+    void loadInterestAgenda();
+    return () => {
+      cancelled = true;
+    };
   }, [companies, fromInterest]);
 
   const basePack: MeetingPack = useMemo(() => {

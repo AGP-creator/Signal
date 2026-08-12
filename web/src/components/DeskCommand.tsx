@@ -8,6 +8,7 @@ import {
   Briefcase,
   Calendar,
   Compass,
+  Crosshair,
   FileSpreadsheet,
   Building2,
   Flame,
@@ -24,11 +25,13 @@ import {
   Users,
   Workflow,
   Zap,
+  NotebookPen,
 } from "lucide-react";
 import { DealCard } from "@/components/DealCard";
 import { ExternalLink } from "@/components/ExternalLink";
 import { CompanyLink, CompetitorLink } from "@/components/EntityLink";
 import { MixGauge } from "@/components/MixGauge";
+import { RecentViewsStrip } from "@/components/RecentViews";
 import { BarChart, DonutChart } from "@/components/charts";
 import {
   EmptyState,
@@ -42,7 +45,11 @@ import { buildAiOsPack } from "@/lib/aiOs";
 import { type DealTrail } from "@/lib/icTrail";
 import { loadMergedTrails } from "@/lib/icStore";
 import { NEWS_KIND_META, selectNewsWorthReading } from "@/lib/newsWorthReading";
-import { applyStaleReviews, loadStaleReviews } from "@/lib/staleReviewStore";
+import {
+  applyStaleReviews,
+  hydrateStaleReviews,
+  loadStaleReviews,
+} from "@/lib/staleReviewStore";
 import type {
   AlertItem,
   Commentary,
@@ -63,6 +70,13 @@ const MODULES: {
   group: "Decide" | "Partner" | "AI" | "Intel" | "Source" | "External";
   icon: ReactNode;
 }[] = [
+  {
+    href: "/forge",
+    label: "Forge",
+    blurb: "Win reality × attention",
+    group: "Decide",
+    icon: <Crosshair className="h-4 w-4" strokeWidth={1.75} />,
+  },
   {
     href: "/os",
     label: "Venture agent",
@@ -90,6 +104,13 @@ const MODULES: {
     blurb: "Anti-consensus radar",
     group: "Partner",
     icon: <Zap className="h-4 w-4" strokeWidth={1.75} />,
+  },
+  {
+    href: "/log",
+    label: "Partner Log",
+    blurb: "Shared notes & threads",
+    group: "Partner",
+    icon: <NotebookPen className="h-4 w-4" strokeWidth={1.75} />,
   },
   {
     href: "/judgment",
@@ -250,6 +271,12 @@ const MODULES: {
 /** Hero feature rail — Monday path first, then stretch desks. */
 const FEATURED = [
   {
+    href: "/forge",
+    label: "Forge",
+    blurb: "Win reality × attention",
+    icon: <Crosshair className="h-3.5 w-3.5" strokeWidth={1.75} />,
+  },
+  {
     href: "/meeting",
     label: "Monday agenda",
     blurb: "~90m partner meeting",
@@ -278,12 +305,6 @@ const FEATURED = [
     label: "Digest",
     blurb: "M/W/F priority mail",
     icon: <Radar className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
-    href: "/deals",
-    label: "Great deals",
-    blurb: "Noise vs outstanding",
-    icon: <Trophy className="h-3.5 w-3.5" strokeWidth={1.75} />,
   },
 ] as const;
 
@@ -335,6 +356,7 @@ export function DeskCommand({
 
   useEffect(() => {
     const sync = () => setStaleTick((n) => n + 1);
+    void hydrateStaleReviews().then(sync);
     window.addEventListener("signal:stale-reviews-changed", sync);
     return () => {
       window.removeEventListener("signal:stale-reviews-changed", sync);
@@ -455,7 +477,10 @@ export function DeskCommand({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-2.5">
-            <Link href="/meeting" className="btn btn-primary btn-sm">
+            <Link href="/forge" className="btn btn-primary btn-sm">
+              Open Forge
+            </Link>
+            <Link href="/meeting" className="btn btn-soft btn-sm">
               Open Monday agenda
             </Link>
             <a href="/api/workbook" className="btn btn-soft btn-sm">
@@ -465,7 +490,7 @@ export function DeskCommand({
               Show a Pass
             </Link>
             <span className="hidden text-[0.75rem] text-[var(--faint)] sm:inline">
-              Desk → Meeting → Excel
+              Forge → Meeting → Excel
             </span>
           </div>
 
@@ -485,6 +510,8 @@ export function DeskCommand({
 
         </div>
       </section>
+
+      <RecentViewsStrip />
 
       {/* ── Module launcher (LOCKED square grid) ─────────────── */}
       <section className="animate-in" style={{ animationDelay: "40ms" }}>
@@ -510,14 +537,14 @@ export function DeskCommand({
 
       {/* ── Analytics strip ──────────────────────────────────── */}
       <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <Panel className="!p-4 md:!p-5">
+        <Panel className="viz-card !p-4 md:!p-5">
           <MixGauge dominantPct={mix.dominantPct} tacticalPct={mix.tacticalPct} />
         </Panel>
-        <Panel className="!p-4 md:!p-5">
+        <Panel className="viz-card !p-4 md:!p-5">
           <div className="label-caps">Recommendation mix</div>
-          <div className="mt-2">
+          <div className="mt-auto pt-2">
             <DonutChart
-              size={128}
+              size={132}
               centerLabel="names"
               centerValue={String(reviewed.length)}
               slices={[
@@ -540,15 +567,15 @@ export function DeskCommand({
             />
           </div>
         </Panel>
-        <Panel className="!p-4 md:!p-5">
+        <Panel className="viz-card !p-4 md:!p-5">
           <div className="label-caps">Score distribution</div>
-          <BarChart height={140} className="mt-2" series={scoreBands} />
+          <BarChart height={156} className="mt-auto pt-2" series={scoreBands} />
         </Panel>
-        <Panel className="!p-4 md:!p-5">
+        <Panel className="viz-card !p-4 md:!p-5">
           <div className="label-caps">Sector heat</div>
           <BarChart
-            height={140}
-            className="mt-2"
+            height={156}
+            className="mt-auto pt-2"
             series={sectorBars}
             color="var(--warn)"
             formatValue={(v) => String(Math.round(v))}
@@ -672,6 +699,9 @@ export function DeskCommand({
               ))}
             </div>
             <div className="mt-4 flex flex-wrap gap-2 border-t border-[var(--line)] pt-4">
+              <Link href="/forge" className="btn btn-ghost btn-sm">
+                Forge
+              </Link>
               <Link href="/deals" className="btn btn-ghost btn-sm">
                 Great deals
               </Link>

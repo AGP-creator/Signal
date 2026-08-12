@@ -44,9 +44,20 @@ export default function SearchPage() {
   const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const suggestSeq = useRef(0);
   const abortRef = useRef<AbortController | null>(null);
+  const bootstrapped = useRef(false);
 
   useEffect(() => {
     inputRef.current?.focus();
+  }, []);
+
+  useEffect(() => {
+    if (bootstrapped.current || typeof window === "undefined") return;
+    const prefill = new URLSearchParams(window.location.search).get("q")?.trim();
+    if (!prefill) return;
+    bootstrapped.current = true;
+    setQ(prefill);
+    void runResearch(prefill);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {

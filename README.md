@@ -56,23 +56,19 @@ Set `SMTP_HOST`, `SMTP_USER`, `SMTP_PASSWORD`, and `DIGEST_TO` in `.env` to deli
 
 ## Pages (Monday path)
 
-- `/` Desk — Hot Deals, alerts, Monday agenda CTA, Excel download
+- `/` Desk — Hot Deals, 60/40 mix, Monday agenda CTA, Excel download, Show a Pass
 - `/meeting` Partner Meeting OS — auto Monday agenda (~90m)
 - `/workbook` Living deal-pipeline workbook (tabs + Excel download)
-- `/pipeline` Filterable scored table
-- `/deals` Great deals — noise vs outstanding
-- `/source` Deal Sourcing & Discovery
-- `/work` Diligence work queue
-- `/search` Research — pipeline IC briefs; external = scout (Watch-capped)
+- `/pipeline` Filterable scored table (`?rec=Pass` for selectivity beat)
+- `/search` Research — pipeline IC briefs; external = scout (Watch-capped, not IC-ready banner)
 - `/chat` + ⌘K — grounded answers or refuse
-- `/os` Venture agent — core intelligence pillars
-- `/company/[id]` Full IC brief + Diligence Stress Pack + financials
 - `/digest` M/W/F email preview
+- `/company/[id]` Full IC brief + Diligence Stress Pack + financials
 - `/library` News · Commentary · Watchlist · Stale (Keep / Archive / Refresh)
+- `/deals` · `/source` · `/work` · `/os` · `/ic` · `/judgment` · `/compare` · `/gp` — supporting desks
 - `/competitors` · `/peers` · `/firms` — firm list, Competitor OS, watchlist tracker
-- `/ic` · `/judgment` · `/compare` · `/gp` · `/interest` — partner desks
-- `/directory` · `/launch` · `/find` — browse, launches, omnisearch
-- `/lp` · `/atlas` · `/edge` — LP narrative & labs
+- `/directory` · `/launch` · `/find` · `/interest` — browse, launches, omnisearch, Demo Day match
+- `/lp` · `/atlas` · `/edge` — LP narrative & Labs (More → Labs)
 
 Diligence Stress Pack ships on company pages. Landscape: [docs/AGENTIC_VC_LANDSCAPE.md](docs/AGENTIC_VC_LANDSCAPE.md)
 

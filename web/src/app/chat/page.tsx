@@ -29,12 +29,12 @@ import type { CompanyBrief } from "@/lib/research";
 import { cn } from "@/lib/utils";
 
 const STARTERS = [
-  "Knows what a great deal looks like",
-  "What sectors will matter in 24 months?",
-  "Venture agent core intelligence",
-  "Partner meeting agenda",
+  "Monday partner agenda",
+  "What are three AI infrastructure sub-sectors nobody is talking about yet?",
+  "Are we overweight tactical vs 60/40?",
   "Top Deep Dive deals",
   "News worth reading",
+  "Partner meeting agenda",
 ];
 
 type Msg = ChatMessage;
@@ -258,7 +258,7 @@ export default function ChatPage() {
   }
 
   return (
-    <div className="flex min-h-[72vh] w-full flex-col space-y-5">
+    <div className="flex min-h-[min(72dvh,720px)] w-full min-w-0 flex-col space-y-4 md:space-y-5">
       <PageHeader
         eyebrow="Chat"
         title="Ask Signal"
@@ -364,7 +364,7 @@ export default function ChatPage() {
           </div>
 
           <div className="chat-composer">
-            <div className="mb-3 flex flex-wrap gap-2">
+            <div className="mb-3 flex flex-wrap gap-1.5">
               {STARTERS.map((s) => (
                 <button
                   key={s}
