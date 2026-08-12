@@ -1,5 +1,5 @@
 import { MeetingOS } from "@/components/MeetingOS";
-import { PageHeader } from "@/components/ui";
+import { Page, PageHeader } from "@/components/ui";
 import {
   fetchAlerts,
   fetchCommentary,
@@ -8,6 +8,7 @@ import {
   fetchPeers,
   fetchSectors,
 } from "@/lib/data";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -22,21 +23,18 @@ export default async function MeetingPage() {
   ]);
 
   return (
-    <div className="space-y-8">
-      <PageHeader
-        live
-        eyebrow="Monday ritual"
-        title="Partner Meeting OS"
-        description="Auto-built agenda from Hot Deals, IC trails, alerts, peer thesis shifts, mix drift, and stale review — capped to ~90 minutes so partners decide, not drown."
-      />
-      <MeetingOS
-        companies={companies}
-        peers={peers}
-        commentary={commentary}
-        news={news}
-        alerts={alerts}
-        sectors={sectors}
-      />
-    </div>
+    <Page>
+      <PageHeader live eyebrow="Partner ritual" title="Partner Meeting" />
+      <Suspense fallback={null}>
+        <MeetingOS
+          companies={companies}
+          peers={peers}
+          commentary={commentary}
+          news={news}
+          alerts={alerts}
+          sectors={sectors}
+        />
+      </Suspense>
+    </Page>
   );
 }

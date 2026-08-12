@@ -167,7 +167,7 @@ gp_watchlist:
   - name: Patrick Collison
     handle: patrickc
     url: https://x.com/patrickc
-  - name: Tobi Lutke
+  - name: Tobi Lütke
     handle: tobi
     url: https://x.com/tobi
   - name: Aswath Damodaran
@@ -260,7 +260,7 @@ peer_firms:
     aliases: [Tiger Global, Tiger]
     stated_focus: Growth internet
   - name: IVP
-    aliases: []
+    aliases: [Institutional Venture Partners]
     stated_focus: Growth-stage technology
   - name: Bessemer Venture Partners
     aliases: [Bessemer]
@@ -362,7 +362,7 @@ peer_firms:
     aliases: []
     stated_focus: Climate / energy
   - name: Sante Ventures
-    aliases: []
+    aliases: [Santé Ventures, Sante]
     stated_focus: Healthcare
   - name: StageOne Ventures
     aliases: []
@@ -391,8 +391,8 @@ peer_firms:
   - name: Silver Lake
     aliases: []
     stated_focus: Tech private equity
-  - name: USV
-    aliases: [Union Square Ventures]
+  - name: Union Square Ventures
+    aliases: [USV]
     stated_focus: Thesis-driven technology
   - name: SlateVC
     aliases: []

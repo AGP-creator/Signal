@@ -1,5 +1,5 @@
 /**
- * Partner Meeting OS — the Monday ritual object.
+ * Partner Meeting OS — the weekly partner ritual object.
  *
  * GPs don't need another dashboard. They need a 90-minute agenda:
  * decide / diligence / watch / firm / LP-ready narrative.
@@ -247,7 +247,7 @@ export function buildMeetingPack(
       block: "firm",
       minutes: 8,
       title: `Stale review (${stale.length})`,
-      subtitle: "≥90 days · never auto-delete",
+      subtitle: "≥90 days · partner review",
       urgency: stale.length >= 3 ? "this_week" : "monitor",
       href: "/library?tab=stale",
       evidence: stale.slice(0, 4).map((c) => `${c.name} · ${c.recommendation}`),
@@ -328,15 +328,14 @@ export function buildMeetingPack(
 
   const counsel = [
     judgment.mix_drift.alarm || null,
-    highAlerts ? `${highAlerts} high-severity alert${highAlerts === 1 ? "" : "s"} need routing` : null,
-    stale.length ? `${stale.length} stale entries await human review` : null,
-    "Models propose. Partners convict. Record every Pass.",
+    highAlerts ? `${highAlerts} high alert${highAlerts === 1 ? "" : "s"}` : null,
+    stale.length ? `${stale.length} stale for review` : null,
   ]
     .filter(Boolean)
     .join(" · ");
 
   const total_minutes = capped.reduce((s, i) => s + i.minutes, 0);
-  const meeting_label = "Monday Partner Meeting · Week of Aug 10, 2026";
+  const meeting_label = "Partner Meeting · Week of Aug 10, 2026";
 
   const markdown = [
     `# ${meeting_label}`,

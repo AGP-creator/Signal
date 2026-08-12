@@ -77,59 +77,20 @@ def build_pipeline_context(limit_companies: int = 60) -> str:
 
 
 def get_brief(company_name: str) -> str:
+    from src.briefs import brief_to_markdown, build_intelligence_brief
+    from src.intelligence.peers import build_comparable_sets
+
     c = find_company_by_name(company_name)
     if not c:
         return f"No company matching '{company_name}' in the Signal pipeline."
     commentary = [x for x in load_table("commentary") if x.get("company_id") == c["id"]]
     peers = [x for x in load_table("peer_activity") if x.get("company_id") == c["id"]]
-    lines = [
-        f"# IC Brief — {c['name']}",
-        f"**Recommendation:** {c.get('recommendation')} · **Score:** {c.get('thesis_score')} · **Rank:** {c.get('relative_rank')}",
-        "",
-        "## One-liner",
-        c.get("one_liner") or "",
-        "",
-        "## Funding history",
-        f"Stage {c.get('stage')}; last round ${c.get('last_round_size_m')}M on {c.get('last_round_date')}; "
-        f"valuation ${c.get('valuation_est_m')}M ({c.get('valuation_confidence')}); lead {c.get('lead_investor')}.",
-        "",
-        "## Cap table quality",
-        f"Tier-1 count: {c.get('tier1_count')} ({', '.join(c.get('tier1_names') or [])}). "
-        f"Tier-2 count: {c.get('tier2_count')} ({', '.join(c.get('tier2_names') or [])}). "
-        f"Tier-3 count: {c.get('tier3_count')} ({', '.join(c.get('tier3_names') or [])}). "
-        f"Investors: {', '.join(c.get('investors') or [])}.",
-        "",
-        "## Team & hiring",
-        c.get("team_notes") or "",
-        f"Headcount {c.get('headcount')}; 6m growth {c.get('headcount_6m_growth_pct')}%.",
-        "",
-        "## Product traction",
-        c.get("traction_notes") or "",
-        f"YoY {c.get('yoy_growth_pct')}%; runway ~{c.get('runway_months_est')} months.",
-        "",
-        "## Thesis fit",
-        f"{c.get('sector_theme')} / {c.get('subsector')} · bucket {c.get('pipeline_bucket')}",
-        c.get("moat_notes") or "",
-        "",
-        "## Score breakdown",
-        json.dumps(c.get("score_breakdown") or {}, indent=2),
-        "",
-        "## Investor & operator commentary",
-    ]
-    for cm in commentary:
-        lines.append(f"- ({cm.get('source')}, {cm.get('sentiment')}): {cm.get('quote_or_summary')}")
-    if not commentary:
-        lines.append("- None captured yet.")
-    lines += ["", "## Peer activity"]
-    for p in peers:
-        lines.append(f"- {p.get('firm')} · {p.get('round')} · {p.get('notes')}")
-    lines += ["", "## Why now", c.get("why_now") or "", "", "## Open questions for partner"]
-    lines += [
-        "- What is true entry valuation vs last marked round?",
-        "- Diligence: customer references and retention?",
-        "- Synergies with existing Thirdbase portfolio?",
-    ]
-    return "\n".join(lines)
+    companies = load_all_companies()
+    comps = (build_comparable_sets(companies).get(c["id"]) or []) if companies else []
+    brief = build_intelligence_brief(
+        c, commentary, peers, comps, trigger="on_demand"
+    )
+    return brief_to_markdown(brief)
 
 
 def _filter_sectors_for_question(question: str, sectors: list[dict[str, Any]]) -> list[dict[str, Any]]:

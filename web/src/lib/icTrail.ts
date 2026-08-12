@@ -201,7 +201,7 @@ export function buildDemoTrails(companies: Company[]): DealTrail[] {
               id: "ev_pm_4",
               stage: "partner_meeting",
               actor: "GP",
-              note: "On Monday agenda — seek proceed-to-IC",
+              note: "On partner agenda — seek proceed-to-IC",
               at: "2026-08-10T08:00:00Z",
             },
           ],
@@ -323,9 +323,10 @@ export function voteSummary(votes: IcVote[]) {
 export function diligenceProgress(items: DiligenceItem[]) {
   const actionable = items.filter((i) => i.status !== "na");
   const done = actionable.filter((i) => i.status === "done").length;
+  const in_progress = actionable.filter((i) => i.status === "in_progress").length;
   const blocked = actionable.filter((i) => i.status === "blocked").length;
   const pct = actionable.length ? Math.round((100 * done) / actionable.length) : 0;
-  return { done, total: actionable.length, blocked, pct };
+  return { done, total: actionable.length, blocked, in_progress, pct };
 }
 
 export function trailsNeedingMeeting(trails: DealTrail[]) {

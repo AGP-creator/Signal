@@ -29,6 +29,15 @@ export type Company = {
   moat_notes?: string | null;
   team_notes?: string | null;
   traction_notes?: string | null;
+  product_notes?: string | null;
+  funding_rounds?: {
+    round: string;
+    date?: string | null;
+    amount_m?: number | null;
+    post_m?: number | null;
+    lead?: string | null;
+    confidence?: string | null;
+  }[];
   last_signal_date?: string | null;
   sources?: string[];
   is_stale?: boolean;
@@ -40,6 +49,12 @@ export type Company = {
   why_now?: string | null;
   commentary_summary?: string | null;
   brief_id?: string | null;
+  /** Present on live-discovered Watch skeletons from discovery.py */
+  discovery_origin?: {
+    signal_id?: string | null;
+    signal_type?: string | null;
+    url?: string | null;
+  } | null;
 };
 
 export type Commentary = {
@@ -97,15 +112,42 @@ export type AlertItem = {
   created_at?: string;
 };
 
+/** Continuous deal-sourcing event (seed prefill or live adapter). */
+export type SignalItem = {
+  id: string;
+  company_id?: string | null;
+  company_name?: string | null;
+  source?: string | null;
+  signal_type?: string | null;
+  title?: string | null;
+  summary?: string | null;
+  url?: string | null;
+  observed_at?: string | null;
+  raw?: Record<string, unknown> | null;
+};
+
 export type DigestDeal = {
   name: string;
   score?: number | null;
   recommendation?: string | null;
   rationale?: string | null;
+  why_now?: string | null;
+  one_liner?: string | null;
   brief_id?: string | null;
   brief_url?: string | null;
   slug?: string | null;
   sector?: string | null;
+  subsector?: string | null;
+  stage?: string | null;
+  team_notes?: string | null;
+  traction_notes?: string | null;
+  moat_notes?: string | null;
+  lead_investor?: string | null;
+  tier1_count?: number | null;
+  tier1_names?: string[];
+  yoy_growth_pct?: number | null;
+  valuation_est_m?: number | null;
+  valuation_confidence?: string | null;
 };
 
 export type DigestSectorCall = {
@@ -121,6 +163,9 @@ export type DigestNewsItem = {
   source?: string;
   why?: string;
   url?: string | null;
+  kind?: string;
+  related_themes?: string[];
+  published_at?: string;
 };
 
 export type DigestPeerMove = {

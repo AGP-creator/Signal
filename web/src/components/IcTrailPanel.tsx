@@ -10,7 +10,7 @@ import {
   type DealTrail,
   type IcStage,
 } from "@/lib/icTrail";
-import { advanceStage, loadTrails, upsertTrail } from "@/lib/icStore";
+import { advanceStage, loadTrails } from "@/lib/icStore";
 import type { Company } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
@@ -35,12 +35,14 @@ export function IcTrailPanel({ company }: { company: Company }) {
   const prog = diligenceProgress(trail.diligence);
 
   function ensureAndAdvance(stage: IcStage) {
-    const stored = loadTrails();
-    if (!stored.some((t) => t.company_id === company.id)) {
-      upsertTrail(trail!);
-    }
-    advanceStage(company.id, stage, "Partner", `Set stage to ${STAGE_LABEL[stage]} from company brief`);
-    refresh();
+    const next = advanceStage(
+      company.id,
+      stage,
+      "Partner",
+      `Set stage to ${STAGE_LABEL[stage]} from company brief`,
+      trail || seedTrailFromCompany(company),
+    );
+    if (next) setTrail(next);
   }
 
   return (

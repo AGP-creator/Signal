@@ -2,24 +2,23 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Eyebrow, EmptyState, Panel } from "@/components/ui";
+import { CompanyLink } from "@/components/EntityLink";
+import { EmptyState, Eyebrow, MiniStat, OsBanner, Panel, SegItem, Segmented } from "@/components/ui";
 import {
-  buildDemoTrails,
   diligenceProgress,
-  mergeTrailsWithCompanies,
   STAGE_LABEL,
   STAGE_ORDER,
   VOTE_LABEL,
   voteSummary,
   type DealTrail,
+  type DiligenceItem,
   type IcStage,
   type VoteChoice,
 } from "@/lib/icTrail";
 import {
   advanceStage,
   castVote,
-  loadTrails,
-  seedIfEmpty,
+  loadMergedTrails,
   setDiligenceStatus,
 } from "@/lib/icStore";
 import type { Company } from "@/lib/types";
@@ -35,6 +34,7 @@ const ACTIVE_STAGES: IcStage[] = [
 
 export function IcGovernance({ companies }: { companies: Company[] }) {
   const [trails, setTrails] = useState<DealTrail[]>([]);
+  const [ready, setReady] = useState(false);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [stageFilter, setStageFilter] = useState<IcStage | "all">("all");
   const [partner, setPartner] = useState("GP");
@@ -42,11 +42,13 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
   const [voteNote, setVoteNote] = useState("");
 
   function refresh() {
-    const demos = buildDemoTrails(companies);
-    const stored = seedIfEmpty(demos);
-    const merged = mergeTrailsWithCompanies(companies, stored.length ? stored : demos);
-    setTrails(merged);
-    setSelectedId((prev) => prev || merged[0]?.company_id || null);
+    const next = loadMergedTrails(companies);
+    setTrails(next);
+    setReady(true);
+    setSelectedId((prev) => {
+      if (prev && next.some((t) => t.company_id === prev)) return prev;
+      return next[0]?.company_id || null;
+    });
   }
 
   useEffect(() => {
@@ -69,90 +71,83 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
   const prog = selected ? diligenceProgress(selected.diligence) : null;
   const tally = selected ? voteSummary(selected.votes) : null;
 
+  function applyTrail(next: DealTrail | null) {
+    if (!next) return;
+    setTrails((prev) => {
+      const rest = prev.filter((t) => t.company_id !== next.company_id);
+      return [next, ...rest];
+    });
+    setSelectedId(next.company_id);
+  }
+
   function onAdvance(stage: IcStage) {
     if (!selected) return;
-    if (!loadTrails().some((t) => t.company_id === selected.company_id)) {
-      seedIfEmpty(trails);
-    }
-    advanceStage(selected.company_id, stage, partner, `Advanced to ${STAGE_LABEL[stage]}`);
-    refresh();
+    applyTrail(
+      advanceStage(
+        selected.company_id,
+        stage,
+        partner,
+        `Advanced to ${STAGE_LABEL[stage]}`,
+        selected,
+      ),
+    );
   }
 
   function onVote() {
     if (!selected) return;
-    if (!loadTrails().some((t) => t.company_id === selected.company_id)) {
-      seedIfEmpty(trails);
-    }
-    castVote(selected.company_id, { partner, choice: voteChoice, note: voteNote });
+    applyTrail(
+      castVote(
+        selected.company_id,
+        { partner, choice: voteChoice, note: voteNote },
+        selected,
+      ),
+    );
     setVoteNote("");
-    refresh();
   }
 
-  function onDd(itemId: string, status: "todo" | "in_progress" | "done" | "blocked") {
+  function onDd(itemId: string, status: DiligenceItem["status"]) {
     if (!selected) return;
-    if (!loadTrails().some((t) => t.company_id === selected.company_id)) {
-      seedIfEmpty(trails);
-    }
-    setDiligenceStatus(selected.company_id, itemId, status);
-    refresh();
+    applyTrail(setDiligenceStatus(selected.company_id, itemId, status, undefined, selected));
   }
 
   return (
     <div className="space-y-6">
-      <Panel className="border-[rgba(90,208,244,0.22)] bg-[rgba(90,208,244,0.04)]">
-        <Eyebrow live className="!text-[var(--deep)]">
-          IC Decision Trail
-        </Eyebrow>
-        <h2 className="display mt-2 text-2xl font-bold md:text-3xl">
-          Governance LPs can diligence
-        </h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">
-          Stages, diligence checklists, votes, and Pass reasons stay attached to the deal —
-          not scattered across Slack and Google Docs. This is the paper trail sophisticated LPs
-          ask for.
-        </p>
-        <div className="mt-4 flex flex-wrap gap-4 text-[0.8125rem] text-[var(--muted)]">
-          <span>
-            <span className="mono text-[var(--text)]">{trails.length}</span> trails
-          </span>
-          <span>
-            <span className="mono text-[var(--text)]">
-              {trails.filter((t) => ACTIVE_STAGES.includes(t.stage)).length}
-            </span>{" "}
-            active
-          </span>
-          <span>
-            <span className="mono text-[var(--text)]">
-              {trails.filter((t) => t.votes.length).length}
-            </span>{" "}
-            with votes
-          </span>
-          <span>
-            <span className="mono text-[var(--text)]">
-              {trails.filter((t) => t.stage === "pass").length}
-            </span>{" "}
-            documented Passes
-          </span>
-        </div>
-      </Panel>
+      <OsBanner
+        live
+        tone="deep"
+        eyebrow="Active trails"
+        title="IC Decision Trail"
+        stats={
+          <>
+            <MiniStat label="Trails" value={String(trails.length)} />
+            <MiniStat
+              label="Active"
+              value={String(trails.filter((t) => ACTIVE_STAGES.includes(t.stage)).length)}
+            />
+            <MiniStat
+              label="With votes"
+              value={String(trails.filter((t) => t.votes.length).length)}
+            />
+            <MiniStat
+              label="Documented Passes"
+              value={String(trails.filter((t) => t.stage === "pass").length)}
+            />
+          </>
+        }
+      />
 
-      <div className="flex flex-wrap gap-1.5">
-        <StageChip
-          active={stageFilter === "all"}
-          onClick={() => setStageFilter("all")}
-          label="All"
-        />
+      <Segmented aria-label="IC stage filters">
+        <SegItem active={stageFilter === "all"} onClick={() => setStageFilter("all")}>
+          All
+        </SegItem>
         {STAGE_ORDER.filter((s) => s !== "sourced" && s !== "screened" && s !== "invested").map(
           (s) => (
-            <StageChip
-              key={s}
-              active={stageFilter === s}
-              onClick={() => setStageFilter(s)}
-              label={STAGE_LABEL[s]}
-            />
+            <SegItem key={s} active={stageFilter === s} onClick={() => setStageFilter(s)}>
+              {STAGE_LABEL[s]}
+            </SegItem>
           ),
         )}
-      </div>
+      </Segmented>
 
       <div className="grid gap-5 lg:grid-cols-[340px_1fr]">
         <div className="space-y-2">
@@ -179,12 +174,14 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
                 </div>
                 <div className="mt-1 text-[0.75rem] text-[var(--muted)]">
                   {t.sponsor} · DD {p.pct}%
+                  {p.in_progress ? ` · ${p.in_progress} in progress` : ""}
                   {t.votes.length ? ` · ${t.votes.length} vote(s)` : ""}
                 </div>
               </button>
             );
           })}
-          {!filtered.length && <EmptyState>No trails in this stage.</EmptyState>}
+          {!ready && <EmptyState>Loading trails…</EmptyState>}
+          {ready && !filtered.length && <EmptyState>No trails in this stage.</EmptyState>}
         </div>
 
         {selected && prog && tally ? (
@@ -193,7 +190,13 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div>
                   <Eyebrow>{STAGE_LABEL[selected.stage]}</Eyebrow>
-                  <h3 className="display mt-1 text-2xl">{selected.company_name}</h3>
+                  <h3 className="display mt-1 text-2xl">
+                    <CompanyLink
+                      id={selected.company_id}
+                      slug={selected.slug}
+                      name={selected.company_name}
+                    />
+                  </h3>
                   <p className="mt-2 max-w-xl text-sm text-[var(--muted)]">{selected.thesis_hook}</p>
                   <div className="mt-2 text-[0.8125rem] text-[var(--faint)]">
                     Sponsor {selected.sponsor}
@@ -204,7 +207,7 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
                   </div>
                 </div>
                 {selected.slug ? (
-                  <Link href={`/company/${selected.slug}`} className="btn btn-ghost !py-1.5 !text-xs">
+                  <Link href={`/company/${selected.slug}`} className="btn btn-ghost btn-sm">
                     Company brief →
                   </Link>
                 ) : null}
@@ -222,7 +225,7 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
                         "rounded-[8px] border px-2.5 py-1 text-[0.75rem] font-semibold transition",
                         selected.stage === s
                           ? "border-[var(--deep)] bg-[var(--deep-dim)] text-[var(--deep)]"
-                          : "border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]",
+                          : "border-[var(--line-strong)] bg-[var(--panel)] text-[var(--text)] hover:border-[var(--deep)]",
                       )}
                     >
                       {STAGE_LABEL[s]}
@@ -255,7 +258,10 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
               <Panel>
                 <div className="flex items-baseline justify-between">
                   <Eyebrow>Diligence checklist</Eyebrow>
-                  <span className="mono text-[0.8rem] text-[var(--signal)]">{prog.pct}%</span>
+                  <span className="mono text-[0.8rem] text-[var(--signal)]">
+                    {prog.pct}%
+                    {prog.in_progress ? ` · ${prog.in_progress} active` : ""}
+                  </span>
                 </div>
                 <div className="mt-3 space-y-2">
                   {selected.diligence.map((d) => (
@@ -268,10 +274,7 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
                         className="rounded-md border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1 text-[0.75rem]"
                         value={d.status}
                         onChange={(e) =>
-                          onDd(
-                            d.id,
-                            e.target.value as "todo" | "in_progress" | "done" | "blocked",
-                          )
+                          onDd(d.id, e.target.value as DiligenceItem["status"])
                         }
                       >
                         <option value="todo">Todo</option>
@@ -349,7 +352,7 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
                     className="mt-1 block w-full rounded-md border border-[var(--line)] bg-[var(--panel-2)] px-2 py-1.5 text-sm text-[var(--text)]"
                   />
                 </label>
-                <button type="button" onClick={onVote} className="btn btn-primary !py-1.5 !text-xs">
+                <button type="button" onClick={onVote} className="btn btn-primary btn-sm">
                   Cast vote
                 </button>
               </div>
@@ -371,34 +374,9 @@ export function IcGovernance({ companies }: { companies: Company[] }) {
             </Panel>
           </div>
         ) : (
-          <EmptyState>Select a deal trail.</EmptyState>
+          <EmptyState>{ready ? "Select a deal trail." : "Loading trails…"}</EmptyState>
         )}
       </div>
     </div>
-  );
-}
-
-function StageChip({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-[8px] px-3 py-1.5 text-[0.8125rem] font-semibold transition",
-        active
-          ? "bg-[var(--deep-dim)] text-[var(--deep)]"
-          : "border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]",
-      )}
-    >
-      {label}
-    </button>
   );
 }

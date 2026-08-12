@@ -14,7 +14,7 @@ export function RefreshButton() {
       const res = await fetch("/api/refresh", { method: "POST" });
       const data = await res.json();
       if (!res.ok || !data.ok) throw new Error(data.error || data.hint || "Refresh failed");
-      setMsg(`${data.companies} cos · ${data.live_signals} signals`);
+      setMsg(`${data.companies} cos · workbook ready`);
       setTimeout(() => window.location.reload(), 700);
     } catch (e) {
       setMsg(e instanceof Error ? e.message : "Failed");
@@ -32,7 +32,7 @@ export function RefreshButton() {
         type="button"
         onClick={run}
         disabled={busy}
-        className={cn("btn btn-soft !py-1.5 !text-[0.8125rem]", busy && "opacity-60")}
+        className={cn("btn btn-soft btn-sm", busy && "opacity-60")}
       >
         {busy ? "Refreshing…" : "Refresh"}
       </button>

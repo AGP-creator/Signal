@@ -38,7 +38,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_latticeeval"
+      "brief_id": "brief_c_latticeeval",
+      "product_notes": "Evaluation harnesses and adversarial test suites for frontier model labs. Differentiation: Proprietary eval datasets + locked-in CI integrations at two frontier labs.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-02-12",
+          "amount_m": 7.8,
+          "post_m": 57.6,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-04-12",
+          "amount_m": 22.8,
+          "post_m": 201.6,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-06-12",
+          "amount_m": 65.0,
+          "post_m": 720.0,
+          "lead": "a16z",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_synthforge",
@@ -77,7 +104,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_synthforge"
+      "brief_id": "brief_c_synthforge",
+      "product_notes": "RL environment factories and synthetic trajectory generation for agent training. Differentiation: Environment graph IP + exclusive robotics sim partnerships.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-03-20",
+          "amount_m": 11.8,
+          "post_m": 61.6,
+          "lead": "Conviction",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-05-20",
+          "amount_m": 42.0,
+          "post_m": 280.0,
+          "lead": "Conviction",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_edgequanta",
@@ -116,7 +162,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_edgequanta"
+      "brief_id": "brief_c_edgequanta",
+      "product_notes": "On-device inference runtime for multimodal SLMs under 2W power envelopes. Differentiation: Compiler patents + OEM design wins.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-12-02",
+          "amount_m": 9.6,
+          "post_m": 72.0,
+          "lead": "Lightspeed",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-02-02",
+          "amount_m": 28.0,
+          "post_m": 252.0,
+          "lead": "Lightspeed",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-04-02",
+          "amount_m": 80.0,
+          "post_m": 900.0,
+          "lead": "Lightspeed",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_vectorloom",
@@ -156,7 +229,42 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_vectorloom"
+      "brief_id": "brief_c_vectorloom",
+      "product_notes": "Multimodal retrieval fabric with enterprise governance and lineage. Differentiation: Governance layer sticky inside Fortune 100 security reviews.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2022-05-18",
+          "amount_m": 7.2,
+          "post_m": 64.0,
+          "lead": "IVP",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2023-07-18",
+          "amount_m": 21.6,
+          "post_m": 192.0,
+          "lead": "IVP",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2024-09-18",
+          "amount_m": 48.0,
+          "post_m": 560.0,
+          "lead": "IVP",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series C",
+          "date": "2025-11-18",
+          "amount_m": 120.0,
+          "post_m": 1600.0,
+          "lead": "IVP",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_kilowatt",
@@ -195,7 +303,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_kilowatt"
+      "brief_id": "brief_c_kilowatt",
+      "product_notes": "Orchestration software matching AI training clusters to flexible power contracts. Differentiation: Utility integrations + proprietary curtailment models.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-05-01",
+          "amount_m": 9.8,
+          "post_m": 46.2,
+          "lead": "Khosla Ventures",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-07-01",
+          "amount_m": 35.0,
+          "post_m": 210.0,
+          "lead": "Khosla Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_agentgate",
@@ -235,7 +362,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_agentgate"
+      "brief_id": "brief_c_agentgate",
+      "product_notes": "Identity, authz, and audit for autonomous AI agents in the enterprise. Differentiation: First-mover category definition + SOC2-ready agent identity graph.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-04-25",
+          "amount_m": 13.4,
+          "post_m": 70.4,
+          "lead": "Greylock",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-06-25",
+          "amount_m": 48.0,
+          "post_m": 320.0,
+          "lead": "Greylock",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_cloudkeel",
@@ -274,7 +420,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_cloudkeel"
+      "brief_id": "brief_c_cloudkeel",
+      "product_notes": "Runtime cloud security focused on AI workload misconfigurations. Differentiation: Deep AWS/GCP integrations; low false-positive reputation.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-11-14",
+          "amount_m": 10.8,
+          "post_m": 68.0,
+          "lead": "Redpoint",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-01-14",
+          "amount_m": 31.5,
+          "post_m": 238.0,
+          "lead": "Redpoint",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-03-14",
+          "amount_m": 90.0,
+          "post_m": 850.0,
+          "lead": "Redpoint",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_supplyshield",
@@ -312,7 +485,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_supplyshield"
+      "brief_id": "brief_c_supplyshield",
+      "product_notes": "Software supply-chain attestation for ML model artifacts and datasets. Differentiation: SBOM + model card attestation standard contributions.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2026-02-10",
+          "amount_m": 12.0,
+          "post_m": 60.0,
+          "lead": "Initialized Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_socnova",
@@ -350,7 +534,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_socnova"
+      "brief_id": "brief_c_socnova",
+      "product_notes": "AI-native SOC that auto-triages alerts with analyst copilots. Differentiation: Labeled incident corpus from MSSP partnerships.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-09-22",
+          "amount_m": 9.0,
+          "post_m": 56.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-11-22",
+          "amount_m": 26.2,
+          "post_m": 196.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-01-22",
+          "amount_m": 75.0,
+          "post_m": 700.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_swarmguard",
@@ -389,7 +600,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_swarmguard"
+      "brief_id": "brief_c_swarmguard",
+      "product_notes": "Counter-UAS autonomy stack for base and convoy protection. Differentiation: DoD program of record path + classified data moat.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-01-05",
+          "amount_m": 12.0,
+          "post_m": 76.0,
+          "lead": "Founders Fund",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-03-05",
+          "amount_m": 35.0,
+          "post_m": 266.0,
+          "lead": "Founders Fund",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-05-05",
+          "amount_m": 100.0,
+          "post_m": 950.0,
+          "lead": "Founders Fund",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_orbitlens",
@@ -428,7 +666,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_orbitlens"
+      "brief_id": "brief_c_orbitlens",
+      "product_notes": "Satellite imagery intelligence fused with onboard edge models. Differentiation: Sensor + model vertical integration.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-02-18",
+          "amount_m": 15.4,
+          "post_m": 88.0,
+          "lead": "Shield Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-04-18",
+          "amount_m": 55.0,
+          "post_m": 400.0,
+          "lead": "Shield Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_c4isight",
@@ -466,7 +723,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_c4isight"
+      "brief_id": "brief_c_c4isight",
+      "product_notes": "Battlefield intelligence fusion for C4ISR decision support. Differentiation: Clearances + integration into existing C2 stacks.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-01-01",
+          "amount_m": 11.2,
+          "post_m": 55.0,
+          "lead": "8VC",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-03-01",
+          "amount_m": 40.0,
+          "post_m": 250.0,
+          "lead": "8VC",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_autosea",
@@ -503,7 +779,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_autosea"
+      "brief_id": "brief_c_autosea",
+      "product_notes": "Autonomous maritime systems for harbor and littoral defense. Differentiation: Naval prototyping partnerships.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-12-12",
+          "amount_m": 15.0,
+          "post_m": 80.0,
+          "lead": "Shield Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_forgebot",
@@ -542,7 +829,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_forgebot"
+      "brief_id": "brief_c_forgebot",
+      "product_notes": "Industrial robot skills platform with sim-to-real training loops. Differentiation: Factory deployment playbooks + proprietary skill library.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-01-28",
+          "amount_m": 10.2,
+          "post_m": 62.4,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-03-28",
+          "amount_m": 29.7,
+          "post_m": 218.4,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-05-28",
+          "amount_m": 85.0,
+          "post_m": 780.0,
+          "lead": "Lux Capital",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_humanoidlab",
@@ -580,7 +894,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_humanoidlab"
+      "brief_id": "brief_c_humanoidlab",
+      "product_notes": "General-purpose humanoid robots for warehouse labor. Differentiation: Actuator supply agreements + teleop data flywheel.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-04-08",
+          "amount_m": 19.6,
+          "post_m": 121.0,
+          "lead": "Thrive Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-06-08",
+          "amount_m": 70.0,
+          "post_m": 550.0,
+          "lead": "Thrive Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_simstack",
@@ -618,7 +951,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_simstack"
+      "brief_id": "brief_c_simstack",
+      "product_notes": "High-fidelity robotic simulation cloud for physical AI training. Differentiation: Physics fidelity + dataset marketplace.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-12-28",
+          "amount_m": 10.6,
+          "post_m": 52.8,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-02-28",
+          "amount_m": 38.0,
+          "post_m": 240.0,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_fulfillai",
@@ -656,7 +1008,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_fulfillai"
+      "brief_id": "brief_c_fulfillai",
+      "product_notes": "Autonomous fulfillment orchestration for mid-market warehouses. Differentiation: Integrations with WMS vendors.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-05-15",
+          "amount_m": 7.2,
+          "post_m": 40.0,
+          "lead": "Insight Partners",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-07-15",
+          "amount_m": 21.0,
+          "post_m": 140.0,
+          "lead": "Insight Partners",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2025-09-15",
+          "amount_m": 60.0,
+          "post_m": 500.0,
+          "lead": "Insight Partners",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_modnuc",
@@ -694,7 +1073,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_modnuc"
+      "brief_id": "brief_c_modnuc",
+      "product_notes": "SMR project software + offtake marketplace for AI data centers. Differentiation: Regulatory process IP + hyperscaler LOIs.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-05-12",
+          "amount_m": 14.0,
+          "post_m": 77.0,
+          "lead": "Khosla Ventures",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-07-12",
+          "amount_m": 50.0,
+          "post_m": 350.0,
+          "lead": "Khosla Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_gridpulse",
@@ -732,7 +1130,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_gridpulse"
+      "brief_id": "brief_c_gridpulse",
+      "product_notes": "Demand response platform optimized for interruptible AI training loads. Differentiation: Utility contracts + AI load forecasting models.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-11-20",
+          "amount_m": 6.6,
+          "post_m": 33.6,
+          "lead": "General Catalyst",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-01-20",
+          "amount_m": 19.2,
+          "post_m": 117.6,
+          "lead": "General Catalyst",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-03-20",
+          "amount_m": 55.0,
+          "post_m": 420.0,
+          "lead": "General Catalyst",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_gpumesh",
@@ -771,7 +1196,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_gpumesh"
+      "brief_id": "brief_c_gpumesh",
+      "product_notes": "Multi-cloud GPU orchestration with spot-aware training schedulers. Differentiation: Scheduler IP + capacity relationships.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-12-28",
+          "amount_m": 13.2,
+          "post_m": 88.0,
+          "lead": "Sequoia Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-02-28",
+          "amount_m": 38.5,
+          "post_m": 308.0,
+          "lead": "Sequoia Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-04-30",
+          "amount_m": 110.0,
+          "post_m": 1100.0,
+          "lead": "Sequoia Capital",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_agentide",
@@ -810,7 +1262,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_agentide"
+      "brief_id": "brief_c_agentide",
+      "product_notes": "AI-native developer environment for building and evaluating agents. Differentiation: Eval-integrated IDE workflow; beloved by engineers.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-04-01",
+          "amount_m": 9.0,
+          "post_m": 44.0,
+          "lead": "Benchmark",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-06-01",
+          "amount_m": 32.0,
+          "post_m": 200.0,
+          "lead": "Benchmark",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_legalloom",
@@ -848,7 +1319,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_legalloom"
+      "brief_id": "brief_c_legalloom",
+      "product_notes": "AI copilot replacing legacy contract lifecycle SaaS for mid-market legal. Differentiation: Playbook data from law firm partnerships.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-03-15",
+          "amount_m": 7.8,
+          "post_m": 39.6,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-05-15",
+          "amount_m": 28.0,
+          "post_m": 180.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_revpilot",
@@ -886,7 +1376,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_revpilot"
+      "brief_id": "brief_c_revpilot",
+      "product_notes": "AI sales system of record that collapses CRM + sequencing tools. Differentiation: Workflow lock-in; CRM replacement narrative.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-10-05",
+          "amount_m": 8.4,
+          "post_m": 52.0,
+          "lead": "Accel",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-12-05",
+          "amount_m": 24.5,
+          "post_m": 182.0,
+          "lead": "Accel",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-02-05",
+          "amount_m": 70.0,
+          "post_m": 650.0,
+          "lead": "Accel",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_voicewire",
@@ -924,7 +1441,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_voicewire"
+      "brief_id": "brief_c_voicewire",
+      "product_notes": "Low-latency conversational voice infra for enterprise agents. Differentiation: Sub-200ms stack + telephony certifications.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-02-22",
+          "amount_m": 12.6,
+          "post_m": 66.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-04-22",
+          "amount_m": 45.0,
+          "post_m": 300.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_ambientos",
@@ -961,7 +1497,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_ambientos"
+      "brief_id": "brief_c_ambientos",
+      "product_notes": "Always-on multimodal interfaces for industrial and clinical settings. Differentiation: On-prem multimodal models for privacy.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2026-01-08",
+          "amount_m": 10.0,
+          "post_m": 50.0,
+          "lead": "Kindred Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_railbank",
@@ -1000,7 +1547,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_railbank"
+      "brief_id": "brief_c_railbank",
+      "product_notes": "AI-native banking infrastructure rails for embedded finance. Differentiation: Bank charter partnerships + compliance automation.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-01-02",
+          "amount_m": 11.4,
+          "post_m": 72.0,
+          "lead": "Ribbit Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-03-02",
+          "amount_m": 33.2,
+          "post_m": 252.0,
+          "lead": "Ribbit Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-05-02",
+          "amount_m": 95.0,
+          "post_m": 900.0,
+          "lead": "Ribbit Capital",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_fxmesh",
@@ -1038,7 +1612,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_fxmesh"
+      "brief_id": "brief_c_fxmesh",
+      "product_notes": "Institutional FX infrastructure with AI pricing and risk. Differentiation: Liquidity relationships + pricing models.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-01-08",
+          "amount_m": 8.4,
+          "post_m": 41.8,
+          "lead": "Index Ventures",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-03-08",
+          "amount_m": 30.0,
+          "post_m": 190.0,
+          "lead": "Index Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_regstack",
@@ -1076,7 +1669,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_regstack"
+      "brief_id": "brief_c_regstack",
+      "product_notes": "RegTech automation for AML and model risk management. Differentiation: Regulatory complexity + labeled SAR datasets.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-12-18",
+          "amount_m": 7.0,
+          "post_m": 33.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-02-18",
+          "amount_m": 25.0,
+          "post_m": 150.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_tradecore",
@@ -1114,7 +1726,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_tradecore"
+      "brief_id": "brief_c_tradecore",
+      "product_notes": "Brokerage and trading infrastructure for AI-native wealth apps. Differentiation: Clearing integrations.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-06-01",
+          "amount_m": 9.6,
+          "post_m": 56.0,
+          "lead": "Thrive Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-08-01",
+          "amount_m": 28.0,
+          "post_m": 196.0,
+          "lead": "Thrive Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2025-10-01",
+          "amount_m": 80.0,
+          "post_m": 700.0,
+          "lead": "Thrive Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_atomforge",
@@ -1152,7 +1791,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_atomforge"
+      "brief_id": "brief_c_atomforge",
+      "product_notes": "AI materials discovery for advanced semiconductors and thermal interfaces. Differentiation: Lab automation + proprietary materials graph.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-04-18",
+          "amount_m": 11.2,
+          "post_m": 57.2,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-06-18",
+          "amount_m": 40.0,
+          "post_m": 260.0,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_chemloop",
@@ -1189,7 +1847,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_chemloop"
+      "brief_id": "brief_c_chemloop",
+      "product_notes": "Process materials optimization for specialty chemicals plants. Differentiation: Plant sensor data exclusivity.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-11-01",
+          "amount_m": 8.0,
+          "post_m": 40.0,
+          "lead": "Breakthrough Energy Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_molera",
@@ -1228,7 +1897,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_molera"
+      "brief_id": "brief_c_molera",
+      "product_notes": "Molecular AI platform for small-molecule drug discovery. Differentiation: Wet-lab flywheel + proprietary assays.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-12-10",
+          "amount_m": 12.0,
+          "post_m": 76.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-02-10",
+          "amount_m": 35.0,
+          "post_m": 266.0,
+          "lead": "a16z",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-04-10",
+          "amount_m": 100.0,
+          "post_m": 950.0,
+          "lead": "a16z",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_genomesh",
@@ -1266,7 +1962,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_genomesh"
+      "brief_id": "brief_c_genomesh",
+      "product_notes": "Genomics data platform with clinical-grade interpretation agents. Differentiation: Hospital data networks + regulatory pathway.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-01-25",
+          "amount_m": 9.8,
+          "post_m": 48.4,
+          "lead": "GV",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-03-25",
+          "amount_m": 35.0,
+          "post_m": 220.0,
+          "lead": "GV",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_trialflow",
@@ -1304,7 +2019,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_trialflow"
+      "brief_id": "brief_c_trialflow",
+      "product_notes": "Clinical trial optimization and site selection AI. Differentiation: Historical trial outcome datasets.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-11-15",
+          "amount_m": 6.2,
+          "post_m": 30.8,
+          "lead": "Sante Ventures",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-01-15",
+          "amount_m": 22.0,
+          "post_m": 140.0,
+          "lead": "Sante Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_clinnote",
@@ -1342,7 +2076,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_clinnote"
+      "brief_id": "brief_c_clinnote",
+      "product_notes": "Ambient clinical documentation that replaces scribe SaaS. Differentiation: EHR integrations + specialty models.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-10-01",
+          "amount_m": 9.0,
+          "post_m": 64.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-12-01",
+          "amount_m": 26.2,
+          "post_m": 224.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-02-01",
+          "amount_m": 75.0,
+          "post_m": 800.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_linepilot",
@@ -1380,7 +2141,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_linepilot"
+      "brief_id": "brief_c_linepilot",
+      "product_notes": "AI copilots for factory line supervisors and quality control. Differentiation: OT data connectors + proprietary defect libraries.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-02-05",
+          "amount_m": 7.6,
+          "post_m": 37.4,
+          "lead": "Eclipse",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-04-05",
+          "amount_m": 27.0,
+          "post_m": 170.0,
+          "lead": "Eclipse",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_memecoin",
@@ -1417,7 +2197,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_memecoin"
+      "brief_id": "brief_c_memecoin",
+      "product_notes": "Consumer crypto trading social app. Differentiation: Weak; distribution-dependent.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-06-01",
+          "amount_m": 11.2,
+          "post_m": 88.0,
+          "lead": "Dragonfly",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-08-01",
+          "amount_m": 40.0,
+          "post_m": 400.0,
+          "lead": "Dragonfly",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_genericcrm",
@@ -1454,7 +2253,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_genericcrm"
+      "brief_id": "brief_c_genericcrm",
+      "product_notes": "Yet another horizontal CRM with light AI features. Differentiation: None meaningful vs Salesforce/HubSpot.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-02-01",
+          "amount_m": 6.0,
+          "post_m": 36.0,
+          "lead": "IVP",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-04-01",
+          "amount_m": 17.5,
+          "post_m": 126.0,
+          "lead": "IVP",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2025-06-01",
+          "amount_m": 50.0,
+          "post_m": 450.0,
+          "lead": "IVP",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_quietrobot",
@@ -1491,7 +2317,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_quietrobot"
+      "brief_id": "brief_c_quietrobot",
+      "product_notes": "Stealth warehouse AMRs with novel battery architecture. Differentiation: Battery IP early; unproven.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2026-07-20",
+          "amount_m": 9.0,
+          "post_m": 45.0,
+          "lead": "Lux Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_idforge",
@@ -1528,7 +2365,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_idforge"
+      "brief_id": "brief_c_idforge",
+      "product_notes": "Cryptographic identity for machine-to-machine AI agent economies. Differentiation: Standards work nascent.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2026-07-01",
+          "amount_m": 4.0,
+          "post_m": 25.0,
+          "lead": "Initialized Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_evalfarm",
@@ -1566,7 +2414,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_evalfarm"
+      "brief_id": "brief_c_evalfarm",
+      "product_notes": "Crowdsourced + synthetic human preference data marketplace. Differentiation: Rater network + quality models.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-03-28",
+          "amount_m": 10.1,
+          "post_m": 52.8,
+          "lead": "Conviction",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-05-30",
+          "amount_m": 36.0,
+          "post_m": 240.0,
+          "lead": "Conviction",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_spacesentry",
@@ -1604,7 +2471,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_spacesentry"
+      "brief_id": "brief_c_spacesentry",
+      "product_notes": "Space domain awareness software for commercial operators. Differentiation: Sensor fusion from commercial SSA feeds.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-04-05",
+          "amount_m": 9.2,
+          "post_m": 46.2,
+          "lead": "Seraphim Space",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-06-05",
+          "amount_m": 33.0,
+          "post_m": 210.0,
+          "lead": "Seraphim Space",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_finopsai",
@@ -1642,7 +2528,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_finopsai"
+      "brief_id": "brief_c_finopsai",
+      "product_notes": "AI finance copilot replacing FP&A spreadsheet stacks. Differentiation: ERP connectors + planning memory graphs.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-03-25",
+          "amount_m": 6.7,
+          "post_m": 35.2,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-05-25",
+          "amount_m": 24.0,
+          "post_m": 160.0,
+          "lead": "Bessemer",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_edgevoice",
@@ -1679,7 +2584,18 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_edgevoice"
+      "brief_id": "brief_c_edgevoice",
+      "product_notes": "On-device speech models for offline industrial assistants. Differentiation: Tiny model distillation IP.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2026-06-28",
+          "amount_m": 11.0,
+          "post_m": 55.0,
+          "lead": "NFX",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_powerbay",
@@ -1717,7 +2633,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_powerbay"
+      "brief_id": "brief_c_powerbay",
+      "product_notes": "Behind-the-meter storage orchestration for AI campuses. Differentiation: Campus energy digital twins.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-05-08",
+          "amount_m": 12.3,
+          "post_m": 63.8,
+          "lead": "Breakthrough Energy Ventures",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-07-08",
+          "amount_m": 44.0,
+          "post_m": 290.0,
+          "lead": "Breakthrough Energy Ventures",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_modelorch",
@@ -1756,7 +2691,34 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_modelorch"
+      "brief_id": "brief_c_modelorch",
+      "product_notes": "Model orchestration, routing, and cost control for enterprise AI. Differentiation: Enterprise SSO + policy engine sticky.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-11-28",
+          "amount_m": 10.6,
+          "post_m": 65.6,
+          "lead": "Greylock",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2025-01-28",
+          "amount_m": 30.8,
+          "post_m": 229.6,
+          "lead": "Greylock",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series B",
+          "date": "2026-03-30",
+          "amount_m": 88.0,
+          "post_m": 820.0,
+          "lead": "Greylock",
+          "confidence": "reported"
+        }
+      ]
     },
     {
       "id": "c_droneye",
@@ -1793,7 +2755,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_droneye"
+      "brief_id": "brief_c_droneye",
+      "product_notes": "Perception stack for autonomous inspection drones. Differentiation: Dual-use civil + defense.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2024-11-28",
+          "amount_m": 8.1,
+          "post_m": 38.5,
+          "lead": "8VC",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-01-28",
+          "amount_m": 29.0,
+          "post_m": 175.0,
+          "lead": "8VC",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_wealthai",
@@ -1831,7 +2812,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_wealthai"
+      "brief_id": "brief_c_wealthai",
+      "product_notes": "Wealth management AI for RIAs replacing legacy planning tools. Differentiation: Custodian integrations + advice audit trails.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-02-12",
+          "amount_m": 7.3,
+          "post_m": 36.3,
+          "lead": "Ribbit Capital",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-04-12",
+          "amount_m": 26.0,
+          "post_m": 165.0,
+          "lead": "Ribbit Capital",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_datagov",
@@ -1869,7 +2869,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_datagov"
+      "brief_id": "brief_c_datagov",
+      "product_notes": "Enterprise AI data governance, lineage, and policy enforcement. Differentiation: Policy-as-code + catalog integrations.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2025-04-20",
+          "amount_m": 9.5,
+          "post_m": 50.6,
+          "lead": "Greylock",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2026-06-20",
+          "amount_m": 34.0,
+          "post_m": 230.0,
+          "lead": "Greylock",
+          "confidence": "estimated"
+        }
+      ]
     },
     {
       "id": "c_stalebio",
@@ -1905,7 +2924,26 @@
       "tier1_count": 0,
       "tier1_names": [],
       "tier2_count": 0,
-      "brief_id": "brief_c_stalebio"
+      "brief_id": "brief_c_stalebio",
+      "product_notes": "Legacy clinical note summarization SaaS. Differentiation: Eroding vs ambient AI newcomers.",
+      "funding_rounds": [
+        {
+          "round": "Seed",
+          "date": "2023-09-01",
+          "amount_m": 5.0,
+          "post_m": 19.8,
+          "lead": "Define Ventures",
+          "confidence": "estimated"
+        },
+        {
+          "round": "Series A",
+          "date": "2024-11-01",
+          "amount_m": 18.0,
+          "post_m": 90.0,
+          "lead": "Define Ventures",
+          "confidence": "estimated"
+        }
+      ]
     }
   ],
   "commentary": [
@@ -2088,14 +3126,184 @@
       "sentiment": "positive",
       "credibility_tier": "high",
       "captured_at": "2026-08-05"
+    },
+    {
+      "id": "cm19",
+      "company_id": "c_gpumesh",
+      "company_name": "GPUMesh",
+      "source": "Twitter/X",
+      "quote_or_summary": "Gavin Baker: utilization > capacity \u2014 GPUMesh-style orchestration is where infra alpha is concentrating.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-09"
+    },
+    {
+      "id": "cm20",
+      "company_id": "c_swarmguard",
+      "company_name": "SwarmGuard",
+      "source": "Twitter/X",
+      "quote_or_summary": "Trae Stephens: CUAS procurement windows are opening; SwarmGuard-class teams with live base data will clear diligence faster.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-08"
+    },
+    {
+      "id": "cm21",
+      "company_id": "c_modnuc",
+      "company_name": "Modular Nucleus",
+      "source": "Twitter/X",
+      "quote_or_summary": "Brad Gerstner: AI x power is the constraint trade \u2014 Modular Nucleus sits on the right side of scarcity.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-07"
+    },
+    {
+      "id": "cm22",
+      "company_id": "c_agentide",
+      "company_name": "AgentIDE",
+      "source": "Twitter/X",
+      "quote_or_summary": "Packy McCormick: agent tooling is splitting into eval vs orchestration \u2014 AgentIDE feels like the former's UI.",
+      "sentiment": "positive",
+      "credibility_tier": "medium",
+      "captured_at": "2026-08-06"
+    },
+    {
+      "id": "cm23",
+      "company_id": "c_forgebot",
+      "company_name": "ForgeBot",
+      "source": "Twitter/X",
+      "quote_or_summary": "Delian: sim-to-real finally compounding \u2014 watching ForgeBot-class robotics for factory pull-through.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-05"
+    },
+    {
+      "id": "cm24",
+      "company_id": "c_voicewire",
+      "company_name": "VoiceWire",
+      "source": "Twitter/X",
+      "quote_or_summary": "Keith Rabois: latency still wins voice \u2014 VoiceWire's edge vs larger model vendors is product, not model size.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-04"
+    },
+    {
+      "id": "cm25",
+      "company_id": "c_molera",
+      "company_name": "Molera AI",
+      "source": "Twitter/X",
+      "quote_or_summary": "Josh Wolfe: wet-lab loop is the moat \u2014 Molera-style platforms beat pure in-silico peers on cycle time.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-03"
+    },
+    {
+      "id": "cm26",
+      "company_id": "c_agentgate",
+      "company_name": "AgentGate",
+      "source": "Twitter/X",
+      "quote_or_summary": "Molly O'Shea: agent identity is the Okta narrative partners keep underwriting \u2014 AgentGate is on the shortlist.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-09"
+    },
+    {
+      "id": "cm27",
+      "company_id": "c_latticeeval",
+      "company_name": "LatticeEval",
+      "source": "Twitter/X",
+      "quote_or_summary": "Mario Gabriele / The Generalist adjacent: eval harnesses are becoming table stakes inside frontier labs \u2014 LatticeEval cited.",
+      "sentiment": "positive",
+      "credibility_tier": "medium",
+      "captured_at": "2026-08-02"
+    },
+    {
+      "id": "cm28",
+      "company_id": "c_humanoidlab",
+      "company_name": "Apex Humanoids",
+      "source": "Twitter/X",
+      "quote_or_summary": "TBPN: humanoid demos are loud; unit economics still quiet \u2014 Apex Humanoids needs a cleaner cost curve story.",
+      "sentiment": "mixed",
+      "credibility_tier": "medium",
+      "captured_at": "2026-08-01"
+    },
+    {
+      "id": "cm29",
+      "company_id": "c_agentgate",
+      "company_name": "AgentGate",
+      "source": "Reddit",
+      "quote_or_summary": "r/MachineLearning: authz for agents thread \u2014 AgentGate cited as the cleanest mental model vs bolted-on IAM.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-08"
+    },
+    {
+      "id": "cm30",
+      "company_id": "c_memecoin",
+      "company_name": "TokenTide",
+      "source": "Blind",
+      "quote_or_summary": "Fintech eng on Blind: TokenTide DAU cratered after points fade \u2014 retention looks incentive-driven.",
+      "sentiment": "negative",
+      "credibility_tier": "high",
+      "captured_at": "2026-07-02"
+    },
+    {
+      "id": "cm31",
+      "company_id": "c_revpilot",
+      "company_name": "RevPilot",
+      "source": "Blind",
+      "quote_or_summary": "AE on Blind: RevPilot saves SDR hours but CSMs complain about forced CRM migration pricing.",
+      "sentiment": "mixed",
+      "credibility_tier": "medium",
+      "captured_at": "2026-07-18"
+    },
+    {
+      "id": "cm32",
+      "company_id": "c_genericcrm",
+      "company_name": "PipelineCloud",
+      "source": "Reddit",
+      "quote_or_summary": "r/startups: PipelineCloud demo day chatter \u2014 'AI sticker on CRM', no technical edge vs incumbents.",
+      "sentiment": "negative",
+      "credibility_tier": "medium",
+      "captured_at": "2025-08-12"
+    },
+    {
+      "id": "cm33",
+      "company_id": "c_swarmguard",
+      "company_name": "SwarmGuard",
+      "source": "Hacker News",
+      "quote_or_summary": "HN defense thread: operators prefer SwarmGuard false-positive rates over legacy CUAS vendors in live drills.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-03"
+    },
+    {
+      "id": "cm34",
+      "company_id": "c_tradecore",
+      "company_name": "TradeCore",
+      "source": "Substack",
+      "quote_or_summary": "Fintech essay: brokerage infra is crowded; TradeCore growth slowed as incumbents matched features.",
+      "sentiment": "negative",
+      "credibility_tier": "medium",
+      "captured_at": "2025-12-01"
+    },
+    {
+      "id": "cm35",
+      "company_id": "c_agentide",
+      "company_name": "AgentIDE",
+      "source": "Podcast",
+      "quote_or_summary": "Devtools podcast: AgentIDE eval UX is what labs wanted inside the editor \u2014 adoption compounding quietly.",
+      "sentiment": "positive",
+      "credibility_tier": "high",
+      "captured_at": "2026-08-05"
     }
   ],
   "news": [
     {
       "id": "n1",
-      "title": "Why AI agent identity will be the next Okta-scale market",
-      "source": "The Generalist",
-      "url": "https://example.com/agent-identity",
+      "title": "The missing infrastructure for AI agents: identity is the bottleneck",
+      "source": "a16z crypto",
+      "url": "https://a16zcrypto.com/posts/article/5-ways-blockchains-help-ai-agents/",
       "published_at": "2026-08-04",
       "why_it_matters": "Directly validates Thirdbase cyber theme and AgentGate / IDForge opportunity set.",
       "related_themes": [
@@ -2105,9 +3313,9 @@
     },
     {
       "id": "n2",
-      "title": "Data center power scarcity is now a venture category",
+      "title": "Power in the Age of Intelligence",
       "source": "Not Boring",
-      "url": "https://example.com/dc-power",
+      "url": "https://www.notboring.co/p/power-in-the-age-of-intelligence",
       "published_at": "2026-08-02",
       "why_it_matters": "Supports Energy-as-a-service and AI infra backbone bets (KiloWatt, Modular Nucleus, PowerBay).",
       "related_themes": [
@@ -2117,9 +3325,9 @@
     },
     {
       "id": "n3",
-      "title": "DoD budget signals for autonomous systems and CUAS",
-      "source": "Axios",
-      "url": "https://example.com/dod-cuas",
+      "title": "DoD FY2025 budget: uncrewed systems and autonomy investments",
+      "source": "U.S. Department of Defense",
+      "url": "https://www.war.gov/News/Releases/Release/Article/3703410/department-of-defense-releases-the-presidents-fiscal-year-2025-defense-budget/",
       "published_at": "2026-07-30",
       "why_it_matters": "Budget tailwinds for SwarmGuard and dual-use autonomy pipeline.",
       "related_themes": [
@@ -2128,9 +3336,9 @@
     },
     {
       "id": "n4",
-      "title": "Earnings: hyperscalers accelerate capex on inference",
+      "title": "US Big Tech ratchets up AI spending past $700 billion this year",
       "source": "Bloomberg",
-      "url": "https://example.com/hyperscaler-capex",
+      "url": "https://www.bloomberg.com/news/articles/2026-04-30/us-big-tech-ratchets-up-ai-spending-past-700-billion-this-year",
       "published_at": "2026-07-28",
       "why_it_matters": "Reinforces durable demand for inference, orchestration, and GPU mesh infrastructure.",
       "related_themes": [
@@ -2140,9 +3348,9 @@
     },
     {
       "id": "n5",
-      "title": "Contrarian: most AI CRM replacements will fail on switching costs",
+      "title": "Thin Is In: AI dissolves classic software switching costs",
       "source": "Stratechery",
-      "url": "https://example.com/ai-crm",
+      "url": "https://stratechery.com/2026/thin-is-in/",
       "published_at": "2026-07-25",
       "why_it_matters": "Supports Pass/Watch discipline on RevPilot/PipelineCloud-like narratives.",
       "related_themes": [
@@ -2151,9 +3359,9 @@
     },
     {
       "id": "n6",
-      "title": "Open-source eval harness velocity on GitHub and arXiv",
-      "source": "arXiv digest",
-      "url": "https://example.com/eval-arxiv",
+      "title": "Lessons from the Trenches on Reproducible Evaluation of Language Models",
+      "source": "arXiv",
+      "url": "https://arxiv.org/abs/2405.14782",
       "published_at": "2026-08-01",
       "why_it_matters": "Research velocity confirms LatticeEval / SynthForge timing.",
       "related_themes": [
@@ -2162,9 +3370,9 @@
     },
     {
       "id": "n7",
-      "title": "European cyber regulation tightens supply-chain attestation",
-      "source": "FT",
-      "url": "https://example.com/eu-cyber",
+      "title": "Cyber attacks expose supply chains as \u2018weakest link\u2019",
+      "source": "Financial Times",
+      "url": "https://www.ft.com/content/e8784cf3-6df5-46aa-8c37-e51d1695239f",
       "published_at": "2026-07-18",
       "why_it_matters": "Regulatory complexity moat for SupplyShield and GovernAI.",
       "related_themes": [
@@ -2173,9 +3381,9 @@
     },
     {
       "id": "n8",
-      "title": "Humanoid robot pilots expand in US warehouses",
+      "title": "Agility Robotics plants its flag in Tesla's backyard",
       "source": "TechCrunch",
-      "url": "https://example.com/humanoids",
+      "url": "https://techcrunch.com/2026/07/17/agility-robotics-plants-its-flag-in-teslas-backyard/",
       "published_at": "2026-07-28",
       "why_it_matters": "Physical AI timing for Apex Humanoids / ForgeBot / QuietPath.",
       "related_themes": [
@@ -2500,7 +3708,9 @@
       "evidence": [
         "Frontier labs posting eval / red-team roles faster than product eng",
         "HN + arXiv spike in LLM evaluation methodologies",
-        "Enterprise buyers asking for continuous eval SLAs before production agents"
+        "Enterprise buyers asking for continuous eval SLAs before production agents",
+        "Quiet fund formation around 'eval as infrastructure' mandates",
+        "Founder migration from model-safety teams into independent harness startups"
       ],
       "heat_score": 90,
       "consensus_level": "Contrarian",
@@ -2518,7 +3728,8 @@
       "evidence": [
         "Open-source synthetic data repos accelerating contributor velocity",
         "Founders leaving labeling vendors to build closed-loop synth pipelines",
-        "GP essays arguing real data alone cannot feed agent RL loops"
+        "GP essays arguing real data alone cannot feed agent RL loops",
+        "Frontier labs hiring synthetic-data eng faster than collection teams"
       ],
       "heat_score": 87,
       "consensus_level": "Emerging",
@@ -2536,7 +3747,8 @@
       "evidence": [
         "GP commentary clustering around agent authz (Okta-for-agents narrative)",
         "Hiring spikes for identity + LLM security roles at frontier labs",
-        "Enterprise RFP language shifting from 'chatbot security' to 'agent identity'"
+        "Enterprise RFP language shifting from 'chatbot security' to 'agent identity'",
+        "Fund formation language: 'identity for autonomous software'"
       ],
       "heat_score": 91,
       "consensus_level": "Emerging",
@@ -2554,7 +3766,8 @@
       "evidence": [
         "Hyperscaler LOIs for behind-the-meter nuclear",
         "GP essays linking power scarcity to AI scaling walls",
-        "Utility + DOE talent moving into venture-backed project platforms"
+        "Utility + DOE talent moving into venture-backed project platforms",
+        "New fund formation around AI-campus power offtake"
       ],
       "heat_score": 84,
       "consensus_level": "Emerging",
@@ -2572,7 +3785,9 @@
       "evidence": [
         "Device OEMs hiring inference optimization teams",
         "Research velocity in quantization / speculative decoding",
-        "Quiet fund formation around 'AI that works offline'"
+        "Quiet fund formation around 'AI that works offline'",
+        "Founder migration from mobile / silicon teams into on-device SLM stacks",
+        "GP watchlist chatter on edge as the anti-consensus cloud trade"
       ],
       "heat_score": 82,
       "consensus_level": "Emerging",
@@ -2592,20 +3807,11 @@
       "source": "seed",
       "signal_type": "funding",
       "title": "AgentGate Series A led by Greylock",
-      "summary": "Identity for AI agents raises $48M",
+      "summary": "Identity for AI agents raises $48M \u2014 Greylock leads; Tier-1 crowded.",
       "url": null,
-      "observed_at": "2026-06-25"
-    },
-    {
-      "id": "sig2",
-      "company_id": "c_agentide",
-      "company_name": "AgentIDE",
-      "source": "hn",
-      "signal_type": "product",
-      "title": "Show HN: AgentIDE",
-      "summary": "Viral launch for agent-native IDE",
-      "url": "https://news.ycombinator.com/",
-      "observed_at": "2026-08-07"
+      "observed_at": "2026-06-25",
+      "early_signal": false,
+      "mainstream": true
     },
     {
       "id": "sig3",
@@ -2614,9 +3820,141 @@
       "source": "seed",
       "signal_type": "funding",
       "title": "Modular Nucleus raise",
-      "summary": "SMR software for AI data centers",
+      "summary": "SMR software for AI data centers closes strategic round.",
       "url": null,
-      "observed_at": "2026-07-12"
+      "observed_at": "2026-07-12",
+      "early_signal": false,
+      "mainstream": true
+    },
+    {
+      "id": "sig_fund_quietpath",
+      "company_id": "c_quietrobot",
+      "company_name": "QuietPath Robotics",
+      "source": "prefill:form_d",
+      "signal_type": "funding",
+      "title": "QuietPath Robotics Form D \u2014 $6.2M seed (pre-announce)",
+      "summary": "Warehouse autonomy seed not yet on PitchBook league tables \u2014 early regulatory signal.",
+      "url": "https://www.sec.gov/edgar/searchedgar/companysearch",
+      "observed_at": "2026-08-06",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_fund_idforge",
+      "company_id": "c_idforge",
+      "company_name": "IDForge Labs",
+      "source": "prefill:angel_list",
+      "signal_type": "funding",
+      "title": "IDForge Labs closes $4M angel+seed for agent identity primitives",
+      "summary": "Off-radar identity infra for agentic workflows; no Tier-1 lead yet.",
+      "url": null,
+      "observed_at": "2026-08-05",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_fund_idforge_hn",
+      "company_id": "c_idforge",
+      "company_name": "IDForge Labs",
+      "source": "prefill:hn",
+      "signal_type": "funding",
+      "title": "IDForge Labs closes $4M angel+seed for agent identity primitives",
+      "summary": "HN thread mirrors angel round rumor \u2014 same raise as AngelList hit.",
+      "url": "https://news.ycombinator.com/",
+      "observed_at": "2026-08-05",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_fund_latticenova",
+      "company_id": null,
+      "company_name": "LatticeNova",
+      "source": "prefill:hn",
+      "signal_type": "funding",
+      "title": "LatticeNova raises seed for inference optimization GPUs",
+      "summary": "Edge inference startup building small language model runtimes \u2014 not on CB hot lists yet.",
+      "url": "https://news.ycombinator.com/",
+      "observed_at": "2026-08-09",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_hire_gpumesh",
+      "company_id": "c_gpumesh",
+      "company_name": "GPUMesh",
+      "source": "prefill:hiring_proxy",
+      "signal_type": "hiring",
+      "title": "GPUMesh hiring spike \u2014 18 inference eng roles in 30 days",
+      "summary": "Headcount proxy: cluster scheduling + CUDA kernel roles; growth signal ahead of next raise.",
+      "url": null,
+      "observed_at": "2026-08-08",
+      "early_signal": false,
+      "mainstream": true
+    },
+    {
+      "id": "sig_hire_evalfarm",
+      "company_id": "c_evalfarm",
+      "company_name": "EvalFarm",
+      "source": "prefill:hiring_proxy",
+      "signal_type": "hiring",
+      "title": "EvalFarm opens first GTM + eval researcher seats",
+      "summary": "Stealth-ish eval infra co adding GTM \u2014 early org-build signal, still off Tier-1 radar.",
+      "url": null,
+      "observed_at": "2026-08-07",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_hire_swarm",
+      "company_id": "c_swarmguard",
+      "company_name": "SwarmGuard",
+      "source": "prefill:hiring_proxy",
+      "signal_type": "hiring",
+      "title": "SwarmGuard posting CUAS autonomy + RF eng roles",
+      "summary": "Defence hiring pattern consistent with fielded pilots expanding.",
+      "url": null,
+      "observed_at": "2026-08-04",
+      "early_signal": false,
+      "mainstream": true
+    },
+    {
+      "id": "sig2",
+      "company_id": "c_agentide",
+      "company_name": "AgentIDE",
+      "source": "hn",
+      "signal_type": "product_launch",
+      "title": "Show HN: AgentIDE",
+      "summary": "Viral launch for agent-native IDE \u2014 product heat before Series B chatter.",
+      "url": "https://news.ycombinator.com/",
+      "observed_at": "2026-08-07",
+      "early_signal": false,
+      "mainstream": false
+    },
+    {
+      "id": "sig_launch_voicewire",
+      "company_id": "c_voicewire",
+      "company_name": "VoiceWire",
+      "source": "prefill:producthunt",
+      "signal_type": "product_launch",
+      "title": "VoiceWire GA \u2014 low-latency voice agents for enterprise support",
+      "summary": "Generally available multimodal voice stack; first public SKU.",
+      "url": null,
+      "observed_at": "2026-08-03",
+      "early_signal": false,
+      "mainstream": false
+    },
+    {
+      "id": "sig_launch_orbit",
+      "company_id": "c_orbitlens",
+      "company_name": "OrbitLens",
+      "source": "prefill:rss",
+      "signal_type": "product_launch",
+      "title": "OrbitLens ships v0.9 satellite change-detection API",
+      "summary": "Defence-adjacent product launch; limited press, high thesis fit.",
+      "url": null,
+      "observed_at": "2026-08-02",
+      "early_signal": true,
+      "mainstream": false
     },
     {
       "id": "sig4",
@@ -2627,7 +3965,87 @@
       "title": "Watched founder (ex-DeepMind) launching stealth RL environment co \u2014 flagged by Elad Gil",
       "summary": "GP watchlist hit: founder newco matching AI infra thesis",
       "url": "https://x.com/eladgil",
-      "observed_at": "2026-08-08"
+      "observed_at": "2026-08-08",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_founder_shadow",
+      "company_id": null,
+      "company_name": "ShadowRelay",
+      "source": "prefill:gp_watchlist",
+      "signal_type": "founder_move",
+      "title": "Ex-Palantir + Anduril operators spinning up ShadowRelay (CUAS data fusion)",
+      "summary": "Watched operator newco \u2014 defence thesis, no public raise yet.",
+      "url": null,
+      "observed_at": "2026-08-09",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_founder_shadow_x",
+      "company_id": null,
+      "company_name": "ShadowRelay",
+      "source": "prefill:social",
+      "signal_type": "founder_move",
+      "title": "Ex-Palantir + Anduril operators spinning up ShadowRelay (CUAS data fusion)",
+      "summary": "Social corroboration of same founder move \u2014 consolidate with GP watchlist hit.",
+      "url": null,
+      "observed_at": "2026-08-09",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_cust_lattice",
+      "company_id": "c_latticeeval",
+      "company_name": "LatticeEval",
+      "source": "prefill:press",
+      "signal_type": "customer_win",
+      "title": "LatticeEval lands second frontier-lab eval contract",
+      "summary": "Named (redacted) lab expansion \u2014 traction without a fresh raise headline.",
+      "url": null,
+      "observed_at": "2026-08-06",
+      "early_signal": false,
+      "mainstream": true
+    },
+    {
+      "id": "sig_cust_forgebot",
+      "company_id": "c_forgebot",
+      "company_name": "ForgeBot",
+      "source": "prefill:press",
+      "signal_type": "customer_win",
+      "title": "ForgeBot wins first auto OEM pilot for factory cell robotics",
+      "summary": "Customer win in AI manufacturing \u2014 early commercial proof.",
+      "url": null,
+      "observed_at": "2026-08-01",
+      "early_signal": true,
+      "mainstream": false
+    },
+    {
+      "id": "sig_cust_railbank",
+      "company_id": "c_railbank",
+      "company_name": "RailBank Infra",
+      "source": "prefill:press",
+      "signal_type": "customer_win",
+      "title": "RailBank signs regional bank for settlement rails pilot",
+      "summary": "Fintech infra customer win; Ribbit-adjacent but still niche.",
+      "url": null,
+      "observed_at": "2026-07-28",
+      "early_signal": false,
+      "mainstream": false
+    },
+    {
+      "id": "sig_hire_agentgate",
+      "company_id": "c_agentgate",
+      "company_name": "AgentGate",
+      "source": "prefill:hiring_proxy",
+      "signal_type": "hiring",
+      "title": "AgentGate opening 12 security + agent-runtime roles",
+      "summary": "Post-raise hiring wave \u2014 same company as Greylock funding signal.",
+      "url": null,
+      "observed_at": "2026-07-10",
+      "early_signal": false,
+      "mainstream": true
     }
   ],
   "provenance": {

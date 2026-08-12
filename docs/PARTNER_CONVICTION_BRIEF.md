@@ -324,6 +324,8 @@ Either is worth a human look. Automating the *flag* is valuable; automating the 
 Funding history, Tier mix, team, traction, thesis fit, comps, commentary, recommendation — one page.  
 If your system can’t produce that on demand, it’s a toy.
 
+**Signal proof:** pipeline company pages + `/search` + `GET /api/briefs/[id]`; auto-generated on Watch / Deep Dive after every refresh (`src/briefs`, `data/output/briefs/`).
+
 ---
 
 ## 11. “Stress test” questions — and elite answers
@@ -369,7 +371,7 @@ Name-drop their actual requirements so they feel seen:
 | Self-maintaining Excel pipeline | Workbook regen with Pipeline / Hot / Watch / Sector / Peer / Heatmap / News / Commentary / Stale |
 | M/W/F highest-priority email | Hard-capped digest design |
 | Immediate alerts for special routing | 2+ Tier-1, off-thesis peer, watched founders |
-| Knows what a great deal looks like | Weighted scoring + why_now + recommendation |
+| Knows what a great deal looks like | `/deals` — noise vs outstanding · 5 pillars · relative cohort rank |
 | Sector of Tomorrow | Emerging/contrarian sectors with evidence hooks |
 | Investor/operator commentary | Commentary surfaces + chat |
 | Peer set tracking + co-investor heatmap | `/peers` + Excel tabs |

@@ -3,12 +3,14 @@ __pycache__/
 .venv/
 venv/
 data/output/
+data/config/mail.json
 *.xlsx
 .pytest_cache/
 .streamlit/
 .env
 env.txt
 web/.env.local
+web/.signal-cache/
 web/node_modules/
 web/.next/
 *.pyc

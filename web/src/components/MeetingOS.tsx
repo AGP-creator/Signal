@@ -2,10 +2,19 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Eyebrow, EmptyState, Panel } from "@/components/ui";
-import { buildDemoTrails, mergeTrailsWithCompanies, type DealTrail } from "@/lib/icTrail";
-import { loadTrails, seedIfEmpty } from "@/lib/icStore";
+import { useSearchParams } from "next/navigation";
+import { EmptyState, MiniStat, OsBanner, Panel, SegItem, Segmented, ToneBadge } from "@/components/ui";
+import { type DealTrail } from "@/lib/icTrail";
+import { loadMergedTrails } from "@/lib/icStore";
+import {
+  buildMeetingMatch,
+  consumeInterestMeetingHandoff,
+  loadInterest,
+  type InterestMeetingHandoff,
+  type MatchMeeting,
+} from "@/lib/interest";
 import { loadOverrides } from "@/lib/overrideStore";
+import { applyStaleReviews, loadStaleReviews } from "@/lib/staleReviewStore";
 import { buildMeetingPack, type AgendaItem, type MeetingPack } from "@/lib/meeting";
 import type {
   AlertItem,
@@ -25,10 +34,29 @@ const BLOCKS: { id: AgendaItem["block"]; label: string; hint: string }[] = [
   { id: "read", label: "Read", hint: "2-minute scans" },
 ];
 
-function urgencyTone(u: AgendaItem["urgency"]) {
-  if (u === "now") return "text-[var(--danger)]";
-  if (u === "this_week") return "text-[var(--warn)]";
-  return "text-[var(--muted)]";
+const URGENCY_LABEL: Record<AgendaItem["urgency"], string> = {
+  now: "Decide now",
+  this_week: "This week",
+  monitor: "Monitor",
+};
+
+function interestToAgenda(meetings: MatchMeeting[]): AgendaItem[] {
+  return meetings.map((m) => ({
+    id: `interest_${m.company_id}`,
+    block: "decide" as const,
+    minutes: m.minutes,
+    title: m.company_name,
+    subtitle: `Interest match · partner #${m.partner_rank} · quality ${m.quality}`,
+    urgency: m.partner_rank <= 3 ? ("now" as const) : ("this_week" as const),
+    href: `/company/${m.company_id}`,
+    company_id: m.company_id,
+    evidence: [
+      `Slot ${m.slot} · ${m.minutes}m`,
+      `Company pref #${m.company_rank}`,
+      m.ask,
+    ],
+    ask: m.ask,
+  }));
 }
 
 export function MeetingOS({
@@ -46,25 +74,59 @@ export function MeetingOS({
   alerts: AlertItem[];
   sectors: SectorCall[];
 }) {
+  const searchParams = useSearchParams();
+  const fromInterest = searchParams.get("from") === "interest";
   const [trails, setTrails] = useState<DealTrail[]>([]);
   const [copied, setCopied] = useState(false);
   const [filter, setFilter] = useState<AgendaItem["block"] | "all">("all");
+  const [staleTick, setStaleTick] = useState(0);
+  const [interestHandoff, setInterestHandoff] = useState<InterestMeetingHandoff | null>(null);
 
   useEffect(() => {
-    const sync = () => {
-      const demos = buildDemoTrails(companies);
-      const stored = seedIfEmpty(demos);
-      setTrails(mergeTrailsWithCompanies(companies, stored.length ? stored : demos));
-    };
+    const sync = () => setTrails(loadMergedTrails(companies));
     sync();
     window.addEventListener("signal:ic-changed", sync);
     return () => window.removeEventListener("signal:ic-changed", sync);
   }, [companies]);
 
-  const pack: MeetingPack = useMemo(() => {
+  useEffect(() => {
+    const sync = () => setStaleTick((n) => n + 1);
+    window.addEventListener("signal:stale-reviews-changed", sync);
+    window.addEventListener("signal:overrides-changed", sync);
+    return () => {
+      window.removeEventListener("signal:stale-reviews-changed", sync);
+      window.removeEventListener("signal:overrides-changed", sync);
+    };
+  }, []);
+
+  useEffect(() => {
+    const handoff = consumeInterestMeetingHandoff();
+    if (handoff?.meetings?.length) {
+      setInterestHandoff(handoff);
+      return;
+    }
+    if (fromInterest) {
+      const schedule = buildMeetingMatch(companies, loadInterest());
+      if (schedule.meetings.length) {
+        setInterestHandoff({
+          created_at: new Date().toISOString(),
+          meetings: schedule.meetings,
+          unmatched_liked: schedule.unmatched_liked,
+          counsel: schedule.counsel,
+          average_quality: schedule.average_quality,
+        });
+      }
+    }
+  }, [companies, fromInterest]);
+
+  const basePack: MeetingPack = useMemo(() => {
     const overrides = typeof window !== "undefined" ? loadOverrides() : [];
+    const reviewed =
+      typeof window !== "undefined"
+        ? applyStaleReviews(companies, loadStaleReviews())
+        : companies;
     return buildMeetingPack(
-      companies,
+      reviewed,
       peers,
       commentary,
       news,
@@ -73,7 +135,39 @@ export function MeetingOS({
       trails,
       overrides,
     );
-  }, [companies, peers, commentary, news, alerts, sectors, trails]);
+    // staleTick forces recompute after Keep/Archive/Refresh
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companies, peers, commentary, news, alerts, sectors, trails, staleTick]);
+
+  const pack: MeetingPack = useMemo(() => {
+    if (!interestHandoff?.meetings?.length) return basePack;
+    const interestItems = interestToAgenda(interestHandoff.meetings);
+    const seen = new Set(interestItems.map((i) => i.company_id).filter(Boolean));
+    const rest = basePack.agenda.filter((a) => !a.company_id || !seen.has(a.company_id));
+    const agenda = [...interestItems, ...rest];
+    const total_minutes = agenda.reduce((s, i) => s + i.minutes, 0);
+    const interestMd = [
+      "",
+      "## Interest Desk match",
+      "",
+      interestHandoff.counsel,
+      "",
+      ...interestHandoff.meetings.map(
+        (m) =>
+          `- **S${m.slot} ${m.company_name}** (${m.minutes}m) — partner #${m.partner_rank} · Q${m.quality}`,
+      ),
+      "",
+    ].join("\n");
+    return {
+      ...basePack,
+      agenda,
+      decide: agenda.filter((a) => a.block === "decide"),
+      total_minutes,
+      headline: `${interestHandoff.meetings.length} Interest matches on the table`,
+      counsel: [interestHandoff.counsel, basePack.counsel].filter(Boolean).join(" · "),
+      markdown: basePack.markdown.replace(/\n## Decide/, `${interestMd}\n## Decide`),
+    };
+  }, [basePack, interestHandoff]);
 
   const visible =
     filter === "all" ? pack.agenda : pack.agenda.filter((a) => a.block === filter);
@@ -89,55 +183,94 @@ export function MeetingOS({
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "Monday_Partner_Meeting.md";
+    a.download = "Partner_Meeting.md";
     a.click();
     URL.revokeObjectURL(url);
   }
 
   return (
     <div className="space-y-6">
-      <Panel className="border-[rgba(214,255,60,0.22)] bg-[rgba(214,255,60,0.04)]">
-        <Eyebrow live className="!text-[var(--signal)]">
-          Partner Meeting OS
-        </Eyebrow>
-        <div className="mt-1 text-[0.8125rem] text-[var(--faint)]">{pack.meeting_label}</div>
-        <h2 className="display mt-2 text-2xl font-bold md:text-3xl">{pack.headline}</h2>
-        <p className="mt-2 max-w-2xl text-sm leading-relaxed text-[var(--muted)]">{pack.counsel}</p>
-        <div className="mt-5 flex flex-wrap gap-6">
-          <MiniStat label="Agenda" value={`~${pack.total_minutes}m`} />
-          <MiniStat label="Deep Dives" value={String(pack.stats.deep_dives)} />
-          <MiniStat label="Active IC" value={String(pack.stats.active_ic)} />
-          <MiniStat label="High alerts" value={String(pack.stats.high_alerts)} />
-          <MiniStat label="Thesis shifts" value={String(pack.stats.thesis_shifts)} />
-          <MiniStat label="Mix" value={pack.stats.mix_status.replace("_", " ")} />
-        </div>
-        <div className="mt-5 flex flex-wrap gap-2">
-          <button type="button" onClick={copyAgenda} className="btn btn-primary !py-1.5 !text-xs">
-            {copied ? "Copied ✓" : "Copy Monday brief"}
-          </button>
-          <button type="button" onClick={downloadAgenda} className="btn btn-ghost !py-1.5 !text-xs">
-            Download .md
-          </button>
-          <Link href="/ic" className="btn btn-ghost !py-1.5 !text-xs">
-            Open IC trails →
-          </Link>
-          <Link href="/lp" className="btn btn-ghost !py-1.5 !text-xs">
-            LP desk →
-          </Link>
-        </div>
-      </Panel>
+      <OsBanner
+        live
+        eyebrow="This week's run"
+        title={pack.headline}
+        description={`~${pack.total_minutes} min · ${pack.meeting_label}`}
+        stats={
+          <>
+            <MiniStat label="Agenda" value={`~${pack.total_minutes}m`} />
+            <MiniStat label="Deep Dives" value={String(pack.stats.deep_dives)} tone="deep" />
+            <MiniStat label="Active IC" value={String(pack.stats.active_ic)} />
+            <MiniStat
+              label="High alerts"
+              value={String(pack.stats.high_alerts)}
+              tone={pack.stats.high_alerts > 0 ? "danger" : "ok"}
+            />
+            <MiniStat
+              label="Thesis shifts"
+              value={String(pack.stats.thesis_shifts)}
+              tone={pack.stats.thesis_shifts > 0 ? "warn" : "text"}
+            />
+            <MiniStat label="Mix" value={pack.stats.mix_status.replace("_", " ")} tone="ok" />
+          </>
+        }
+        actions={
+          <>
+            <button type="button" onClick={copyAgenda} className="btn btn-primary btn-sm">
+              {copied ? "Copied ✓" : "Copy agenda"}
+            </button>
+            <button type="button" onClick={downloadAgenda} className="btn btn-ghost btn-sm">
+              Download .md
+            </button>
+            <Link href="/ic" className="btn btn-ghost btn-sm">
+              IC trails
+            </Link>
+            <Link href="/interest" className="btn btn-ghost btn-sm">
+              Interest Desk
+            </Link>
+          </>
+        }
+      />
 
-      <div className="flex flex-wrap gap-1.5">
-        <FilterChip active={filter === "all"} onClick={() => setFilter("all")} label="Full agenda" />
+      {interestHandoff?.meetings?.length ? (
+        <Panel className="!border-[color-mix(in_srgb,var(--signal)_35%,var(--line))]">
+          <div className="flex flex-wrap items-baseline justify-between gap-2">
+            <div>
+              <div className="label-caps text-[var(--signal)]">From Interest Desk</div>
+              <p className="mt-1 text-[0.875rem] text-[var(--muted)]">{interestHandoff.counsel}</p>
+            </div>
+            <span className="mono text-[0.75rem] text-[var(--faint)]">
+              avg Q{interestHandoff.average_quality}
+            </span>
+          </div>
+          <ol className="mt-3 space-y-1.5 text-[0.875rem]">
+            {interestHandoff.meetings.map((m) => (
+              <li key={m.company_id} className="flex flex-wrap gap-x-2 gap-y-0.5">
+                <span className="mono text-[var(--faint)]">S{m.slot}</span>
+                <Link
+                  href={`/company/${m.company_id}`}
+                  className="font-semibold hover:text-[var(--signal)]"
+                >
+                  {m.company_name}
+                </Link>
+                <span className="text-[var(--muted)]">
+                  {m.minutes}m · partner #{m.partner_rank} · Q{m.quality}
+                </span>
+              </li>
+            ))}
+          </ol>
+        </Panel>
+      ) : null}
+
+      <Segmented aria-label="Agenda filters">
+        <SegItem active={filter === "all"} onClick={() => setFilter("all")}>
+          Full agenda
+        </SegItem>
         {BLOCKS.map((b) => (
-          <FilterChip
-            key={b.id}
-            active={filter === b.id}
-            onClick={() => setFilter(b.id)}
-            label={b.label}
-          />
+          <SegItem key={b.id} active={filter === b.id} onClick={() => setFilter(b.id)}>
+            {b.label}
+          </SegItem>
         ))}
-      </div>
+      </Segmented>
 
       <div className="grid gap-4 lg:grid-cols-[1fr_280px]">
         <div className="space-y-3 stagger">
@@ -151,56 +284,40 @@ export function MeetingOS({
           {BLOCKS.map((b) => {
             const items = pack.agenda.filter((a) => a.block === b.id);
             const mins = items.reduce((s, i) => s + i.minutes, 0);
+            const urgent = items.filter((i) => i.urgency === "now").length;
             return (
-              <Panel key={b.id} className="!p-4">
+              <button
+                key={b.id}
+                type="button"
+                onClick={() => setFilter(b.id)}
+                className={cn(
+                  "panel block-card w-full !p-4 text-left transition",
+                  filter === b.id &&
+                    "border-[color-mix(in_srgb,var(--signal)_40%,var(--line))] shadow-[0_0_0_1px_color-mix(in_srgb,var(--signal)_20%,transparent)]",
+                )}
+                data-block={b.id}
+              >
                 <div className="flex items-baseline justify-between gap-2">
                   <div className="text-sm font-semibold">{b.label}</div>
-                  <div className="mono text-[0.75rem] text-[var(--signal)]">{mins}m</div>
+                  <div className="mono text-[0.75rem] font-semibold text-[var(--signal)]">{mins}m</div>
                 </div>
-                <div className="mt-0.5 text-[0.75rem] text-[var(--faint)]">{b.hint}</div>
-                <div className="mt-2 text-[0.8125rem] text-[var(--muted)]">
-                  {items.length} item{items.length === 1 ? "" : "s"}
+                <div className="mt-0.5 text-[0.75rem] text-[var(--muted)]">{b.hint}</div>
+                <div className="mt-2.5 flex items-center justify-between gap-2">
+                  <span className="text-[0.8125rem] font-medium text-[var(--text)]">
+                    {items.length} item{items.length === 1 ? "" : "s"}
+                  </span>
+                  {urgent > 0 ? (
+                    <ToneBadge tone="now">{urgent} now</ToneBadge>
+                  ) : items.length === 0 ? (
+                    <span className="chip text-[0.65rem]">Clear</span>
+                  ) : null}
                 </div>
-              </Panel>
+              </button>
             );
           })}
         </aside>
       </div>
     </div>
-  );
-}
-
-function MiniStat({ label, value }: { label: string; value: string }) {
-  return (
-    <div>
-      <div className="label-caps">{label}</div>
-      <div className="mono mt-1 text-[0.95rem] text-[var(--text)]">{value}</div>
-    </div>
-  );
-}
-
-function FilterChip({
-  active,
-  onClick,
-  label,
-}: {
-  active: boolean;
-  onClick: () => void;
-  label: string;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "rounded-[8px] px-3 py-1.5 text-[0.8125rem] font-semibold transition",
-        active
-          ? "bg-[var(--signal-dim)] text-[var(--signal)]"
-          : "border border-[var(--line)] text-[var(--muted)] hover:text-[var(--text)]",
-      )}
-    >
-      {label}
-    </button>
   );
 }
 
@@ -210,35 +327,45 @@ function AgendaCard({ item }: { item: AgendaItem }) {
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
-            <span className="label-caps text-[var(--faint)]">{item.block}</span>
-            <span className={cn("label-caps", urgencyTone(item.urgency))}>{item.urgency}</span>
-            <span className="mono text-[0.75rem] text-[var(--muted)]">{item.minutes}m</span>
+            <ToneBadge tone="block">{item.block}</ToneBadge>
+            <ToneBadge tone={item.urgency}>{URGENCY_LABEL[item.urgency]}</ToneBadge>
+            <span className="chip chip-signal mono !px-2 !py-0.5 text-[0.7rem]">{item.minutes}m</span>
           </div>
-          <h3 className="mt-1.5 text-[1.05rem] font-semibold">{item.title}</h3>
-          <p className="mt-0.5 text-[0.8125rem] text-[var(--muted)]">{item.subtitle}</p>
+          <h3 className="mt-2.5 text-[1.1rem] font-semibold tracking-tight">{item.title}</h3>
+          <p className="mt-1 text-[0.8125rem] text-[var(--muted)]">{item.subtitle}</p>
         </div>
       </div>
-      <ul className="mt-3 space-y-1.5">
+      <ul className="mt-3.5 space-y-1.5">
         {item.evidence.map((e) => (
-          <li key={e} className="flex gap-2 text-[0.875rem] text-[var(--muted)]">
-            <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-[var(--signal)]" />
+          <li key={e} className="flex gap-2.5 text-[0.875rem] text-[var(--text)]/88">
+            <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--signal)]" />
             <span>{e}</span>
           </li>
         ))}
       </ul>
-      <p className="mt-3 text-[0.875rem]">
-        <span className="text-[var(--faint)]">Ask · </span>
-        <span className="text-[var(--text)]">{item.ask}</span>
-      </p>
+      <div className="ask-row mt-4">
+        <p className="text-[0.8125rem] leading-snug">
+          <span className="font-semibold text-[var(--signal)]">Ask · </span>
+          <span className="text-[var(--text)]">{item.ask}</span>
+        </p>
+      </div>
     </>
   );
 
   if (item.href) {
     return (
-      <Link href={item.href} className="panel panel-interactive block p-5">
+      <Link
+        href={item.href}
+        className="panel panel-interactive panel-rail block p-5 md:p-6"
+        data-urgency={item.urgency}
+      >
         {inner}
       </Link>
     );
   }
-  return <Panel>{inner}</Panel>;
+  return (
+    <Panel className="panel-rail" data-urgency={item.urgency}>
+      {inner}
+    </Panel>
+  );
 }

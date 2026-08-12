@@ -60,7 +60,7 @@ def dedupe_companies(companies: list[dict[str, Any]]) -> list[dict[str, Any]]:
 
 
 def days_since(signal_date: str, as_of: Optional[date] = None) -> int:
-    as_of = as_of or date(2026, 8, 9)
+    as_of = as_of or date.today()
     try:
         d = datetime.strptime(signal_date[:10], "%Y-%m-%d").date()
         return (as_of - d).days

@@ -19,6 +19,8 @@ ROOT = Path(__file__).resolve().parents[1]
 SQL_PATHS = [
     ROOT / "supabase" / "migrations" / "001_init.sql",
     ROOT / "supabase" / "migrations" / "002_peer_firms.sql",
+    ROOT / "supabase" / "migrations" / "003_partner_reviews.sql",
+    ROOT / "supabase" / "migrations" / "004_partner_watchlists.sql",
 ]
 PROJECT_REF = "ixnenoiggoijvawoykto"
 

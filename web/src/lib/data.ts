@@ -7,6 +7,7 @@ import type {
   NewsItem,
   PeerActivity,
   SectorCall,
+  SignalItem,
 } from "@/lib/types";
 
 export async function fetchCompanies(): Promise<Company[]> {
@@ -50,6 +51,12 @@ export async function fetchSectors(): Promise<SectorCall[]> {
 
 export async function fetchAlerts(): Promise<AlertItem[]> {
   return restSelect<AlertItem[]>("alerts");
+}
+
+export async function fetchSignals(): Promise<SignalItem[]> {
+  return restSelect<SignalItem[]>("signals", {
+    order: "observed_at.desc",
+  });
 }
 
 export async function fetchLatestDigest(): Promise<DigestRow | null> {

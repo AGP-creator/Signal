@@ -14,7 +14,7 @@ import {
 } from "@/lib/diligence";
 import type { CompanyBrief } from "@/lib/research";
 import type { Commentary, Company, PeerActivity } from "@/lib/types";
-import { EmptyState, Panel } from "@/components/ui";
+import { EmptyState, Panel, SegItem, Segmented } from "@/components/ui";
 
 function SeverityChip({ s }: { s: "high" | "medium" | "low" }) {
   const color =
@@ -29,7 +29,7 @@ function SeverityChip({ s }: { s: "high" | "medium" | "low" }) {
 function BearPanel({ bear }: { bear: BearCase }) {
   return (
     <div className="grid gap-5 lg:grid-cols-2">
-      <Panel className="border-[rgba(255,107,107,0.22)] bg-[rgba(255,107,107,0.04)]">
+      <Panel className="border-[var(--danger)]/30 bg-[var(--danger-dim)]">
         <div className="label-caps text-[var(--danger)]">Bear case · counterfactual</div>
         <h3 className="display mt-2 text-2xl font-bold">{bear.headline}</h3>
         <p className="mt-2 text-sm text-[var(--muted)]">{bear.conviction_gate}</p>
@@ -125,7 +125,7 @@ function PlanPanel({ plan }: { plan: DiligencePlan }) {
             <div className="label-caps">Founder-only questions</div>
             <h3 className="display mt-1 text-xl font-bold">Ask draft — never auto-send</h3>
           </div>
-          <button type="button" onClick={copyEmail} className="btn btn-ghost !py-1.5 !text-xs">
+          <button type="button" onClick={copyEmail} className="btn btn-ghost btn-sm">
             {copied ? "Copied ✓" : "Copy email draft"}
           </button>
         </div>
@@ -136,7 +136,7 @@ function PlanPanel({ plan }: { plan: DiligencePlan }) {
             </li>
           ))}
         </ol>
-        <pre className="mt-4 max-h-48 overflow-auto rounded-lg border border-[var(--line)] bg-black/20 p-3 text-[11px] leading-relaxed text-[var(--muted)] whitespace-pre-wrap">
+        <pre className="mt-4 max-h-48 overflow-auto rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel-2)] p-3 text-[11px] leading-relaxed text-[var(--muted)] whitespace-pre-wrap">
           {plan.founder_email_draft}
         </pre>
       </Panel>
@@ -233,7 +233,7 @@ function DeckPanel({
         <button
           type="button"
           disabled={busy || text.trim().length < 20}
-          className="btn btn-primary !py-1.5 !text-xs"
+          className="btn btn-primary btn-sm"
           onClick={() => onAnalyze(text)}
         >
           {busy ? "Analyzing…" : "Analyze deck"}
@@ -357,25 +357,16 @@ export function DiligenceStressPack({
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
           <div className="label-caps text-[var(--signal)]">Diligence Stress Pack</div>
-          <h2 className="display mt-1 text-3xl font-bold">Pressure-test before conviction</h2>
-          <p className="mt-1.5 max-w-2xl text-sm text-[var(--muted)]">
-            Counterfactual bear case, work orders, founder-only asks, and deck red flags — judgment
-            agents, not another coverage dashboard.
-          </p>
+          <h2 className="display mt-1 text-3xl font-bold">Pressure-test</h2>
         </div>
       </div>
-      <div className="flex flex-wrap gap-2">
+      <Segmented aria-label="Diligence stress sections" className="seg-scroll">
         {tabs.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={`chip !cursor-pointer ${tab === t.id ? "!border-[var(--signal)] !text-[var(--signal)]" : ""}`}
-          >
+          <SegItem key={t.id} active={tab === t.id} onClick={() => setTab(t.id)}>
             {t.label}
-          </button>
+          </SegItem>
         ))}
-      </div>
+      </Segmented>
       {tab === "bear" && <BearPanel bear={pack.bear} />}
       {tab === "plan" && <PlanPanel plan={pack.plan} />}
       {tab === "meeting" && <MeetingPanel prep={pack.meeting} />}

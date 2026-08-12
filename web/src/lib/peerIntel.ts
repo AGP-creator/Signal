@@ -1,3 +1,4 @@
+import { FUND_ANNOUNCEMENTS, type FundAnnouncement } from "@/lib/fundAnnouncements";
 import { PEER_FIRMS, type PeerFirmConfig } from "@/lib/peerFirms";
 import type { Company, PeerActivity } from "@/lib/types";
 
@@ -65,11 +66,22 @@ export type HeatRow = {
   syndicate_score: number;
 };
 
+/** Firm × firm adjacency for the visual co-investor heatmap. */
+export type CoinvestMatrix = {
+  firms: { slug: string; name: string }[];
+  /** Symmetric; cell [i][j] = coinvest count (0 on diagonal). */
+  cells: number[][];
+  max: number;
+};
+
 export type PeerIntelligence = {
   firms: FirmDossier[];
   heatmap: HeatRow[];
+  coinvest_matrix: CoinvestMatrix;
   thesis_shifts: PeerActivity[];
   sector_bets: { theme: string; count: number }[];
+  fund_announcements: FundAnnouncement[];
+  fund_sector_bets: { theme: string; count: number; capital_m: number }[];
   comparables: Record<string, CompRow[]>;
   matrix: {
     firms: { slug: string; name: string }[];
@@ -88,6 +100,8 @@ export type PeerIntelligence = {
     active_peer_count: number;
     thesis_shift_count: number;
     heatmap_pairs: number;
+    fund_announcement_count: number;
+    new_fund_count: number;
   };
 };
 
@@ -262,6 +276,67 @@ export function buildHeatmap(companies: Company[]): HeatRow[] {
     .sort((a, b) => b.coinvest_count - a.coinvest_count || b.syndicate_score - a.syndicate_score);
 }
 
+/** Build a square firm×firm heat matrix from ranked co-invest pairs (top active peer firms). */
+export function buildCoinvestMatrix(
+  heatmap: HeatRow[],
+  firms: FirmDossier[],
+  limit = 14,
+): CoinvestMatrix {
+  const ranked = [...firms]
+    .filter((f) => f.deal_count > 0)
+    .sort(
+      (a, b) =>
+        b.deal_count - a.deal_count ||
+        b.watch_priority - a.watch_priority ||
+        a.name.localeCompare(b.name),
+    )
+    .slice(0, limit);
+
+  const index = new Map(ranked.map((f, i) => [norm(f.name), i]));
+  for (const f of ranked) {
+    for (const a of f.aliases) index.set(norm(a), index.get(norm(f.name))!);
+  }
+
+  const n = ranked.length;
+  const cells: number[][] = Array.from({ length: n }, () => Array(n).fill(0));
+  let max = 0;
+
+  for (const row of heatmap) {
+    const i = index.get(norm(row.firm_a));
+    const j = index.get(norm(row.firm_b));
+    if (i == null || j == null || i === j) continue;
+    cells[i][j] = row.coinvest_count;
+    cells[j][i] = row.coinvest_count;
+    if (row.coinvest_count > max) max = row.coinvest_count;
+  }
+
+  return {
+    firms: ranked.map((f) => ({ slug: f.slug, name: f.name })),
+    cells,
+    max: Math.max(max, 1),
+  };
+}
+
+function fundSectorBets(funds: FundAnnouncement[]) {
+  const map = new Map<string, { count: number; capital_m: number }>();
+  for (const f of funds) {
+    const themes = f.sector_focus
+      .split(/[·,]/)
+      .map((t) => t.trim())
+      .filter(Boolean);
+    for (const theme of themes.slice(0, 2)) {
+      const cur = map.get(theme) || { count: 0, capital_m: 0 };
+      cur.count += 1;
+      cur.capital_m += f.size_m || 0;
+      map.set(theme, cur);
+    }
+  }
+  return [...map.entries()]
+    .map(([theme, v]) => ({ theme, count: v.count, capital_m: Math.round(v.capital_m) }))
+    .sort((a, b) => b.capital_m - a.capital_m || b.count - a.count)
+    .slice(0, 10);
+}
+
 export function buildPeerIntelligence(
   companies: Company[],
   peers: PeerActivity[],
@@ -415,12 +490,18 @@ export function buildPeerIntelligence(
   );
 
   const heatmap = buildHeatmap(companies);
+  const coinvest_matrix = buildCoinvestMatrix(heatmap, firms);
   const comparables = buildComparables(companies);
   const thesis_shifts = peers.filter((p) => p.thesis_shift);
   const sectorMap = new Map<string, number>();
   for (const f of firms) {
     for (const t of f.top_themes) bump(sectorMap, t.theme);
   }
+
+  const fund_announcements = [...FUND_ANNOUNCEMENTS].sort((a, b) =>
+    b.announced_date.localeCompare(a.announced_date),
+  );
+  const fund_sector_bets = fundSectorBets(fund_announcements);
 
   const firmList = firms.slice(0, 18);
   const cos = [...companies].sort((a, b) => (b.thesis_score || 0) - (a.thesis_score || 0)).slice(0, 24);
@@ -444,8 +525,11 @@ export function buildPeerIntelligence(
   return {
     firms,
     heatmap,
+    coinvest_matrix,
     thesis_shifts,
     sector_bets: topN(sectorMap, 12).map((t) => ({ theme: t.key, count: t.count })),
+    fund_announcements,
+    fund_sector_bets,
     comparables,
     matrix: {
       firms: firmList.map((f) => ({ slug: f.slug, name: f.name })),
@@ -457,6 +541,8 @@ export function buildPeerIntelligence(
       active_peer_count: firms.filter((f) => f.deal_count > 0).length,
       thesis_shift_count: thesis_shifts.length,
       heatmap_pairs: heatmap.length,
+      fund_announcement_count: fund_announcements.length,
+      new_fund_count: fund_announcements.filter((f) => f.freshness === "new").length,
     },
   };
 }

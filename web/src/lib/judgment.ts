@@ -8,6 +8,7 @@
  */
 
 import type { AlertItem, Commentary, Company, NewsItem, PeerActivity } from "@/lib/types";
+import { findVoiceInText } from "@/lib/gpWatchlist";
 import { portfolioMix } from "@/lib/utils";
 
 export type OverrideRec = "Deep Dive" | "Watch" | "Pass";
@@ -98,6 +99,7 @@ export type DigestVariant = {
   id: "tight" | "standard" | "loose";
   deal_cap: number;
   deals: { name: string; score: number | null; recommendation: string | null; slug?: string | null }[];
+  /** Average thesis score of included deals — selectivity preview, not outcome precision. */
   precision_proxy: number;
   partner_minutes: number;
   note: string;
@@ -107,6 +109,8 @@ export type DigestSelectivity = {
   winner: DigestVariant["id"];
   variants: DigestVariant[];
   counsel: string;
+  /** Honest label until IC outcomes exist to measure true precision. */
+  metric_label: string;
 };
 
 export type JudgmentPack = {
@@ -312,7 +316,7 @@ export function computeCompanyFreshness(company: Company): CompanyFreshness {
         ? `Evidence SLA breach — treat thesis score ${company.thesis_score?.toFixed(0) ?? "—"} as provisional until refreshed.`
         : worst === "aging"
           ? "Evidence aging — confidence haircut applied; associate should refresh before IC."
-          : "Evidence within SLA — score usable for Monday debate.",
+          : "Evidence within SLA — score usable for partner debate.",
   };
 }
 
@@ -468,7 +472,8 @@ export function detectFounderRadar(
     if (!patterns.some((p) => p.test(text))) continue;
 
     const op = WATCHED_OPERATORS.find((o) => text.toLowerCase().includes(o.name.toLowerCase().replace("ex-", "ex-")) || text.toLowerCase().includes(o.prior.toLowerCase()));
-    const gpMatch = text.match(/\b(Elad Gil|Molly O'Shea|Deedy|Packy McCormick|Keith Rabois|Delian Asparouhov)\b/i);
+    const gp = findVoiceInText(text);
+    const gpMatch = gp?.name || null;
     const isStealth = /stealth|newco|spin/i.test(text);
     const founder =
       op?.name ||
@@ -486,7 +491,7 @@ export function detectFounderRadar(
       company_hint: src.company?.name || null,
       company_id: src.company?.id || null,
       company_slug: src.company?.slug || null,
-      gp_flagged_by: gpMatch?.[0] || null,
+      gp_flagged_by: gpMatch,
       action: isStealth
         ? "Route as immediate alert — partner intro / research agent brief within 24h."
         : "Add to founder radar board; refresh on next GP chatter.",
@@ -593,7 +598,7 @@ export function computeDigestSelectivity(companies: Company[]): DigestSelectivit
   const variants = [
     mk("tight", 3, "Ruthless — only what a partner would forward. Highest precision, risk of false negatives."),
     mk("standard", 5, "M/W/F design default — selectivity with room for one asymmetric Watch."),
-    mk("loose", 8, "Coverage creep — looks busy, dilutes Monday. Competitors ship this; we refuse it as default."),
+    mk("loose", 8, "Coverage creep — looks busy, dilutes the agenda. Competitors ship this; we refuse it as default."),
   ];
 
   const winner =
@@ -602,10 +607,11 @@ export function computeDigestSelectivity(companies: Company[]): DigestSelectivit
   return {
     winner,
     variants,
+    metric_label: "Selectivity preview (avg score · not measured precision)",
     counsel:
       winner === "tight"
-        ? "Current Hot Deals quality supports a 3-deal digest. If partners ask for more, add one sector call — not three more names."
-        : "Keep the 5-deal cap. Expanding to 8 would drop precision proxy without proven follow-through.",
+        ? "Current Hot Deals quality supports a 3-deal digest. If partners ask for more, add one sector call — not three more names. This is a selectivity preview until IC outcomes exist."
+        : "Keep the 5-deal cap. Expanding to 8 dilutes partner attention. Metric is avg thesis score of included deals — not outcome precision.",
   };
 }
 
@@ -768,8 +774,7 @@ export function buildJudgmentPack(
     summary: {
       headline,
       must_do: must_do.slice(0, 4),
-      edge_note:
-        "Edge compounds from override labels + miss postmortems — not from a bigger LLM. Competitors can copy the digest UI; they cannot copy Thirdbase preference data.",
+      edge_note: "Override ledger + miss retros compound firm taste.",
     },
   };
 }
@@ -802,6 +807,7 @@ export function formatJudgmentBriefMarkdown(pack: JudgmentPack): string {
     ...pack.policy_fuel.map((p) => `- **${p.dimension}** (${p.direction}): ${p.counsel}`),
     "",
     `## Digest selectivity · prefer **${pack.digest_selectivity.winner}**`,
+    `_${pack.digest_selectivity.metric_label}_`,
     pack.digest_selectivity.counsel,
   ].join("\n");
 }

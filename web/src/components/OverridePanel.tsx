@@ -26,13 +26,20 @@ export function OverridePanel({
   const [existing, setExisting] = useState<string | null>(null);
 
   useEffect(() => {
-    const row = loadOverrides().find((o) => o.company_id === companyId && o.partner === "Partner");
-    if (row) {
-      setPartnerRec(row.partner_rec);
-      setReason(row.reason);
-      setDimension(row.dimension_hint || "judgment");
-      setExisting(`${row.signal_rec} → ${row.partner_rec}`);
+    function sync() {
+      const row = loadOverrides().find((o) => o.company_id === companyId && o.partner === "Partner");
+      if (row) {
+        setPartnerRec(row.partner_rec);
+        setReason(row.reason);
+        setDimension(row.dimension_hint || "judgment");
+        setExisting(`${row.signal_rec} → ${row.partner_rec}`);
+      } else {
+        setExisting(null);
+      }
     }
+    sync();
+    window.addEventListener("signal:overrides-changed", sync);
+    return () => window.removeEventListener("signal:overrides-changed", sync);
   }, [companyId]);
 
   function submit(e: React.FormEvent) {
@@ -83,10 +90,10 @@ export function OverridePanel({
                 type="button"
                 onClick={() => setPartnerRec(r)}
                 className={cn(
-                  "rounded-[8px] px-2.5 py-1 text-[0.8125rem] font-medium transition",
+                  "rounded-[8px] border px-2.5 py-1 text-[0.8125rem] font-medium transition",
                   partnerRec === r
-                    ? "bg-[var(--signal-dim)] text-[var(--signal)]"
-                    : "bg-[var(--panel-2)] text-[var(--muted)] hover:text-[var(--text)]",
+                    ? "border-[var(--signal)] bg-[var(--signal-dim)] text-[var(--signal)]"
+                    : "border-[var(--line-strong)] bg-[var(--panel)] text-[var(--text)] hover:border-[var(--signal)]",
                 )}
               >
                 {r}
@@ -132,13 +139,13 @@ export function OverridePanel({
           />
         </div>
         <div className="flex flex-wrap gap-2">
-          <button type="submit" className="btn btn-primary !py-1.5 !text-xs">
+          <button type="submit" className="btn btn-primary btn-sm">
             {saved ? "Logged ✓" : "Log override"}
           </button>
           {existing && (
             <button
               type="button"
-              className="btn btn-ghost !py-1.5 !text-xs"
+              className="btn btn-ghost btn-sm"
               onClick={() => {
                 removeOverride(companyId);
                 setExisting(null);
@@ -148,7 +155,7 @@ export function OverridePanel({
               Clear
             </button>
           )}
-          <a href="/judgment" className="btn btn-ghost !py-1.5 !text-xs">
+          <a href="/judgment" className="btn btn-ghost btn-sm">
             Open Judgment OS
           </a>
         </div>

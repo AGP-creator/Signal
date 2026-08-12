@@ -18,6 +18,15 @@ class Recommendation(str, Enum):
     PASS = "Pass"
 
 
+class FundingRound(BaseModel):
+    round: str
+    date: Optional[str] = None
+    amount_m: Optional[float] = None
+    post_m: Optional[float] = None
+    lead: Optional[str] = None
+    confidence: str = "estimated"
+
+
 class Company(BaseModel):
     id: str
     name: str
@@ -38,6 +47,9 @@ class Company(BaseModel):
     tier1_count: int = 0
     tier1_names: list[str] = Field(default_factory=list)
     tier2_count: int = 0
+    tier2_names: list[str] = Field(default_factory=list)
+    tier3_count: int = 0
+    tier3_names: list[str] = Field(default_factory=list)
     headcount: Optional[int] = None
     headcount_6m_growth_pct: Optional[float] = None
     yoy_growth_pct: Optional[float] = None
@@ -46,6 +58,8 @@ class Company(BaseModel):
     moat_notes: str = ""
     team_notes: str = ""
     traction_notes: str = ""
+    product_notes: str = ""
+    funding_rounds: list[FundingRound] = Field(default_factory=list)
     last_signal_date: str
     sources: list[str] = Field(default_factory=list)
     is_stale: bool = False

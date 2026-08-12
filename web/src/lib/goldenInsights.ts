@@ -1,6 +1,6 @@
 /**
  * Golden insights — partner-grade judgment layer on top of peer intelligence.
- * Turns activity into: what to do Monday, who to call, where Thirdbase has edge.
+ * Turns activity into: what to do this week, who to call, where Thirdbase has edge.
  */
 
 import type { Company } from "@/lib/types";
@@ -196,7 +196,7 @@ export function buildGoldenPack(
       id: idOf("ws", flow.theme),
       kind: "whitespace",
       urgency: "this_week",
-      title: `White space: ${flow.theme}`,
+      title: flow.theme,
       insight: `Peer capital is light (${flow.peer_deals} observed) while Thirdbase already has ${flow.thirdbase_deals} names (${flow.thirdbase_deep_dives} Deep Dive). This is an asymmetric coverage window.`,
       action: `Double-click the top relative-rank names in ${flow.theme} and lock founder access before Lux/a16z crowd in.`,
       evidence: [
@@ -214,7 +214,7 @@ export function buildGoldenPack(
       id: idOf("flood", flow.theme),
       kind: "crowding",
       urgency: "now",
-      title: `Crowding alert: ${flow.theme}`,
+      title: flow.theme,
       insight: `${flow.peer_firms.slice(0, 3).join(", ")} and peers are flooding ${flow.theme} (${flow.peer_deals} appearances). Easy to overpay.`,
       action: `Only Green-light if relative rank is top-quartile and entry valuation is attractive vs comps. Prefer Pass on mid-pack.`,
       evidence: [
@@ -259,7 +259,7 @@ export function buildGoldenPack(
       id: idOf("prop", race.company_id),
       kind: "alpha",
       urgency: "now",
-      title: `Proprietary edge: ${race.company_name}`,
+      title: race.company_name,
       insight: `${race.company_name} is Deep Dive (score ${race.thesis_score?.toFixed(0)}) with a quiet/selective cap table (${race.peer_count} known peers). This is the kind of deal coverage tools miss.`,
       action: `Partner should take the call this week — draft IC one-pager and lock a process before peer FOMO arrives.`,
       evidence: [race.note, `Investors: ${race.peers.join(", ") || "thin / unknown"}`],
@@ -273,7 +273,7 @@ export function buildGoldenPack(
       id: idOf("race", race.company_id),
       kind: "race",
       urgency: "this_week",
-      title: `Competitive race: ${race.company_name}`,
+      title: race.company_name,
       insight: `${race.peer_count} investors already on the tape (${race.peers.slice(0, 4).join(", ")}…). Intensity ${race.race_intensity}/100.`,
       action: `Decide lead vs pass fast. If proceeding, pick a syndicate ally from the heatmap who already knows the founder.`,
       evidence: [race.note],
@@ -288,7 +288,7 @@ export function buildGoldenPack(
       id: idOf("drift", shift.id || shift.firm, shift.company_name || ""),
       kind: "asymmetric",
       urgency: "now",
-      title: `Asymmetric signal: ${shift.firm} off-thesis → ${shift.company_name}`,
+      title: `${shift.firm} off-thesis → ${shift.company_name}`,
       insight:
         shift.notes ||
         `${shift.firm} invested outside stated focus — often an early tell of a new consensus theme.`,
@@ -315,7 +315,7 @@ export function buildGoldenPack(
       action: `Treat ${f.name}'s recent off-focus deals as a map of where smart capital is exploring — reverse-engineer the theme.`,
       evidence: f.top_themes.slice(0, 3).map((t) => `${t.theme} (${t.count})`),
       score: 78,
-      hrefs: [{ label: f.name, href: `/peers/${f.slug}` }],
+      hrefs: [{ label: f.name, href: `/competitors/${f.slug}` }],
     });
   }
 
@@ -382,16 +382,16 @@ export function buildGoldenPack(
         id: idOf("syn", c.id),
         kind: "syndicate",
         urgency: crowding === "quiet" ? "now" : "this_week",
-        title: `Syndicate unlock: call ${call_list[0].firm} on ${c.name}`,
+        title: `Call ${call_list[0].firm} on ${c.name}`,
         insight: call_list[0].reason,
-        action: `Warm intro path via shared relationships; position Thirdbase as ${
+        action: `Warm intro via shared relationships — position Thirdbase as ${
           crowding === "quiet" ? "lead / co-lead" : "high-conviction co-investor"
         }.`,
-        evidence: [edge_note, `Fit score ${call_list[0].fit_score}`],
+        evidence: [edge_note, `Fit ${call_list[0].fit_score}`],
         score: 84 + (crowding === "quiet" ? 8 : 0),
         hrefs: [
           { label: c.name, href: `/company/${c.slug || c.id}` },
-          { label: call_list[0].firm, href: `/peers/${call_list[0].slug}` },
+          { label: call_list[0].firm, href: `/competitors/${call_list[0].slug}` },
         ],
       });
     }
@@ -449,12 +449,12 @@ export function buildGoldenPack(
       id: idOf("battle", card.slug),
       kind: "defend",
       urgency: "monitor",
-      title: `Battle card: ${card.name}`,
+      title: card.name,
       insight: card.how_they_win,
       action: card.call_when,
       evidence: [card.where_they_are_weak, card.partner_or_compete],
       score: 72 + card.watch_priority * 0.1,
-      hrefs: [{ label: card.name, href: `/peers/${card.slug}` }],
+      hrefs: [{ label: card.name, href: `/competitors/${card.slug}` }],
     });
   }
 
@@ -494,11 +494,11 @@ export function buildGoldenPack(
         ? `White-space edge: ${theme_flows.find((t) => t.posture === "whitespace")!.theme} — ${theme_flows.find((t) => t.posture === "whitespace")!.counsel}`
         : `Capital is broadly contested across themes — selectivity is the product.`,
       syndicate_plays[0]?.call_list[0]
-        ? `Syndicate unlock of the week: for ${syndicate_plays[0].company_name}, call ${syndicate_plays[0].call_list[0].firm} — ${syndicate_plays[0].call_list[0].reason}`
+        ? `This week's unlock: call ${syndicate_plays[0].call_list[0].firm} on ${syndicate_plays[0].company_name} — ${syndicate_plays[0].call_list[0].reason}`
         : "Heatmap is the syndicate map — use it before every Deep Dive process.",
     ],
-    must_do: must.map((m) => `${m.title}: ${m.action}`),
-    watch: watch.map((m) => m.title),
+    must_do: [...new Set(must.map((m) => m.action))],
+    watch: [...new Set(watch.map((m) => m.title))],
   };
 
   // defend insight: overlapping Deep Dives with same Tier-1
@@ -523,7 +523,7 @@ export function buildGoldenPack(
       action: `Pick one name to partner on and one to win with proprietary access — don't fight them on every overlapping deal.`,
       evidence: ov.deepOverlap.map((d) => d.company_name || ""),
       score: 83,
-      hrefs: [{ label: ov.firm.name, href: `/peers/${ov.firm.slug}` }],
+      hrefs: [{ label: ov.firm.name, href: `/competitors/${ov.firm.slug}` }],
     });
   }
 

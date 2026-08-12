@@ -15,6 +15,18 @@ export function fmtPct(v?: number | null) {
   return `${v.toFixed(0)}%`;
 }
 
+export function fmtWhen(iso?: string | null) {
+  if (!iso) return "—";
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString(undefined, {
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit",
+  });
+}
+
 export function recClass(rec?: string | null) {
   if (rec === "Deep Dive") return "rec-deep";
   if (rec === "Watch") return "rec-watch";

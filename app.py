@@ -255,7 +255,8 @@ with tab_alerts:
     items = alerts or (evaluate_alerts(companies, peers) if companies else [])
     for a in items[:20]:
         with st.expander(f"{(a.get('severity') or '').upper()} · {a.get('title')}"):
-            st.code(render_alert_email(a))
+            rendered = render_alert_email(a)
+            st.code(rendered["text"] if isinstance(rendered, dict) else rendered)
 
 with tab_brief:
     names = [c.get("name") for c in companies]

@@ -117,14 +117,24 @@ Research note for Signal (Thirdbase). Catalog of AI-native funds and agentic VC 
 | Deck upload → memo + red flags + citations | **Diligence Stress Pack** | VCOS Clarity / Auryn / Kruncher |
 | Diligence work orders / founder-only Qs | **Diligence Stress Pack** | Auryn Ask + Verify |
 | Meeting prep brief | **Diligence Stress Pack** | Affinity Ascend |
-| Warm intro paths | Out of scope (no CRM graph) | Affinity / Harmonic |
-| Configurable signal feed | Partial (alerts, watchlists) | Kruncher 450 signals |
-| pwMOIC exit modeling | Out of scope this tranche | Auryn |
+| Warm intro paths | **Atlas Warm paths** (demo graph → Affinity Phase 2) | Affinity / Harmonic |
+| NL market maps | **Atlas Market map** | Harmonic Scout / Affinity Market Map |
+| Growth benchmark bands | **Atlas Growth bands** | Bessemer Atlas / Cloud Grid |
+| Portfolio board-prep pulse | **Atlas Portfolio pulse** | Meridia / VCOS Pulse |
+| Talent → newco graph | **Atlas Talent graph** | Harmonic talent flows |
+| Raise timing windows | **Atlas Raise windows** | Kruncher Alpha / Coatue-style timing |
+| Ownership / check stress | **Atlas Ownership desk** | Auryn / internal IC models |
+| Configurable signal feed | **AI OS Alpha feed** | Kruncher 450 signals |
+| pwMOIC exit modeling | **AI OS Conviction** | Auryn |
+| Contested multi-judge scores | **AI OS War Room** | Auryn multi-judge |
+| Lookalike outbound | **AI OS Autopilot** | VCOS Flow |
+| Agent fleet / OS narrative | **AI OS Fleet** | Quadro / AI Native Capital |
+| Anti-consensus / FOMO clocks / twin / refs / what-if / pre-mortem | **Partner Edge** | Rare as a first-class OS |
 | Portfolio KPI ledger / LP letters | Out of scope for sourcing role | VCOS Pulse/Vista |
 
 ---
 
-## Signal response — Diligence Stress Pack
+## Signal response — Diligence Stress Pack + AI OS + Atlas
 
 Built into the partner UI (not a second CRM):
 
@@ -132,5 +142,30 @@ Built into the partner UI (not a second CRM):
 2. **DeckRedFlagAgent** — paste/upload deck → claims + red flags with citations (never invent blanks)
 3. **DiligencePlanAgent** — Auryn-style work orders + founder-only question email draft
 4. **MeetingPrepAgent** — Affinity Ascend-lite pre-call one-pager
+
+### Signal Atlas (`/atlas`)
+
+5. **NL market map** — Harmonic Scout query → visual map + shortlist + white space  
+6. **Warm paths** — Affinity Ascend ranked hops + draft ask (demo graph; never auto-send)  
+7. **Portfolio pulse** — Meridia/VCOS board-prep signals on the active book  
+8. **Growth bands** — Bessemer-style stage YoY posture  
+9. **Talent graph · raise windows · ownership desk** — operator heat, fundraising timing, IC ownership math  
+
+### Signal AI OS (`/os`)
+
+10. **Agent fleet** — Scout, Thesis Filter, Bull/Bear Counsel, Market Timing, Risk, Diligence, Portfolio Pulse, LP Narrator
+11. **War Room** — Auryn multi-judge contested scores with disagreement index + partner next move
+12. **Alpha feed** — Kruncher-style routed signals (People / Liquidity / Hiring / Peer / Research / …)
+13. **Conviction** — probability-weighted MOIC exit buckets + sensitivity (never invents blank valuations as fact)
+14. **Thesis autopilot + lookalikes** — VCOS Flow kind-no / Deep Dive screen + “deals you wish you’d seen”
+
+### Partner Edge (`/edge`)
+
+15. **Anti-consensus radar** — proprietary quiet tape vs consensus traps  
+16. **Conviction clocks** — FOMO vs patience-α timing counsel  
+17. **Partner twin** — override DNA predicts lean-in / push-back  
+18. **Reference-call factory** — scripts from weak dims + bear landmines  
+19. **Thesis what-if** — live reweight → Deep Dive flips  
+20. **Pass autopsy · velocity · pre-mortem** — regret risk, accelerants, IC failure modes
 
 Principles preserved: thesis as config, provenance + confidence, human-in-the-loop, Excel/digest remain system of record.

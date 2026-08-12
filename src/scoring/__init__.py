@@ -64,8 +64,10 @@ def score_dimension_thesis_fit(company: dict[str, Any], policy: dict[str, Any]) 
     ).lower()
     if any(k in blob for k in ("regulat", "data moat", "proprietary", "clearance", "attestation")):
         score += 8
-    if company.get("name") in ("TokenTide", "PipelineCloud"):
-        score -= 35
+    # Soft penalty when notes explicitly deny defensibility (policy signal, not name list)
+    moat = (company.get("moat_notes") or "").lower()
+    if any(k in moat for k in ("none", "weak", "no moat", "eroding")):
+        score -= 12
     return _clamp(score)
 
 
@@ -189,9 +191,10 @@ def score_valuation(company: dict[str, Any]) -> float:
         score -= 3
     if round_size and val and round_size / val > 0.25:
         score += 5  # not insanely marked up vs raise
-    # Known rich/noisy names
-    if company.get("name") in ("RevPilot", "ClinNote AI", "TradeCore", "TokenTide", "PipelineCloud"):
-        score = min(score, 45)
+    # Rich entry + weak growth is a valuation haircut (config-driven via growth target)
+    yoy = company.get("yoy_growth_pct")
+    if val is not None and yoy is not None and yoy < 30 and score > 55:
+        score = min(score, 48)
     return _clamp(score)
 
 
@@ -248,7 +251,7 @@ def score_tam_exit(company: dict[str, Any], policy: dict[str, Any]) -> float:
 
 
 def score_timing(company: dict[str, Any], as_of: Optional[date] = None) -> float:
-    as_of = as_of or date(2026, 8, 9)
+    as_of = as_of or date.today()
     raw = company.get("last_signal_date")
     if not raw:
         return 40.0
@@ -268,21 +271,65 @@ def score_timing(company: dict[str, Any], as_of: Optional[date] = None) -> float
     return 30.0
 
 
+def _clause(text: Any, fallback: str = "") -> str:
+    """Normalize a note into a single clause without trailing junk punctuation."""
+    raw = str(text or "").strip()
+    if not raw:
+        return fallback
+    # Collapse AI-ish double periods / ellipsis noise into one stop
+    cleaned = re.sub(r"\.{2,}", ".", raw)
+    cleaned = re.sub(r"\s+", " ", cleaned).strip()
+    cleaned = cleaned.rstrip(".;,: ")
+    return cleaned
+
+
 def build_why_now(company: dict[str, Any], breakdown: dict[str, float]) -> str:
-    t1 = ", ".join(company.get("tier1_names") or []) or "limited Tier-1 presence"
+    """Short partner-readable why-now. Clean sentences only — no label soup or score echo."""
+    _ = breakdown  # kept for call-site compatibility
+    name = company.get("name") or "This company"
+    sub = _clause(company.get("subsector") or company.get("sector_theme"), "its category")
+    stage = _clause(company.get("stage"), "an undisclosed stage")
+    team = _clause(company.get("team_notes"))
+    traction = _clause(company.get("traction_notes"))
+    moat = _clause(company.get("moat_notes"))
+    lead = _clause(company.get("lead_investor"), "undisclosed")
+    t1_names = [n for n in (company.get("tier1_names") or []) if n]
+    t1_count = int(company.get("tier1_count") or len(t1_names) or 0)
     growth = company.get("yoy_growth_pct")
-    growth_txt = f"{growth:.0f}% YoY" if growth is not None else "early-stage hiring/product proxies"
-    rec_hint = company.get("recommendation") or ""
-    return (
-        f"{company['name']} sits in {company['subsector']} ({company['sector_theme']}) at {company['stage']}. "
-        f"Team edge: {company.get('team_notes') or 'n/a'}. "
-        f"Cap table quality: {company.get('tier1_count', 0)} Tier-1 ({t1}); lead {company.get('lead_investor') or 'n/a'}. "
-        f"Traction: {company.get('traction_notes') or 'n/a'} ({growth_txt}). "
-        f"Moat: {company.get('moat_notes') or 'n/a'}. "
-        f"Entry view ({company.get('valuation_confidence', 'estimated')}): "
-        f"${company.get('valuation_est_m') or 'n/a'}M post with valuation score {breakdown.get('valuation', 0):.0f}/100. "
-        f"Relative thesis score {company.get('thesis_score', 0):.1f} → {rec_hint}."
-    )
+    growth_bit = f"{growth:.0f}% YoY" if growth is not None else None
+    val = company.get("valuation_est_m")
+    conf = _clause(company.get("valuation_confidence"), "estimated")
+
+    sentences: list[str] = [f"{name} is a {sub} company at {stage}."]
+
+    if team:
+        team = team.replace(" + ", " and ")
+        sentences.append(f"{team}.")
+
+    if t1_count > 0 and t1_names:
+        names = ", ".join(t1_names[:4])
+        more = f" and {t1_count - 4} more" if t1_count > 4 else ""
+        sentences.append(f"{t1_count} Tier-1 on the cap table ({names}{more}), led by {lead}.")
+    elif t1_count > 0:
+        sentences.append(f"{t1_count} Tier-1 on the cap table, led by {lead}.")
+    else:
+        sentences.append(f"Cap table is still light on Tier-1. Lead is {lead}.")
+
+    if traction and growth_bit:
+        sentences.append(f"{traction} ({growth_bit}).")
+    elif traction:
+        sentences.append(f"{traction}.")
+    elif growth_bit:
+        sentences.append(f"Growth running near {growth_bit}.")
+
+    if moat:
+        moat = moat.replace(" + ", " and ")
+        sentences.append(f"{moat}.")
+
+    if val is not None:
+        sentences.append(f"Entry around ${val:g}M post ({conf}).")
+
+    return " ".join(sentences)
 
 
 def score_company(company: dict[str, Any], policy: dict[str, Any], as_of: Optional[date] = None) -> dict[str, Any]:
@@ -323,8 +370,12 @@ def score_company(company: dict[str, Any], policy: dict[str, Any], as_of: Option
         rec = "Watch"
     else:
         rec = "Pass"
-    # Force sharp Passes for known noisy names
-    if company.get("name") in ("TokenTide", "PipelineCloud", "HelixNote"):
+    # Hard floors from thesis policy — never Deep Dive without growth + moat signal
+    yoy = company.get("yoy_growth_pct")
+    moat = (company.get("moat_notes") or "").lower()
+    weak_moat = any(k in moat for k in ("none", "weak", "no moat", "eroding"))
+    growth_floor = policy["growth_targets"]["growth_stage_yoy_pct"]
+    if weak_moat and (yoy is None or yoy < growth_floor * 0.75) and t1_count < 2:
         rec = "Pass"
         company["thesis_score"] = min(company["thesis_score"], 52.0)
 
@@ -351,27 +402,67 @@ def apply_relative_ranks(companies: list[dict[str, Any]]) -> list[dict[str, Any]
 
 
 def mark_stale(companies: list[dict[str, Any]], policy: dict[str, Any], as_of: Optional[date] = None) -> list[dict[str, Any]]:
-    as_of = as_of or date(2026, 8, 9)
+    """Flag 90d+ quiet names for partner review. Never deletes.
+
+    Partner Keep / Archive decisions survive — they are not reset to Pending.
+    """
+    as_of = as_of or date.today()
     stale_days = policy.get("stale_days", 90)
+    protected = {
+        "reviewed — keep",
+        "archived (partner)",
+        "keep in pipeline",
+        "archived (partner pass)",
+    }
     for c in companies:
+        decision = (c.get("partner_decision") or "").lower()
+        status = (c.get("review_status") or "").lower()
         raw = c.get("last_signal_date")
         try:
-            d = datetime.strptime(raw[:10], "%Y-%m-%d").date()
+            d = datetime.strptime(str(raw)[:10], "%Y-%m-%d").date()
             days = (as_of - d).days
         except Exception:
             days = 999
-        if days >= stale_days:
+
+        chronologically_stale = days >= stale_days
+
+        if decision == "archive" or "archived" in status:
+            c["is_stale"] = False
+            c["review_status"] = "Archived (partner)"
+            c["recommendation"] = "Pass"
+            continue
+        if decision == "keep" or status in protected:
+            # Partner kept it — stay on the list even if quiet; not in pending queue
+            c["is_stale"] = False
+            c["review_status"] = "Reviewed — keep"
+            continue
+        if decision == "refresh" or status == "refresh requested":
+            c["is_stale"] = True
+            c["review_status"] = "Refresh requested"
+            continue
+
+        if chronologically_stale:
             c["is_stale"] = True
             c["review_status"] = "Pending Partner Review"
         else:
             c["is_stale"] = False
-            c["review_status"] = c.get("review_status")
+            # Clear stale pending when a fresh signal arrived; keep other statuses
+            if status == "pending partner review":
+                c["review_status"] = None
+            else:
+                c["review_status"] = c.get("review_status")
     return companies
 
 
-def score_all(companies: list[dict[str, Any]], policy: Optional[dict[str, Any]] = None) -> list[dict[str, Any]]:
+def score_all(
+    companies: list[dict[str, Any]],
+    policy: Optional[dict[str, Any]] = None,
+    as_of: Optional[date] = None,
+) -> list[dict[str, Any]]:
+    """Full batch re-score (thesis weights + relative rank + 90d stale hygiene)."""
     policy = policy or load_thesis_policy()
-    scored = [score_company(c, policy) for c in companies]
+    as_of = as_of or date.today()
+    scored = [score_company(c, policy, as_of=as_of) for c in companies]
     scored = apply_relative_ranks(scored)
-    scored = mark_stale(scored, policy)
+    scored = mark_stale(scored, policy, as_of=as_of)
     return scored

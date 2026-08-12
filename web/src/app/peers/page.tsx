@@ -1,7 +1,9 @@
 import { CompetitorOS } from "@/components/CompetitorOS";
+import { HeroSurface, Eyebrow, Stat } from "@/components/ui";
 import { fetchCompanies, fetchPeers } from "@/lib/data";
 import { buildGoldenPack } from "@/lib/goldenInsights";
 import { buildPeerIntelligence } from "@/lib/peerIntel";
+import Link from "next/link";
 
 export const dynamic = "force-dynamic";
 
@@ -12,44 +14,28 @@ export default async function PeersPage() {
 
   return (
     <div className="space-y-8">
-      <section className="surface-hero relative px-6 py-10 md:px-10 md:py-12">
-        <div className="grid-fade absolute inset-0 opacity-40" />
-        <div className="relative">
-          <div className="eyebrow flex items-center gap-2">
-            <span className="live-dot" />
-            Competitor intelligence OS
-          </div>
-          <h1 className="display mt-4 max-w-4xl text-[2.5rem] md:text-[3.5rem]">
-            Golden insights from the peer set — not another activity feed
-          </h1>
-          <p className="body-muted mt-4 max-w-2xl text-[1.1rem]">
-            Proprietary windows, crowding alerts, syndicate unlocks, white-space themes, and battle
-            cards that tell partners what to do Monday — scored the way Thirdbase invests.
-          </p>
-          <div className="mt-8 flex flex-wrap gap-6 text-[0.9rem] text-[var(--muted)]">
-            <div>
-              <div className="mono text-[1.5rem] text-[var(--signal)]">{pack.stats.now_count}</div>
-              Act now
-            </div>
-            <div>
-              <div className="mono text-[1.5rem] text-[var(--signal)]">{pack.stats.proprietary_count}</div>
-              Proprietary deals
-            </div>
-            <div>
-              <div className="mono text-[1.5rem] text-[var(--warn)]">{pack.stats.crowded_races}</div>
-              Crowded races
-            </div>
-            <div>
-              <div className="mono text-[1.5rem] text-[var(--deep)]">{pack.stats.whitespace_themes}</div>
-              White-space themes
-            </div>
-            <div>
-              <div className="mono text-[1.5rem] text-[var(--signal)]">{pack.stats.insight_count}</div>
-              Golden insights
-            </div>
-          </div>
+      <HeroSurface>
+        <Eyebrow live>Peer set tracking</Eyebrow>
+        <h1 className="display mt-4 max-w-4xl text-[2.5rem] md:text-[3.5rem]">Competitor OS</h1>
+        <p className="body-muted mt-3 max-w-2xl text-[1rem]">
+          What Sequoia, a16z, Lux, and the broader watchlist are funding — new funds, sector bets,
+          co-investor heat, and thesis shifts worth a call.
+        </p>
+        <div className="mt-8 flex flex-wrap gap-8 border-t border-[var(--line)] pt-7">
+          <Stat value={pack.stats.now_count} label="Act now" />
+          <Stat value={intel.stats.new_fund_count} label="New funds" tone="deep" />
+          <Stat value={intel.stats.thesis_shift_count} label="Thesis shifts" tone="warn" />
+          <Stat value={intel.stats.heatmap_pairs} label="Syndicate pairs" />
         </div>
-      </section>
+        <div className="mt-5 flex flex-wrap items-center gap-4">
+          <Link href="/competitors" className="link-quiet text-sm">
+            Competitors list →
+          </Link>
+          <Link href="/firms" className="link-quiet text-sm">
+            VC firm watchlist →
+          </Link>
+        </div>
+      </HeroSurface>
 
       <CompetitorOS intel={intel} pack={pack} />
     </div>

@@ -111,3 +111,78 @@ export async function restSelect<T>(
       : String(lastErr);
   throw new Error(msg);
 }
+
+/** PostgREST upsert / patch / insert — tries keys like restSelect. */
+export async function restMutate<T = unknown>(
+  table: string,
+  opts: {
+    method?: "POST" | "PATCH" | "PUT" | "DELETE";
+    body?: unknown;
+    eq?: Record<string, string>;
+    upsert?: boolean;
+    onConflict?: string;
+    prefer?: string;
+  },
+): Promise<T> {
+  const url = getUrl();
+  const keys = candidateKeys();
+  if (!keys.length) throw new Error("Missing Supabase env vars");
+
+  const params = new URLSearchParams();
+  if (opts.eq) {
+    for (const [k, v] of Object.entries(opts.eq)) {
+      params.set(k, `eq.${v}`);
+    }
+  }
+  if (opts.onConflict) params.set("on_conflict", opts.onConflict);
+
+  const method = opts.method || "POST";
+  let lastErr: RestError | Error | null = null;
+
+  for (const key of keys) {
+    for (let attempt = 0; attempt < 3; attempt++) {
+      const headers: Record<string, string> = {
+        apikey: key,
+        Authorization: `Bearer ${key}`,
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        Prefer: opts.prefer || (opts.upsert ? "resolution=merge-duplicates,return=representation" : "return=representation"),
+      };
+
+      const res = await fetch(`${url}/rest/v1/${table}?${params.toString()}`, {
+        method,
+        headers,
+        body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
+        cache: "no-store",
+      });
+
+      if (res.ok) {
+        const text = await res.text();
+        if (!text) return null as T;
+        return JSON.parse(text) as T;
+      }
+
+      let err: RestError;
+      try {
+        err = (await res.json()) as RestError;
+      } catch {
+        err = { message: await res.text(), code: String(res.status) };
+      }
+      lastErr = err;
+
+      if (isAuthSkewError(err, res.status)) {
+        await new Promise((r) => setTimeout(r, 200 * (attempt + 1)));
+        if (attempt === 2) break;
+        continue;
+      }
+      const msg = `${err.code || res.status}: ${err.message || "request failed"}`;
+      throw new Error(msg);
+    }
+  }
+
+  const msg =
+    lastErr && typeof lastErr === "object" && "message" in lastErr
+      ? `${(lastErr as RestError).code || "error"}: ${(lastErr as RestError).message}`
+      : String(lastErr);
+  throw new Error(msg);
+}

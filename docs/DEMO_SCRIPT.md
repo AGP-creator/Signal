@@ -1,13 +1,13 @@
 # Signal — Interview Demo Script (10–12 minutes)
 
-Practice out loud. Keep Hot Deals and digest **short**. Show one deliberate **Pass**.
+Practice out loud. Keep Hot Deals and digest **short**. Show one deliberate **Pass**. One Monday path: **Desk → Meeting → Excel**.
 
 ## 0. Setup (before they sit down)
 
 - [ ] `python scripts/refresh.py` already run; Excel exists in `data/output/`
-- [ ] Streamlit up: `streamlit run app.py`
+- [ ] Next.js up: `cd web && npm run dev` → http://localhost:3000
 - [ ] Offline fallback ready if Wi‑Fi dies (seed DB still answers chat)
-- [ ] Excel open on second screen / ready to share
+- [ ] Optional: Excel open on second screen / or use **Download Excel** on Desk
 
 ---
 
@@ -17,104 +17,77 @@ Practice out loud. Keep Hot Deals and digest **short**. Show one deliberate **Pa
 >
 > Signal turns noisy funding announcements into a self-maintaining pipeline scored the way Thirdbase invests: thesis fit, Tier-1 quality, growth, moat, valuation — ranked **relative** to peers in the same sector and stage.
 
-Show PRODUCT one-liner slide if using a deck; otherwise go straight to Excel.
+Show PRODUCT one-liner slide if using a deck; otherwise go straight to **Desk** (`/`).
 
 ---
 
-## 2. Excel walkthrough (90s)
+## 2. Monday path (90s)
 
-Open `Thirdbase_Deal_Pipeline.xlsx`:
+1. **Desk (`/`)** — Hot Deals (5), high alerts, 60/40 mix. Click **Open Monday agenda**.
+2. **Meeting (`/meeting`)** — ~90m partner agenda auto-built from Hot Deals, IC, alerts, stale.
+3. **Download Excel** — `Thirdbase_Deal_Pipeline.xlsx` is the debate surface:
+   - Pipeline · Hot Deals · Peer dossiers · Stale · Judgment OS
+4. Show one **Pass** (e.g. TokenTide / PipelineCloud) — “Selectivity is the product.”
 
-1. **Cover** — last refreshed, methodology, seed vs live provenance  
-2. **Pipeline** — point at `why_now`, `thesis_score`, `relative_rank`, conditional formatting (Deep Dive / Watch / Pass)  
-3. **Hot Deals** — last 30 days, highest conviction only  
-4. **Peer Firm Dossiers / Co-investor Heatmap** — competitor intelligence  
-5. **Stale** — “We never auto-delete. Partners decide.”  
-6. **Judgment OS** — override fuel, miss retros, founder radar, freshness SLA, digest A/B  
+Line: *“Excel is intentional. Partners debate in sheets. The OS allocates attention.”*
 
-Line to use: *“Excel is intentional. Partners debate in sheets.”*
+Skip `/atlas`, `/edge` and `/os` unless asked — they live under **More → Labs**.
 
-Optional: open **Competitors** + **Judgment** in the Next.js UI — firm radar, thesis drift, and the X-factor judgment loop.
+**If they ask “what about Harmonic / Affinity / Bessemer?”** (90s): open `/atlas` → Market map (“Map AI infra…”) → Warm paths → Growth bands. Line: *“They own databases and inbox graphs. Atlas is how Thirdbase forms a thesis and walks into IC — without becoming another CRM.”*
 
 ---
 
 ## 3. Refresh loop (60s)
 
-In Streamlit, click **Run pipeline refresh**.
+In the header, click **Refresh**.
 
 Narrate: ingest (EDGAR / HN / RSS) → dedupe → re-score → Excel rewrite.  
-Call out any new signal or score movement.
+Call out any new signal or score movement. Download workbook again if needed.
 
 ---
 
-## 4. Live chat (4 min) — ask these in order
+## 4. Live chat (3 min) — ask these in order
 
-1. *“What are the best deals in defense tech right now?”*  
+1. *“Monday partner agenda”*  
 2. *“What are three AI infrastructure sub-sectors nobody is talking about yet?”*  
 3. *“Summarize what people are saying about [pick a Deep Dive company].”*  
-4. *“Who’s quietly investing in robotics?”*  
-5. Optional stretch: *“Are we overweight tactical vs 60/40?”* or *“Draft an IC one-pager for [company].”*
+4. *“Are we overweight tactical vs 60/40?”*  
+5. Optional: *“Bear case for [Deep Dive company].”*
 
-If Claude API key missing: offline retrieval mode still answers from DB with templated synthesis — say so transparently.
-
----
-
-## 4b. Diligence Stress Pack (90s) — judgment edge vs coverage tools
-
-Open a **Deep Dive** company page (or `/search` → pipeline name). Scroll to **Diligence Stress Pack**:
-
-1. **Bull vs Bear** — show the counterfactual kill arguments side-by-side with fair bull counters  
-   > “Coverage tools summarize. We argue against ourselves before IC.”
-2. **Diligence plan** — work orders with close conditions + copy founder-only email (never auto-send)  
-3. **Meeting prep** — pre-call sheet with landmines from the bear case  
-4. Optional: **Deck flags** — paste sample deck text; show extracted claims vs blanks + red flags  
-5. **Copy IC packet** — packet now includes bear + required work orders + founder questions
-
-Chat demos:
-- *“Bear case for [Deep Dive company]”*  
-- *“Diligence plan for [company]”*  
-- *“Prep me for a call with [company]”*
+If Claude API key missing: grounded retrieval still answers from the store — say so transparently.  
+Ungrounded questions should **refuse with starters**, not dump random Deep Dives.
 
 ---
 
-## 5. Digest preview (60s)
+## 4b. Search honesty (45s)
 
-Open **Digest** tab in Streamlit.
+`/search` → type a **pipeline** name (AgentGate) → full IC brief.  
+Then type an **external** name → show the **Scout brief — not IC-ready** banner. Recommendation capped at Watch. Score marked `est.`
 
-Show subject line + hard caps: 3–5 deals, 1–2 sector calls, 3–5 reads, peer moves.  
-> “If they won’t forward it, we failed.”
-
----
-
-## 6. Alert (30s)
-
-Trigger / show sample alert: **2+ Tier-1 co-invest** or off-thesis peer move.  
-> “Special routing doesn’t wait for Wednesday.”
+> “Coverage tools fake IC readiness. We separate scout from conviction.”
 
 ---
 
-## 7. Close (2 min)
+## 4c. Diligence Stress Pack (60s)
 
-Roadmap: PitchBook / Coresignal connectors, SharePoint sync, Affinity writeback, always-on workers.
+Open a **Deep Dive** company page. Scroll to **Diligence Stress Pack**:
 
-Ask them:
-1. Affinity today — write back or Excel-first?  
-2. Exact stage sweet spot for the 60% bucket?  
-3. True peer set vs aspirational watch?  
-4. Hard Pass rules?  
-5. Who owns Stale review?
-
-Close line:  
-> **Signal is the associate that never sleeps — and never wastes a partner’s Monday.**
+1. **Bull vs Bear** — counterfactual kill arguments  
+2. **Diligence plan** — work orders + founder-only email (never auto-send)  
+3. **Copy IC packet**
 
 ---
 
-## Wow details checklist
+## 5. Digest + Stale (60s)
 
-- [ ] Use Thirdbase language (60/40, Tier-1, 40%+ YoY, ~3yr runway)  
-- [ ] Include recognizable peer firms (a16z, Sequoia, Lux, etc.)  
-- [ ] Show a sharp **Pass** with real reasoning  
-- [ ] Show **Bear case** on a Deep Dive (counterfactual agent)  
-- [ ] Never invent private valuations — say “estimated / reported”  
-- [ ] Separate judgment OS vs data connectors clearly  
-- [ ] Mention competitive landscape note: [`AGENTIC_VC_LANDSCAPE.md`](AGENTIC_VC_LANDSCAPE.md)  
+- `/digest` — M/W/F preview (3–5 deals). Say: production sends email when SMTP is set.  
+- `/library?tab=stale` — **Keep / Archive / Request refresh**. Never auto-delete.
+
+---
+
+## 6. Close (60s)
+
+> We built the judgment layer and Monday ritual first. Databases plug in as connectors.  
+> If partners won’t open the digest without being chased — we failed.
+
+Optional stretch (only if time): Judgment OS, Competitors, LP Desk — not the core path.

@@ -42,7 +42,7 @@ def test_discover_adds_novel_company():
             "url": "https://example.com",
         }
     ]
-    out, added = apply_live_signals_to_companies(existing, signals, policy, max_new=5)
+    out, added, _cm = apply_live_signals_to_companies(existing, signals, policy, max_new=5)
     assert added == 1
     assert any(c["name"] == "LatticeNova" for c in out)
     # Existing company not duplicated
@@ -77,10 +77,63 @@ def test_discover_updates_existing_signal_date():
             "company_name": "LatticeNova",
         }
     ]
-    out, added = apply_live_signals_to_companies(existing, signals, policy)
+    out, added, _cm = apply_live_signals_to_companies(existing, signals, policy)
     assert added == 0
     assert out[0]["last_signal_date"] == "2026-08-08"
     assert "rss:TechCrunch" in out[0]["sources"]
+
+
+def test_discover_updates_round_headcount_investors():
+    from src.ingest.discovery import extract_structured_updates
+
+    parsed = extract_structured_updates(
+        "LatticeNova raises $28M Series A led by Sequoia Capital, now at 85 employees with 40% headcount growth",
+        "2026-08-10",
+    )
+    assert parsed["last_round_size_m"] == 28.0
+    assert parsed["stage"] == "Series A"
+    assert parsed["headcount"] == 85
+    assert parsed["headcount_6m_growth_pct"] == 40.0
+    assert parsed["lead_investor"] == "Sequoia Capital"
+
+    policy = load_thesis_policy()
+    existing = [
+        {
+            "id": "c1",
+            "name": "LatticeNova",
+            "slug": "latticenova",
+            "sector_theme": "AI Infrastructure & Compute Stack",
+            "theme_id": "ai_infra",
+            "subsector": "Inference",
+            "stage": "Seed",
+            "pipeline_bucket": "dominant_tech_growth",
+            "investors": [],
+            "sources": ["seed"],
+            "last_signal_date": "2026-01-01",
+            "last_round_size_m": None,
+            "headcount": None,
+        }
+    ]
+    signals = [
+        {
+            "id": "sig3",
+            "source": "rss:TechCrunch",
+            "signal_type": "funding",
+            "title": "LatticeNova raises $28M Series A led by Sequoia Capital",
+            "summary": "Inference startup now at 85 employees; 40% headcount growth",
+            "observed_at": "2026-08-10",
+            "company_name": "LatticeNova",
+        }
+    ]
+    out, added, _cm = apply_live_signals_to_companies(existing, signals, policy)
+    assert added == 0
+    c = out[0]
+    assert c["last_round_size_m"] == 28.0
+    assert c["stage"] == "Series A"
+    assert c["headcount"] == 85
+    assert c["lead_investor"] == "Sequoia Capital"
+    assert "Sequoia Capital" in c["investors"]
+    assert c.get("update_events")
 
 
 def test_curate_news_from_rss():
@@ -106,7 +159,7 @@ def test_curate_news_from_rss():
 
 def test_theme_word_not_company():
     policy = load_thesis_policy()
-    out, added = apply_live_signals_to_companies(
+    out, added, _cm = apply_live_signals_to_companies(
         [],
         [
             {

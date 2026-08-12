@@ -2,7 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
-import { Eyebrow, EmptyState, Panel } from "@/components/ui";
+import { CompanyLink } from "@/components/EntityLink";
+import { EmptyState, Eyebrow, Panel, SegItem, Segmented } from "@/components/ui";
 import {
   buildJudgmentPack,
   type DigestVariant,
@@ -23,12 +24,12 @@ type Tab =
   | "digest";
 
 const TABS: { id: Tab; label: string }[] = [
-  { id: "brief", label: "Monday brief" },
-  { id: "overrides", label: "Override ledger" },
-  { id: "misses", label: "Miss retro" },
-  { id: "founders", label: "Founder radar" },
-  { id: "freshness", label: "Evidence SLA" },
-  { id: "mix", label: "Mix drift" },
+  { id: "misses", label: "Misses" },
+  { id: "founders", label: "Founders" },
+  { id: "overrides", label: "Overrides" },
+  { id: "freshness", label: "Evidence" },
+  { id: "mix", label: "Mix" },
+  { id: "brief", label: "Brief" },
   { id: "digest", label: "Digest A/B" },
 ];
 
@@ -53,7 +54,7 @@ export function JudgmentOS({
   news: NewsItem[];
   alerts: AlertItem[];
 }) {
-  const [tab, setTab] = useState<Tab>("brief");
+  const [tab, setTab] = useState<Tab>("misses");
   const [stored, setStored] = useState<PartnerOverride[]>([]);
 
   useEffect(() => {
@@ -73,42 +74,28 @@ export function JudgmentOS({
   );
 
   return (
-    <div className="space-y-6">
-      <Panel className="border-[rgba(214,255,60,0.22)] bg-[rgba(214,255,60,0.04)]">
-        <Eyebrow live className="!text-[var(--signal)]">
-          Judgment OS
-        </Eyebrow>
-        <h2 className="display mt-2 text-[1.75rem] md:text-[2.15rem]">{pack.summary.headline}</h2>
-        <p className="mt-2 max-w-2xl text-[0.975rem] leading-relaxed text-[var(--muted)]">
-          {pack.summary.edge_note}
-        </p>
-        <ul className="mt-4 space-y-2">
-          {pack.summary.must_do.map((m) => (
-            <li key={m} className="flex gap-2 text-sm">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--signal)]" />
-              <span>{m}</span>
-            </li>
-          ))}
-        </ul>
-      </Panel>
-
-      <div className="flex flex-wrap gap-1.5">
-        {TABS.map((t) => (
-          <button
-            key={t.id}
-            type="button"
-            onClick={() => setTab(t.id)}
-            className={cn(
-              "rounded-[10px] px-3 py-1.5 text-[13px] font-medium transition",
-              tab === t.id
-                ? "bg-[var(--signal-dim)] text-[var(--signal)]"
-                : "text-[var(--muted)] hover:bg-white/[0.03] hover:text-[var(--text)]",
-            )}
-          >
-            {t.label}
-          </button>
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-baseline gap-x-5 gap-y-2 border-b border-[var(--line)] pb-4">
+        {[
+          ["Overrides", pack.overrides.length],
+          ["Misses", pack.misses.length],
+          ["Founders", pack.founder_radar.length],
+          ["Stale", pack.freshness.filter((f) => f.overall === "stale" || f.overall === "aging").length],
+        ].map(([label, value]) => (
+          <div key={String(label)} className="flex items-baseline gap-1.5">
+            <span className="mono text-[1.05rem] font-semibold text-[var(--text)]">{value}</span>
+            <span className="label-caps text-[var(--faint)]">{label}</span>
+          </div>
         ))}
       </div>
+
+      <Segmented aria-label="Judgment sections">
+        {TABS.map((t) => (
+          <SegItem key={t.id} active={tab === t.id} onClick={() => setTab(t.id)}>
+            {t.label}
+          </SegItem>
+        ))}
+      </Segmented>
 
       {tab === "brief" && <BriefTab pack={pack} />}
       {tab === "overrides" && <OverridesTab pack={pack} />}
@@ -122,51 +109,44 @@ export function JudgmentOS({
 }
 
 function BriefTab({ pack }: { pack: JudgmentPack }) {
+  const topMisses = pack.misses.slice(0, 6);
+  const topFounders = pack.founder_radar.slice(0, 6);
+
   return (
     <div className="grid gap-4 lg:grid-cols-2">
       <Panel>
-        <Eyebrow>Policy fuel</Eyebrow>
-        <div className="mt-4 space-y-4">
-          {pack.policy_fuel.map((p) => (
-            <div key={p.dimension} className="border-b border-[var(--line)] pb-3 last:border-0">
-              <div className="flex items-baseline justify-between gap-2">
-                <div className="font-semibold">{p.dimension}</div>
-                <div className="label-caps text-[var(--deep)]">
-                  {p.direction.replace("_", " ")} · {p.override_count}
-                </div>
+        <Eyebrow>Miss radar</Eyebrow>
+        <div className="mt-4 space-y-3">
+          {topMisses.map((m) => (
+            <div key={m.id} className="flex items-start justify-between gap-3 border-b border-[var(--line)] pb-3 last:border-0 last:pb-0">
+              <div className="min-w-0">
+                <Link
+                  href={`/company/${m.slug || m.company_id}`}
+                  className="font-semibold hover:text-[var(--signal)]"
+                >
+                  {m.company_name}
+                </Link>
+                <p className="mt-1 text-[0.8125rem] text-[var(--muted)] line-clamp-2">{m.lesson}</p>
               </div>
-              <p className="mt-1.5 text-[0.9375rem] text-[var(--muted)]">{p.counsel}</p>
+              <span className={cn("label-caps shrink-0", urgencyClass(m.severity))}>{m.severity}</span>
             </div>
           ))}
-          {!pack.policy_fuel.length && <EmptyState>Log an override on a company brief.</EmptyState>}
+          {!topMisses.length && <EmptyState>No miss candidates yet.</EmptyState>}
         </div>
       </Panel>
       <Panel>
-        <Eyebrow>Asymmetric radar</Eyebrow>
+        <Eyebrow>Founder radar</Eyebrow>
         <div className="mt-4 space-y-3">
-          {pack.founder_radar.slice(0, 3).map((f) => (
-            <div key={f.id}>
-              <div className={cn("label-caps", urgencyClass(f.urgency))}>
-                {f.urgency}
+          {topFounders.map((f) => (
+            <div key={f.id} className="border-b border-[var(--line)] pb-3 last:border-0 last:pb-0">
+              <div className="flex items-baseline justify-between gap-2">
+                <div className="font-semibold">{f.founder}</div>
+                <span className={cn("label-caps", urgencyClass(f.urgency))}>{f.urgency}</span>
               </div>
-              <div className="mt-0.5 font-semibold">{f.founder}</div>
               <p className="mt-1 text-[0.8125rem] text-[var(--muted)] line-clamp-2">{f.signal}</p>
             </div>
           ))}
-          {pack.misses.slice(0, 2).map((m) => (
-            <div key={m.id} className="border-t border-[var(--line)] pt-3">
-              <div className={cn("label-caps", urgencyClass(m.severity))}>
-                miss · {m.severity}
-              </div>
-              <Link
-                href={`/company/${m.slug || m.company_id}`}
-                className="mt-0.5 block font-semibold hover:text-[var(--signal)]"
-              >
-                {m.company_name}
-              </Link>
-              <p className="mt-1 text-[0.8125rem] text-[var(--muted)]">{m.lesson}</p>
-            </div>
-          ))}
+          {!topFounders.length && <EmptyState>No founder signals yet.</EmptyState>}
         </div>
       </Panel>
     </div>
@@ -176,10 +156,6 @@ function BriefTab({ pack }: { pack: JudgmentPack }) {
 function OverridesTab({ pack }: { pack: JudgmentPack }) {
   return (
     <div className="space-y-4">
-      <p className="text-[0.9375rem] text-[var(--muted)]">
-        Every partner disagreement is preference data — the real firm asset. Disagree on a company
-        page; Signal turns it into policy fuel (not silent fine-tuning).
-      </p>
       <div className="grid gap-3">
         {pack.overrides.map((o) => (
           <Panel key={o.id} className="!p-4">
@@ -205,6 +181,7 @@ function OverridesTab({ pack }: { pack: JudgmentPack }) {
             <p className="mt-3 text-[0.975rem] leading-relaxed">{o.reason}</p>
           </Panel>
         ))}
+        {!pack.overrides.length && <EmptyState>Log an override on a company brief.</EmptyState>}
       </div>
     </div>
   );
@@ -213,10 +190,6 @@ function OverridesTab({ pack }: { pack: JudgmentPack }) {
 function MissesTab({ pack }: { pack: JudgmentPack }) {
   return (
     <div className="space-y-4">
-      <p className="text-[0.9375rem] text-[var(--muted)]">
-        Blameless postmortems when breakout physics or peer FOMO arrives after Signal stayed cool.
-        False negatives in white-space themes hurt more than missing the 40th AI wrapper.
-      </p>
       {!pack.misses.length && <EmptyState>No miss candidates in current pipeline.</EmptyState>}
       {pack.misses.map((m) => (
         <Panel key={m.id}>
@@ -249,10 +222,6 @@ function MissesTab({ pack }: { pack: JudgmentPack }) {
 function FoundersTab({ pack }: { pack: JudgmentPack }) {
   return (
     <div className="space-y-4">
-      <p className="text-[0.9375rem] text-[var(--muted)]">
-        Watched operators leaving labs / spinning stealth newcos — asymmetric urgency that should
-        never wait for Wednesday&apos;s digest.
-      </p>
       {!pack.founder_radar.length && <EmptyState>No founder-radar hits right now.</EmptyState>}
       <div className="grid gap-3 md:grid-cols-2">
         {pack.founder_radar.map((f) => (
@@ -261,7 +230,13 @@ function FoundersTab({ pack }: { pack: JudgmentPack }) {
               {f.urgency}
               {f.gp_flagged_by ? ` · ${f.gp_flagged_by}` : ""}
             </div>
-            <div className="mt-1 font-semibold">{f.founder}</div>
+            <div className="mt-1 font-semibold">
+              {f.company_slug ? (
+                <CompanyLink slug={f.company_slug} name={f.founder} />
+              ) : (
+                f.founder
+              )}
+            </div>
             <div className="mt-0.5 text-[0.8125rem] text-[var(--muted)]">
               Prior: {f.prior}
               {f.theme ? ` · ${f.theme}` : ""}
@@ -286,10 +261,6 @@ function FoundersTab({ pack }: { pack: JudgmentPack }) {
 function FreshnessTab({ pack }: { pack: JudgmentPack }) {
   return (
     <div className="space-y-4">
-      <p className="text-[0.9375rem] text-[var(--muted)]">
-        Fields older than SLA automatically lose confidence. A beautiful stale brief is worse than a
-        plain fresh one.
-      </p>
       <div className="grid gap-3">
         {pack.freshness.map((f) => (
           <Panel key={f.company_id} className="!p-4">
@@ -342,10 +313,10 @@ function MixTab({ pack }: { pack: JudgmentPack }) {
         className={cn(
           "mt-5 rounded-[12px] border px-4 py-3 text-sm",
           m.status === "hard_drift"
-            ? "border-[rgba(255,107,107,0.35)] bg-[rgba(255,107,107,0.08)] text-[var(--danger)]"
+            ? "border-[var(--danger)] bg-[var(--danger-dim)] text-[var(--danger)]"
             : m.status === "soft_drift"
-              ? "border-[rgba(255,176,32,0.35)] bg-[rgba(255,176,32,0.08)] text-[var(--warn)]"
-              : "border-[rgba(61,214,140,0.25)] bg-[rgba(61,214,140,0.06)] text-[var(--ok)]",
+              ? "border-[var(--warn)] bg-[var(--warn-dim)] text-[var(--warn)]"
+              : "border-[var(--ok)] bg-[var(--ok-dim)] text-[var(--ok)]",
         )}
       >
         {m.alarm || "On target — mix within soft band."}
@@ -359,17 +330,13 @@ function DigestTab({ pack }: { pack: JudgmentPack }) {
   const d = pack.digest_selectivity;
   return (
     <div className="space-y-4">
-      <p className="text-[0.9375rem] text-[var(--muted)]">
-        Selectivity is the product. We simulate 3 vs 5 vs 8 deal digests — if they won&apos;t forward
-        it, we failed.
-      </p>
       <div className="grid gap-3 md:grid-cols-3">
         {d.variants.map((v: DigestVariant) => (
           <Panel
             key={v.id}
             className={cn(
               "!p-4",
-              d.winner === v.id && "border-[rgba(214,255,60,0.35)] bg-[rgba(214,255,60,0.05)]",
+              d.winner === v.id && "border-[var(--signal)] bg-[var(--signal-dim)]",
             )}
           >
             <div className="flex items-baseline justify-between">
@@ -382,9 +349,8 @@ function DigestTab({ pack }: { pack: JudgmentPack }) {
             </div>
             <div className="mono mt-3 text-3xl text-[var(--signal)]">{v.precision_proxy}</div>
             <div className="text-[0.8125rem] text-[var(--muted)]">
-              precision proxy · ~{v.partner_minutes} partner min · {v.deal_cap} deals
+              {d.metric_label || "Selectivity preview"} · ~{v.partner_minutes} min · {v.deal_cap} deals
             </div>
-            <p className="mt-3 text-[0.875rem] leading-relaxed text-[var(--muted)]">{v.note}</p>
             <ul className="mt-3 space-y-1">
               {v.deals.map((deal) => (
                 <li key={deal.name} className="text-xs">
@@ -402,9 +368,11 @@ function DigestTab({ pack }: { pack: JudgmentPack }) {
           </Panel>
         ))}
       </div>
-      <Panel>
-        <p className="text-sm">{d.counsel}</p>
-      </Panel>
+      {d.counsel ? (
+        <Panel>
+          <p className="text-sm">{d.counsel}</p>
+        </Panel>
+      ) : null}
     </div>
   );
 }
