@@ -15,7 +15,7 @@ import {
   scoreResearchDraft,
 } from "@/lib/thesis";
 import { criteriaOpenQuestions } from "@/lib/thirdbaseCriteria";
-import { sanitizeBriefDomain, sanitizeSourceUrl } from "@/lib/externalLinks";
+import { sanitizeBriefDomain } from "@/lib/externalLinks";
 import { fmtMoneyM, fmtPct } from "@/lib/utils";
 
 export type ResearchSource = {

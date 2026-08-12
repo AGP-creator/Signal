@@ -126,7 +126,16 @@ async function syncPartnerToStores(
   }));
 
   const meta = await loadMeta();
-  meta[partnerName] = normalized.map(({ partner_name: _p, ...rest }) => rest);
+  meta[partnerName] = normalized.map(
+    ({ company_id, rank, note, source, added_at, updated_at }) => ({
+      company_id,
+      rank,
+      note,
+      source,
+      added_at,
+      updated_at,
+    }),
+  );
   await saveMeta(meta);
 
   let source = "meta";

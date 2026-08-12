@@ -28,6 +28,7 @@ import {
 import { DealCard } from "@/components/DealCard";
 import { ExternalLink } from "@/components/ExternalLink";
 import { CompanyLink, CompetitorLink } from "@/components/EntityLink";
+import { MixGauge } from "@/components/MixGauge";
 import { BarChart, DonutChart } from "@/components/charts";
 import {
   EmptyState,
@@ -51,7 +52,7 @@ import type {
   PeerActivity,
   SectorCall,
 } from "@/lib/types";
-import { cn, fmtWhen } from "@/lib/utils";
+import { cn, fmtWhen, portfolioMix } from "@/lib/utils";
 import { buildWorkQueue } from "@/lib/workQueue";
 
 /** LOCKED LAYOUT — square module grid on the home desk. Do not collapse into lists/cards. */
@@ -233,7 +234,7 @@ const MODULES: {
   {
     href: "/meeting",
     label: "Partner Meeting",
-    blurb: "Optional agenda helper",
+    blurb: "Monday agenda (~90m)",
     group: "Partner",
     icon: <Calendar className="h-4 w-4" strokeWidth={1.75} />,
   },
@@ -246,43 +247,43 @@ const MODULES: {
   },
 ];
 
-/** Hero feature rail — precise destinations, not chat filler. */
+/** Hero feature rail — Monday path first, then stretch desks. */
 const FEATURED = [
   {
-    href: "/os",
-    label: "Venture agent",
-    blurb: "War rooms & contested scores",
-    icon: <Bot className="h-3.5 w-3.5" strokeWidth={1.75} />,
+    href: "/meeting",
+    label: "Monday agenda",
+    blurb: "~90m partner meeting",
+    icon: <Calendar className="h-3.5 w-3.5" strokeWidth={1.75} />,
+  },
+  {
+    href: "/workbook",
+    label: "Workbook",
+    blurb: "Debate surface in Excel",
+    icon: <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />,
+  },
+  {
+    href: "/chat",
+    label: "Chat",
+    blurb: "Grounded partner Q&A",
+    icon: <MessageSquare className="h-3.5 w-3.5" strokeWidth={1.75} />,
+  },
+  {
+    href: "/search",
+    label: "Research",
+    blurb: "IC vs scout briefs",
+    icon: <Search className="h-3.5 w-3.5" strokeWidth={1.75} />,
+  },
+  {
+    href: "/digest",
+    label: "Digest",
+    blurb: "M/W/F priority mail",
+    icon: <Radar className="h-3.5 w-3.5" strokeWidth={1.75} />,
   },
   {
     href: "/deals",
     label: "Great deals",
     blurb: "Noise vs outstanding",
     icon: <Trophy className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
-    href: "/edge",
-    label: "Partner Edge",
-    blurb: "Anti-consensus radar",
-    icon: <Zap className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
-    href: "/source",
-    label: "Discovery",
-    blurb: "Deal sourcing agent",
-    icon: <Radar className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
-    href: "/sectors",
-    label: "Sectors",
-    blurb: "Sector of tomorrow",
-    icon: <Flame className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
-    href: "/compare",
-    label: "Compare",
-    blurb: "Side-by-side conviction",
-    icon: <Scale className="h-3.5 w-3.5" strokeWidth={1.75} />,
   },
 ] as const;
 
@@ -308,7 +309,6 @@ export function DeskCommand({
   news,
   peers,
   commentary,
-  digest,
   lastRefreshed,
   liveSignals,
 }: {
@@ -318,7 +318,7 @@ export function DeskCommand({
   news: NewsItem[];
   peers: PeerActivity[];
   commentary: Commentary[];
-  digest: DigestRow | null;
+  digest?: DigestRow | null;
   lastRefreshed: string;
   liveSignals: string;
 }) {
@@ -359,7 +359,7 @@ export function DeskCommand({
 
   const hot = reviewed
     .filter((c) => c.recommendation === "Deep Dive" || (c.thesis_score || 0) >= 78)
-    .slice(0, 6);
+    .slice(0, 5);
   const watch = reviewed
     .filter((c) => c.recommendation === "Watch")
     .slice(0, 5);
@@ -370,6 +370,7 @@ export function DeskCommand({
     () => selectNewsWorthReading(news, reviewed, { max: 3 }),
     [news, reviewed],
   );
+  const mix = portfolioMix(reviewed);
   const deepDive = reviewed.filter((c) => c.recommendation === "Deep Dive").length;
   const watchCount = reviewed.filter((c) => c.recommendation === "Watch").length;
   const pass = reviewed.filter((c) => c.recommendation === "Pass").length;
@@ -453,6 +454,21 @@ export function DeskCommand({
             </button>
           </div>
 
+          <div className="mt-5 flex flex-wrap items-center gap-2.5">
+            <Link href="/meeting" className="btn btn-primary btn-sm">
+              Open Monday agenda
+            </Link>
+            <a href="/api/workbook" className="btn btn-soft btn-sm">
+              Download Excel
+            </a>
+            <Link href="/pipeline?rec=Pass" className="btn btn-ghost btn-sm">
+              Show a Pass
+            </Link>
+            <span className="hidden text-[0.75rem] text-[var(--faint)] sm:inline">
+              Desk → Meeting → Excel
+            </span>
+          </div>
+
           <div className="desk-feature-rail mt-6">
             {FEATURED.map((f) => (
               <Link key={f.href} href={f.href} className="desk-feature panel-interactive">
@@ -493,7 +509,10 @@ export function DeskCommand({
       </section>
 
       {/* ── Analytics strip ──────────────────────────────────── */}
-      <section className="grid gap-3 md:grid-cols-3">
+      <section className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
+        <Panel className="!p-4 md:!p-5">
+          <MixGauge dominantPct={mix.dominantPct} tacticalPct={mix.tacticalPct} />
+        </Panel>
         <Panel className="!p-4 md:!p-5">
           <div className="label-caps">Recommendation mix</div>
           <div className="mt-2">
