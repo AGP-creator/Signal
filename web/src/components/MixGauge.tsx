@@ -44,8 +44,9 @@ export function MixGauge({
         <span className="text-[var(--faint)]"> / </span>
         {tacticalPct}
       </div>
-      <div className="mt-1 text-[0.8125rem] text-[var(--muted)]">Dominant / Tactical · 60/40</div>
-      <div className="mt-4 h-2.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
+      <div className="mt-1 text-[0.8125rem] text-[var(--muted)]">Dominant / Tactical · target 60/40</div>
+      <div className="mix-gauge-track mt-4">
+        <div className="mix-gauge-target" aria-hidden title="60% dominant target" />
         <div className="flex h-full w-full">
           <motion.div
             className="h-full bg-[var(--signal)]"
@@ -63,6 +64,7 @@ export function MixGauge({
       </div>
       <div className="mt-2.5 flex justify-between text-[0.7rem] text-[var(--faint)]">
         <span>Dominant · {dominantPct}%</span>
+        <span className="text-[var(--muted)]">│ 60</span>
         <span>Tactical · {tacticalPct}%</span>
       </div>
       {alarm && (
@@ -74,6 +76,9 @@ export function MixGauge({
         >
           {alarm}
         </p>
+      )}
+      {status === "ok" && (
+        <p className="mt-3 text-[0.75rem] text-[var(--ok)]">On target vs 60/40</p>
       )}
     </div>
   );

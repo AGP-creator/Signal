@@ -5,6 +5,7 @@
  * Deterministic, grounded in pipeline facts — demo network is labeled as simulated.
  */
 
+import { layoutScatter, MAP_VIEWBOX } from "@/lib/mapLayout";
 import { THEME_HINTS } from "@/lib/thesis";
 import type {
   AlertItem,
@@ -191,12 +192,13 @@ function monthsSince(iso?: string | null): number | null {
 }
 
 function stageKey(stage?: string | null): string {
-  const s = (stage || "").toLowerCase();
-  if (s.includes("seed") || s.includes("pre")) return "Seed";
-  if (s.includes("a") && !s.includes("b")) return "Series A";
-  if (s.includes("b")) return "Series B";
-  if (s.includes("c") || s.includes("growth") || s.includes("d")) return "Growth";
-  return stage || "Unknown";
+  const s = (stage || "").toLowerCase().trim();
+  if (!s) return "Unknown";
+  if (/\bpre[- ]?seed\b|\bseed\b/.test(s)) return "Seed";
+  if (/\bseries\s*a\b|\bround\s*a\b/.test(s) || s === "a") return "Series A";
+  if (/\bseries\s*b\b|\bround\s*b\b/.test(s) || s === "b") return "Series B";
+  if (/\bseries\s*[c-e]\b|\bgrowth\b|\blate\b/.test(s) || s === "c" || s === "d") return "Growth";
+  return stage?.trim() || "Unknown";
 }
 
 const GROWTH_BANDS: GrowthBand[] = [
@@ -273,10 +275,16 @@ export function buildMarketMap(
   const wantTier = /tier[- ]?1|sequoia|a16z|circling|crowded/.test(lower) && !wantNoTier;
   const wantGrowth = /growth|yoy|bessemer|median|above/.test(lower);
   const stageHints: string[] = [];
-  if (/seed|pre[- ]?seed/.test(lower)) stageHints.push("Seed");
-  if (/series a|\ba\b/.test(lower) && !/series b/.test(lower)) stageHints.push("Series A");
-  if (/series b|\bb\b/.test(lower)) stageHints.push("Series B");
-  if (/growth|series c/.test(lower)) stageHints.push("Growth");
+  if (/\bseed\b|\bpre[- ]?seed\b/.test(lower)) stageHints.push("Seed");
+  if (/series\s*a\s*[-–—\/]\s*b|a\s*[-–—\/]\s*b/.test(lower)) {
+    stageHints.push("Series A", "Series B");
+  } else {
+    if (/\bseries\s*a\b|\bround\s*a\b/.test(lower) && !/\bseries\s*b\b/.test(lower)) {
+      stageHints.push("Series A");
+    }
+    if (/\bseries\s*b\b|\bround\s*b\b/.test(lower)) stageHints.push("Series B");
+  }
+  if (/\bseries\s*[c-e]\b|\bgrowth\b/.test(lower)) stageHints.push("Growth");
 
   const filters: string[] = [];
   if (theme) filters.push(`Theme: ${theme.name}`);
@@ -294,9 +302,20 @@ export function buildMarketMap(
 
   let pool = companies.filter((c) => (c.thesis_score || 0) >= 55);
   let quietRelaxed = false;
+  let scoreRelaxed = false;
   if (theme) {
     const themed = pool.filter((c) => companyMatchesTheme(c, theme));
     if (themed.length >= 1) pool = themed;
+    else {
+      // Theme match exists only below the score floor — relax so Map market isn't empty.
+      const themedLoose = companies.filter(
+        (c) => (c.thesis_score || 0) >= 40 && companyMatchesTheme(c, theme),
+      );
+      if (themedLoose.length >= 1) {
+        pool = themedLoose;
+        scoreRelaxed = true;
+      }
+    }
   }
   if (stageHints.length) {
     const staged = pool.filter((c) => stageHints.includes(stageKey(c.stage)));
@@ -309,6 +328,14 @@ export function buildMarketMap(
   } else if (wantTier) {
     const t = pool.filter((c) => (c.tier1_count || 0) >= 1 || (peerHeat.get(c.id) || 0) >= 1);
     if (t.length >= 2) pool = t;
+  }
+
+  // Last resort: never return an empty map when the book has companies.
+  if (!pool.length && companies.length) {
+    pool = [...companies]
+      .sort((a, b) => (b.thesis_score || 0) - (a.thesis_score || 0))
+      .slice(0, 24);
+    scoreRelaxed = true;
   }
 
   const scored = pool
@@ -357,12 +384,20 @@ export function buildMarketMap(
     };
   });
 
+  const laid = layoutScatter(
+    scored.map((s) => ({
+      id: s.c.id,
+      xMetric: s.relevance,
+      yMetric: s.score,
+      r: clamp(2.6 + s.score / 35 + s.hiring / 80, 2.4, 5.5),
+    })),
+    { width: MAP_VIEWBOX.w, height: MAP_VIEWBOX.h },
+  );
+  const posById = new Map(laid.map((p) => [p.id, p]));
+
   const nodes: MapNode[] = scored.map((s) => {
     const sub = s.c.subsector || s.c.sector_theme || "General";
-    const jx = ((hash(s.c.id) % 7) - 3) * 1.4;
-    const jy = ((hash(s.c.name) % 7) - 3) * 1.2;
-    const x = clamp(8 + s.relevance * 0.84 + jx, 6, 94);
-    const y = clamp(92 - s.score * 0.78 + jy, 8, 92);
+    const pos = posById.get(s.c.id);
     const score = s.score;
     let tag: MapNode["tag"] = "watch";
     if (score >= 82 && s.heat === 0) tag = "leader";
@@ -377,8 +412,8 @@ export function buildMarketMap(
       theme: s.c.sector_theme || theme?.name || "Thesis",
       thesis_score: score,
       recommendation: s.c.recommendation || "Watch",
-      x,
-      y,
+      x: pos?.x ?? MAP_VIEWBOX.w / 2,
+      y: pos?.y ?? MAP_VIEWBOX.h / 2,
       size: clamp(10 + score / 8 + s.hiring / 20, 12, 28),
       hiring_velocity: s.hiring,
       peer_heat: s.heat,
@@ -415,7 +450,7 @@ export function buildMarketMap(
           quietRelaxed
             ? " Quiet-tape filter had no matches — showing full theme pool (Tier-1 present on book)."
             : ""
-        }`
+        }${scoreRelaxed ? " Score floor relaxed so the map still populates." : ""}`
       : quietRelaxed
         ? "Quiet-tape filter removed all matches — widen stage band or Refresh pipeline."
         : "Widen the query or Refresh the pipeline.",

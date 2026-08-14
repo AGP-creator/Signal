@@ -9,6 +9,7 @@ import {
   SCORE_DIM_META,
   type CriteriaSummary,
 } from "@/lib/thirdbaseCriteria";
+import { buildGreatDealPack } from "@/lib/greatDeal";
 import type {
   Commentary,
   Company,
@@ -133,56 +134,6 @@ function dim(c: Company, key: string, fallback = 50) {
   return typeof v === "number" ? v : fallback;
 }
 
-function facetEvidence(c: Company, id: GreatDealFacet["id"]): string {
-  if (id === "founder") {
-    return c.team_notes?.slice(0, 140) || "Team quality scored from pedigree / technical signal — blank stays blank.";
-  }
-  if (id === "market") {
-    return (
-      c.sector_theme
-        ? `${c.sector_theme}${c.subsector ? ` · ${c.subsector}` : ""}${c.tam_usd_b != null ? ` · TAM ~$${c.tam_usd_b}B` : ""}`
-        : "Market thesis fit from theme policy"
-    );
-  }
-  if (id === "investors") {
-    const names = (c.tier1_names || []).slice(0, 3).join(", ");
-    return names
-      ? `Tier-1 ${c.tier1_count ?? 0}: ${names}`
-      : `Tier-1 count ${c.tier1_count ?? 0} · lead ${c.lead_investor || "—"}`;
-  }
-  if (id === "traction") {
-    if (c.yoy_growth_pct != null) return `${c.yoy_growth_pct.toFixed(0)}% YoY · ${c.traction_notes?.slice(0, 90) || "growth stage bar"}`;
-    if (c.headcount_6m_growth_pct != null) {
-      return `Headcount +${c.headcount_6m_growth_pct.toFixed(0)}% / 6m · ${c.traction_notes?.slice(0, 80) || "hiring proxy"}`;
-    }
-    return c.traction_notes?.slice(0, 140) || "Traction fields sparse — do not invent.";
-  }
-  // valuation
-  if (c.valuation_est_m != null) {
-    return `~$${c.valuation_est_m}M mark (${c.valuation_confidence || "est"}) · ${c.stage || "stage"}`;
-  }
-  return "Entry valuation not captured — blank stays blank.";
-}
-
-function buildFacets(c: Company): GreatDealFacet[] {
-  return [
-    { id: "founder", label: "Founder / team", score: dim(c, "team_quality"), evidence: facetEvidence(c, "founder") },
-    { id: "market", label: "Market", score: dim(c, "thesis_fit", dim(c, "tam_exit")), evidence: facetEvidence(c, "market") },
-    { id: "investors", label: "Investors already in", score: dim(c, "cap_table"), evidence: facetEvidence(c, "investors") },
-    { id: "traction", label: "Traction", score: dim(c, "traction"), evidence: facetEvidence(c, "traction") },
-    { id: "valuation", label: "Entry valuation", score: dim(c, "valuation"), evidence: facetEvidence(c, "valuation") },
-  ];
-}
-
-function isOutstanding(c: Company, facets: GreatDealFacet[]) {
-  const avg = facets.reduce((s, f) => s + f.score, 0) / facets.length;
-  return (
-    c.recommendation === "Deep Dive" ||
-    (scoreOf(c) >= 78 && avg >= 68) ||
-    (c.recommendation === "Watch" && scoreOf(c) >= 72 && (c.tier1_count || 0) >= 2)
-  );
-}
-
 function cohortPeers(c: Company, all: Company[]) {
   const theme = (c.sector_theme || "").toLowerCase();
   const stage = (c.stage || "").toLowerCase();
@@ -199,30 +150,41 @@ function cohortPeers(c: Company, all: Company[]) {
       id: x.id,
       name: x.name,
       score: Math.round(scoreOf(x)),
-      rank: x.relative_rank,
+      rank: x.relative_rank ?? null,
     }));
 }
 
+/** Shared with Great Deal Desk — same grade / pillar rules, venture-agent case shape. */
 function buildGreatDeals(companies: Company[]): GreatDealCase[] {
-  const ranked = [...companies].sort((a, b) => scoreOf(b) - scoreOf(a));
-  const picks = [
-    ...ranked.filter((c) => c.recommendation === "Deep Dive"),
-    ...ranked.filter((c) => c.recommendation === "Watch"),
-  ]
-    .filter((c, i, arr) => arr.findIndex((x) => x.id === c.id) === i)
-    .slice(0, 10);
+  const pack = buildGreatDealPack(companies);
+  const byId = new Map(companies.map((c) => [c.id, c]));
+  const picks = [...pack.outstanding, ...pack.promising].slice(0, 10);
+  const cases: GreatDealCase[] = [];
 
-  return picks.map((c) => {
-    const facets = buildFacets(c);
-    const outstanding = isOutstanding(c, facets);
+  for (const card of picks) {
+    const c = byId.get(card.company_id);
+    if (!c) continue;
+    const facets: GreatDealFacet[] = card.pillars.map((p) => ({
+      id: p.id,
+      label:
+        p.label === "Founder"
+          ? "Founder / team"
+          : p.label === "Investors"
+            ? "Investors already in"
+            : p.label,
+      score: p.score,
+      evidence: p.evidence,
+    }));
     const criteria = evaluateThirdbaseCriteria(c);
     const peers = cohortPeers(c, companies);
     const radar: Record<string, number> = {};
     for (const [k, meta] of Object.entries(SCORE_DIM_META)) {
       radar[meta.label] = Math.round(dim(c, k));
     }
+    const outstanding = card.grade === "outstanding";
     const why =
       c.why_now?.trim() ||
+      card.why_best[0] ||
       `Relative ${c.relative_rank || "unranked"} in ${c.sector_theme || "theme"} × ${c.stage || "stage"} with thesis score ${Math.round(scoreOf(c))}.`;
     const partner_line = outstanding
       ? `${c.name} clears the “outstanding vs noisy” bar: ${facets
@@ -232,18 +194,22 @@ function buildGreatDeals(companies: Company[]): GreatDealCase[] {
           .join(", ") || "multi-dim strength"} — ranked ${c.relative_rank || "vs cohort"}, not in isolation.`
       : `${c.name} is interesting but not yet outstanding vs ${c.sector_theme || "cohort"} — ${c.relative_rank || "mid-pack"} keeps it ${c.recommendation || "Watch"}.`;
 
-    return {
+    cases.push({
       company: c,
       outstanding,
-      relative_story: c.relative_rank || `Unranked in ${(c.sector_theme || "theme") + " × " + (c.stage || "stage")}`,
+      relative_story:
+        c.relative_rank ||
+        `Unranked in ${(c.sector_theme || "theme") + " × " + (c.stage || "stage")}`,
       why_now: why,
       facets,
       criteria,
       cohort_peers: peers,
       partner_line,
       radar,
-    };
-  });
+    });
+  }
+
+  return cases;
 }
 
 function horizonFor(call: SectorCall): SectorHorizon["horizon"] {

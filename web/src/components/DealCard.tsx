@@ -57,19 +57,21 @@ export function DealCard({ company, index = 0 }: { company: Company; index?: num
       <p className="mt-3.5 max-w-xl line-clamp-2 text-[0.875rem] leading-relaxed text-[var(--text)]/80">
         {company.one_liner || cleanProse(company.why_now)}
       </p>
-      <div className="mt-3.5 flex flex-wrap gap-2">
+      <div className="mt-3.5 flex flex-wrap items-center gap-2">
         <CriteriaFitChips company={company} />
-        <span className="chip chip-signal">Tier-1 {company.tier1_count}</span>
-        <span className="chip">Round {fmtMoneyM(company.last_round_size_m)}</span>
-        <span className="chip chip-ok">
+      </div>
+      <div className="deal-meta mt-2.5 flex flex-wrap gap-x-3 gap-y-1 text-[0.7rem] text-[var(--faint)]">
+        <span>Tier-1 {company.tier1_count}</span>
+        <span>Round {fmtMoneyM(company.last_round_size_m)}</span>
+        <span className="text-[var(--ok)]">
           YoY {pack ? `+${pack.kpis.arr_growth_yoy_pct}%` : fmtPct(company.yoy_growth_pct)}
         </span>
         {pack ? (
-          <span className="chip chip-deep">ARR {fmtMoneyM(pack.kpis.arr_m)}</span>
+          <span>ARR {fmtMoneyM(pack.kpis.arr_m)}</span>
         ) : (
-          <span className="chip chip-deep">Lead {company.lead_investor || "—"}</span>
+          <span>Lead {company.lead_investor || "—"}</span>
         )}
-        {pack ? <span className="chip">NRR {pack.kpis.nrr_pct}%</span> : null}
+        {pack ? <span>NRR {pack.kpis.nrr_pct}%</span> : null}
       </div>
     </Link>
   );

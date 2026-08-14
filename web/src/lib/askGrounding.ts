@@ -49,6 +49,9 @@ export function buildGroundingTrails(
   if (/\b(atlas|market map|warm path|growth band|raise window|talent)\b/i.test(q)) {
     add("atlas", question, "Query Signal Atlas modules");
   }
+  if (/\b(forge|monday moves?|win reality|attention capital|raise clock|blind spots?|partner attention)\b/i.test(q)) {
+    add("forge", question, "Query Signal Forge decision physics");
+  }
   if (/\b(edge|conviction|pre-?mortem|reference call|anti-?consensus)\b/i.test(q)) {
     add("partner_edge", question, "Query Partner Edge modules");
   }

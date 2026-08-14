@@ -797,12 +797,12 @@ function ThesisTab({
       <div className="grid gap-5 lg:grid-cols-[1.35fr_0.9fr]">
         <Panel className="!p-0 overflow-hidden">
           <div className="border-b border-[var(--line)] px-5 py-3">
-            <div className="label-caps text-[var(--signal)]">Relevance constellation</div>
+            <div className="label-caps text-[var(--signal)]">Relevance ranking</div>
             <p className="mt-1 text-[0.75rem] text-[var(--muted)]">
-              X = thesis relevance · Y = pipeline thesis score · size = conviction tag
+              Sorted by thesis match · bars show relevance and pipeline score
             </p>
           </div>
-          <Constellation hits={scan.hits} />
+          <RelevanceRanking hits={scan.hits} />
           <p className="border-t border-[var(--line)] px-5 py-3 text-[0.85rem] text-[var(--muted)]">
             {scan.counsel}
           </p>
@@ -992,113 +992,136 @@ function clampPillar(n: number) {
   return Math.max(8, Math.min(100, n));
 }
 
-function Constellation({ hits }: { hits: RankedHit[] }) {
-  const [hover, setHover] = useState<string | null>(null);
-  const active = hits.find((h) => h.company_id === hover) || null;
+function RelevanceRanking({ hits }: { hits: RankedHit[] }) {
+
+  const ranked = [...hits].sort(
+
+    (a, b) => b.composite - a.composite || b.relevance - a.relevance,
+
+  );
+
+
+
+  if (!ranked.length) {
+
+    return (
+
+      <div className="flex min-h-[12rem] items-center justify-center px-5 py-8">
+
+        <EmptyState>Empty ranking — try another thesis.</EmptyState>
+
+      </div>
+
+    );
+
+  }
+
+
 
   return (
-    <div className="relative aspect-[16/11] w-full bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--signal)_6%,transparent),transparent_68%)]">
-      <svg
-        className="absolute inset-0 h-full w-full"
-        viewBox="0 0 100 100"
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <line x1="8" y1="92" x2="96" y2="92" stroke="var(--line)" strokeWidth="0.25" />
-        <line x1="8" y1="8" x2="8" y2="92" stroke="var(--line)" strokeWidth="0.25" />
-        <text x="52" y="98" textAnchor="middle" fontSize="2.4" fill="var(--faint)">
-          Relevance →
-        </text>
-        <text
-          x="3.5"
-          y="50"
-          textAnchor="middle"
-          fontSize="2.4"
-          fill="var(--faint)"
-          transform="rotate(-90 3.5 50)"
-        >
-          Thesis score →
-        </text>
-        <line
-          x1="8"
-          y1="50"
-          x2="96"
-          y2="50"
-          stroke="var(--line)"
-          strokeWidth="0.15"
-          strokeDasharray="1 1.5"
-        />
-        <line
-          x1="52"
-          y1="8"
-          x2="52"
-          y2="92"
-          stroke="var(--line)"
-          strokeWidth="0.15"
-          strokeDasharray="1 1.5"
-        />
-        <text x="78" y="14" fontSize="2.2" fill="var(--signal)" opacity="0.7">
-          Prime zone
-        </text>
 
-        {hits.map((h) => {
-          const fill =
-            h.tag === "prime"
-              ? "var(--signal)"
-              : h.tag === "emerging"
-                ? "var(--ok)"
-                : h.tag === "watch"
-                  ? "var(--deep)"
-                  : "var(--faint)";
-          const on = hover === h.company_id;
-          return (
-            <g
-              key={h.company_id}
-              className="cursor-pointer"
-              onMouseEnter={() => setHover(h.company_id)}
-              onMouseLeave={() => setHover(null)}
-            >
-              <circle
-                cx={h.x}
-                cy={h.y}
-                r={on ? h.size / 3.2 + 1.2 : h.size / 3.5}
-                fill={fill}
-                opacity={on ? 1 : 0.82}
-              />
-              {(on || h.tag === "prime") && (
-                <text
-                  x={h.x}
-                  y={h.y + h.size / 3.5 + 3.4}
-                  textAnchor="middle"
-                  fontSize="2.3"
-                  fill="var(--text)"
-                  fontWeight={600}
-                >
-                  {h.name.length > 12 ? `${h.name.slice(0, 11)}…` : h.name}
-                </text>
-              )}
-            </g>
-          );
-        })}
-      </svg>
-      {active && (
-        <div className="absolute bottom-3 left-3 right-3 rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)]/95 px-3 py-2 text-[0.8rem] shadow-sm backdrop-blur-sm">
+    <div className="max-h-[28rem] space-y-0 overflow-y-auto scrollbar-thin">
+
+      {ranked.map((h, i) => (
+
+        <div
+
+          key={h.company_id}
+
+          className="border-b border-[var(--line)] px-5 py-3 last:border-0"
+
+        >
+
           <div className="flex flex-wrap items-baseline justify-between gap-2">
-            <span className="font-medium">{active.name}</span>
-            <span className={cn("label-caps", tagClass(active.tag))}>{active.tag}</span>
+
+            <div className="flex min-w-0 items-baseline gap-2.5">
+
+              <span className="mono w-5 shrink-0 text-[0.75rem] text-[var(--faint)]">
+
+                {i + 1}
+
+              </span>
+
+              <CoLink id={h.company_id} slug={h.slug} name={h.name} />
+
+            </div>
+
+            <div className="flex items-center gap-2">
+
+              <span className={cn("label-caps", tagClass(h.tag))}>{h.tag}</span>
+
+              <RecBadge rec={h.recommendation} />
+
+            </div>
+
           </div>
-          <p className="mt-1 text-[var(--muted)]">
-            Rel {active.relevance} · Score {active.thesis_score} · {active.why[0]}
-          </p>
+
+          <p className="mt-1 pl-7 text-[0.8rem] text-[var(--muted)]">{h.why[0]}</p>
+
+          <div className="mt-2.5 grid gap-2 pl-7 sm:grid-cols-2">
+
+            <div>
+
+              <div className="mb-1 flex justify-between text-[0.7rem] text-[var(--faint)]">
+
+                <span>Relevance</span>
+
+                <span className="mono">{h.relevance}</span>
+
+              </div>
+
+              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
+
+                <div
+
+                  className="h-full rounded-full bg-[var(--signal)]"
+
+                  style={{ width: `${Math.max(4, Math.min(100, h.relevance))}%` }}
+
+                />
+
+              </div>
+
+            </div>
+
+            <div>
+
+              <div className="mb-1 flex justify-between text-[0.7rem] text-[var(--faint)]">
+
+                <span>Thesis score</span>
+
+                <span className="mono">{h.thesis_score}</span>
+
+              </div>
+
+              <div className="h-1.5 overflow-hidden rounded-full bg-[var(--panel-2)]">
+
+                <div
+
+                  className="h-full rounded-full bg-[var(--deep)]"
+
+                  style={{ width: `${Math.max(4, Math.min(100, h.thesis_score))}%` }}
+
+                />
+
+              </div>
+
+            </div>
+
+          </div>
+
         </div>
-      )}
-      {!hits.length && (
-        <div className="absolute inset-0 flex items-center justify-center">
-          <EmptyState>Empty constellation — try another thesis.</EmptyState>
-        </div>
-      )}
+
+      ))}
+
     </div>
+
   );
+
 }
+
+
+
 
 /* ─── Momentum ──────────────────────────────────────────────────────────── */
 

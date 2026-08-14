@@ -58,6 +58,10 @@ import {
   buildPartnerTwin,
   buildVelocityBoard,
 } from "@/lib/partnerEdge";
+import {
+  buildForgePack,
+  moveKindLabel,
+} from "@/lib/forge";
 import { buildDemoTrails, mergeTrailsWithCompanies, STAGE_LABEL } from "@/lib/icTrail";
 import { buildGpDeskPack } from "@/lib/gpDesk";
 import { buildLpDeskPack } from "@/lib/lpDesk";
@@ -406,6 +410,94 @@ export function answerPartnerQuestion(
     return formatAtlasBriefMarkdown(atlas);
   }
 
+  // Signal Forge — Monday decision physics (attention · win · moves)
+  const wantsForge =
+    /\b(signal forge|forge|monday moves?|win reality|attention capital|raise clocks?|blind spots?|where should (partner )?attention|partner attention|scarce (partner )?(hours|attention)|can (we|thirdbase) win|win probability)\b/i.test(
+      question,
+    ) ||
+    (q.includes("attention") &&
+      (q.includes("week") ||
+        q.includes("go") ||
+        q.includes("spend") ||
+        q.includes("allocate") ||
+        q.includes("hours")));
+
+  if (wantsForge) {
+    const forge = buildForgePack({ companies, peers, commentary, sectors, alerts });
+    if (q.includes("monday move") || (q.includes("monday") && q.includes("move"))) {
+      return [
+        "# Monday Moves",
+        "",
+        forge.headline,
+        forge.punchline,
+        "",
+        ...forge.monday_moves.map(
+          (m) =>
+            `${m.rank}. **${m.title}** (${moveKindLabel(m.kind)} · ${m.hours}h)${m.win_prob != null ? ` · win ${m.win_prob}%` : ""}\n   ${m.why}\n   _${m.irreversible}_`,
+        ),
+        "",
+        "Open /forge → Monday Moves.",
+      ].join("\n");
+    }
+    if (q.includes("win reality") || (q.includes("win") && (q.includes("prob") || q.includes("can we")))) {
+      const wins = forge.win_realities.slice(0, 8);
+      return [
+        "# Win Reality",
+        "",
+        ...wins.map(
+          (w) =>
+            `- **${w.company_name}** — win ${w.win_prob}% · ${w.headline}\n  ${w.counsel}`,
+        ),
+        "",
+        "Open /forge → Win Reality.",
+      ].join("\n");
+    }
+    if (q.includes("attention capital") || (q.includes("attention") && q.includes("hour"))) {
+      const a = forge.attention;
+      return [
+        "# Attention Capital",
+        "",
+        `Budget **${a.week_budget_hours}h** · allocated **${a.allocated_hours}h** · free **${a.free_hours}h** (${a.utilization_pct}% util)`,
+        "",
+        a.counsel,
+        "",
+        ...a.buckets.map((b) => `- **${b.label}** — ${b.hours}h (${b.pct}%) · ${b.note}`),
+        ...(a.misallocations.length
+          ? ["", "## Misallocations", ...a.misallocations.map((m) => `- **${m.title}** — ${m.fix} → ${m.fix}`)]
+          : []),
+        "",
+        "Open /forge → Attention Capital.",
+      ].join("\n");
+    }
+    if (q.includes("raise clock") || q.includes("raise window") || q.includes("imminent raise")) {
+      return [
+        "# Raise Clocks",
+        "",
+        ...forge.raise_clocks.slice(0, 8).map(
+          (r) => `- **${r.company_name}** — ${r.clock_label} (${r.urgency}) · ${r.counsel}`,
+        ),
+        "",
+        "Open /forge → Raise Clock.",
+      ].join("\n");
+    }
+    if (q.includes("blind spot")) {
+      if (!forge.blind_spots.length) {
+        return "No blind spots — peer activity is aligned with Hot Deals, or peers are quiet.\n\nOpen /forge → Blind Spots.";
+      }
+      return [
+        "# Blind Spots",
+        "",
+        ...forge.blind_spots.slice(0, 8).map(
+          (b) =>
+            `- **${b.company_name}** [${b.severity}] — ${b.peer_firms.join(", ")} · ${b.action}`,
+        ),
+        "",
+        "Open /forge → Blind Spots.",
+      ].join("\n");
+    }
+    return forge.markdown + "\n\nOpen /forge for the full decision desk.";
+  }
+
   // Venture agent — Core Intelligence Expectations (brief headings)
   const wantsVentureAgent =
     /\b(venture agent|core intelligence|intelligent (venture )?agent|knows what a great deal|sector of tomorrow|news worth reading|holds? its own with a partner|investor and operator commentary)\b/i.test(
@@ -695,7 +787,7 @@ export function answerPartnerQuestion(
       question,
     );
   const wantsGp =
-    /\b(gp (desk|dashboard|brief|cockpit)|partner desk|partner dashboard|general partner (desk|dashboard)|what (should|needs) (my |partner )?attention)\b/i.test(
+    /\b(gp (desk|dashboard|brief|cockpit)|partner desk|partner dashboard|general partner (desk|dashboard))\b/i.test(
       question,
     );
   const wantsIc =
@@ -1285,7 +1377,7 @@ export function answerPartnerQuestion(
 function isPeerIntelligenceQuestion(question: string, firms: { name: string; aliases: string[] }[]) {
   const q = question.toLowerCase();
   if (
-    /(co-?invest|heatmap|syndicate|thesis shift|off-thesis|peer set|competitors|quietly investing|drifting|60\/40|rebalance|mix drift|sector of tomorrow|sectors? will matter|(12|24|36)[- ]?(months?|mo)|golden|proprietary|white ?space|battle card|who should i call|competitor brief|weekly brief|judgment|override|miss retrospect|founder radar|freshness|evidence sla|digest select|policy fuel|what did we miss|bear case|argue against|counterfactual|diligence plan|work orders?|meeting prep|prep me|pre[- ]call|diligence stress|stress pack|founder[- ]only|monday|partner meeting|meeting agenda|lp process|limited partner|decision trail|investment committee|what's on ic|what is on ic|gp desk|partner desk|partner dashboard|general partner|partner edge|edge os|anti[- ]consensus|conviction clock|partner twin|reference call|pass autopsy|pre[- ]?mortem|consensus trap|patience is alpha|velocity board|signal atlas|atlas|market map|warm path|warm intro|growth bands?|bessemer|portfolio pulse|talent graph|raise window|ownership desk|map (ai|cyber|defence|defense|fintech|market|infra)|directory|interest desk|demo day|launch feed|omnisearch|playbooks?|startup library|great deal|noisy (funding|raise)|relative rank|excel|workbook|deal pipeline)/i.test(
+    /(co-?invest|heatmap|syndicate|thesis shift|off-thesis|peer set|competitors|quietly investing|drifting|60\/40|rebalance|mix drift|sector of tomorrow|sectors? will matter|(12|24|36)[- ]?(months?|mo)|golden|proprietary|white ?space|battle card|who should i call|competitor brief|weekly brief|judgment|override|miss retrospect|founder radar|freshness|evidence sla|digest select|policy fuel|what did we miss|bear case|argue against|counterfactual|diligence plan|work orders?|meeting prep|prep me|pre[- ]call|diligence stress|stress pack|founder[- ]only|monday|partner meeting|meeting agenda|lp process|limited partner|decision trail|investment committee|what's on ic|what is on ic|gp desk|partner desk|partner dashboard|general partner|partner edge|edge os|anti[- ]consensus|conviction clock|partner twin|reference call|pass autopsy|pre[- ]?mortem|consensus trap|patience is alpha|velocity board|signal atlas|atlas|market map|warm path|warm intro|growth bands?|bessemer|portfolio pulse|talent graph|raise window|ownership desk|map (ai|cyber|defence|defense|fintech|market|infra)|directory|interest desk|demo day|launch feed|omnisearch|playbooks?|startup library|great deal|noisy (funding|raise)|relative rank|excel|workbook|deal pipeline|signal forge|forge|monday moves?|win reality|attention capital|raise clocks?|blind spots?|partner attention|where should (partner )?attention)/i.test(
       question,
     )
   ) {

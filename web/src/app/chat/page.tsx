@@ -29,7 +29,6 @@ import type { CompanyBrief } from "@/lib/research";
 import { cn } from "@/lib/utils";
 
 const STARTERS = [
-  "Monday partner agenda",
   "What are three AI infrastructure sub-sectors nobody is talking about yet?",
   "Are we overweight tactical vs 60/40?",
   "Top Deep Dive deals",
@@ -115,7 +114,8 @@ export default function ChatPage() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const [ready, setReady] = useState(false);
-  const bottomRef = useRef<HTMLDivElement>(null);
+  const responseTopRef = useRef<HTMLDivElement>(null);
+  const scrolledToId = useRef<string | null>(null);
   const bootstrapped = useRef(false);
 
   const storedMessages = messages.filter(
@@ -148,7 +148,15 @@ export default function ChatPage() {
   }, []);
 
   useEffect(() => {
-    bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+    if (busy) return;
+    const last = [...messages].reverse().find((m) => m.role === "assistant");
+    if (!last || last.content === WELCOME_MESSAGE) return;
+    if (scrolledToId.current === last.id) return;
+    scrolledToId.current = last.id;
+    // Land at the top of the new answer, not the end of a long reply.
+    requestAnimationFrame(() => {
+      responseTopRef.current?.scrollIntoView({ behavior: "smooth", block: "start" });
+    });
   }, [messages, busy]);
 
   useEffect(() => {
@@ -292,9 +300,14 @@ export default function ChatPage() {
                     ? messages[i - 1]
                     : null;
                 const msgMd = formatMessageMarkdown(m, priorUser);
+                const isLatestAssistant =
+                  m.role === "assistant" &&
+                  m.content !== WELCOME_MESSAGE &&
+                  messages.slice(i + 1).every((x) => x.role !== "assistant");
                 return (
                   <motion.div
                     key={m.id}
+                    ref={isLatestAssistant ? responseTopRef : undefined}
                     initial={{ opacity: 0, y: 12 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
@@ -360,7 +373,6 @@ export default function ChatPage() {
               })}
             </AnimatePresence>
             {busy ? <ThinkingState /> : null}
-            <div ref={bottomRef} />
           </div>
 
           <div className="chat-composer">

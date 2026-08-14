@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { Loader2 } from "lucide-react";
 import { CompanyLink } from "@/components/EntityLink";
 import {
   EmptyState,
@@ -305,21 +306,30 @@ function MapTab({
   briefMarkdown: string;
 }) {
   const [draft, setDraft] = useState(query);
+  const [pending, startTransition] = useTransition();
 
-  const clusterLayout = useMemo(() => {
-    const byLabel = new Map<string, { x: number; y: number; count: number }>();
+  useEffect(() => {
+    setDraft(query);
+  }, [query]);
+
+  function applyQuery(next: string) {
+    const q = next.trim() || PRESET_MAP_QUERIES[0];
+    setDraft(q);
+    startTransition(() => setQuery(q));
+  }
+
+  const byCluster = useMemo(() => {
+    const groups = new Map<string, MapNode[]>();
     for (const n of map.nodes) {
       const key = n.subsector || "General";
-      const cur = byLabel.get(key) || { x: 0, y: 0, count: 0 };
-      byLabel.set(key, { x: cur.x + n.x, y: cur.y + n.y, count: cur.count + 1 });
+      const list = groups.get(key) || [];
+      list.push(n);
+      groups.set(key, list);
     }
-    return map.clusters.map((cl) => {
-      const agg = byLabel.get(cl.label);
-      if (!agg || !agg.count) {
-        return { ...cl, cx: 50, cy: 50 };
-      }
-      return { ...cl, cx: agg.x / agg.count, cy: agg.y / agg.count };
-    });
+    return map.clusters.map((cl) => ({
+      ...cl,
+      nodes: (groups.get(cl.label) || []).sort((a, b) => b.thesis_score - a.thesis_score),
+    }));
   }, [map.clusters, map.nodes]);
 
   return (
@@ -338,7 +348,7 @@ function MapTab({
           className="mt-4 flex flex-col gap-3 sm:flex-row"
           onSubmit={(e) => {
             e.preventDefault();
-            setQuery(draft.trim() || PRESET_MAP_QUERIES[0]);
+            applyQuery(draft);
           }}
         >
           <input
@@ -348,8 +358,15 @@ function MapTab({
             placeholder="Map AI infra with hiring velocity…"
             aria-label="Market map query"
           />
-          <button type="submit" className="btn btn-primary">
-            Map market
+          <button type="submit" className="btn btn-primary" disabled={pending}>
+            {pending ? (
+              <>
+                <Loader2 className="h-3.5 w-3.5 animate-spin" strokeWidth={1.75} aria-hidden />
+                Mapping…
+              </>
+            ) : (
+              "Map market"
+            )}
           </button>
         </form>
         <div className="mt-3 flex flex-wrap gap-2">
@@ -361,10 +378,8 @@ function MapTab({
                 "btn btn-ghost text-[0.7rem]",
                 query === p && "bg-[var(--soft)] text-[var(--text)]",
               )}
-              onClick={() => {
-                setDraft(p);
-                setQuery(p);
-              }}
+              disabled={pending}
+              onClick={() => applyQuery(p)}
             >
               {p.length > 42 ? `${p.slice(0, 40)}…` : p}
             </button>
@@ -384,63 +399,110 @@ function MapTab({
               ))}
             </div>
           </div>
-          <div className="relative aspect-[16/11] w-full bg-[radial-gradient(ellipse_at_center,color-mix(in_srgb,var(--signal)_7%,transparent),transparent_65%)]">
-            <svg className="absolute inset-0 h-full w-full" viewBox="0 0 100 100" preserveAspectRatio="xMidYMid meet">
-              {clusterLayout.map((cl) => (
-                <g key={cl.id} opacity={0.35}>
-                  <circle
-                    cx={cl.cx}
-                    cy={cl.cy}
-                    r={Math.min(16, 8 + cl.count * 2.5)}
-                    fill="var(--soft)"
-                    stroke="var(--line)"
-                    strokeWidth={0.3}
-                  />
-                  <text x={cl.cx} y={cl.cy + 18} textAnchor="middle" fontSize={2.2} fill="var(--faint)">
-                    {cl.label.slice(0, 22)}
-                  </text>
-                </g>
-              ))}
-              {map.nodes.map((n) => (
-                <g key={n.company_id} className="atlas-node">
-                  <a href={`/company/${n.slug || n.company_id}`} className="cursor-pointer">
-                    <circle
-                      cx={n.x}
-                      cy={n.y}
-                      r={Math.max(2.8, n.size / 3.2)}
-                      fill={
-                        n.tag === "leader"
-                          ? "var(--signal)"
-                          : n.tag === "emerging"
-                            ? "var(--ok)"
-                            : n.tag === "challenger"
-                              ? "var(--deep)"
-                              : "var(--faint)"
-                      }
-                      stroke="var(--panel)"
-                      strokeWidth={0.45}
-                      opacity={0.95}
-                    />
-                    <text
-                      x={n.x}
-                      y={n.y + Math.max(2.8, n.size / 3.2) + 3.4}
-                      textAnchor="middle"
-                      fontSize={2.5}
-                      fill="var(--text)"
-                      fontWeight={600}
-                    >
-                      {n.name.length > 14 ? `${n.name.slice(0, 12)}…` : n.name}
-                    </text>
-                  </a>
-                </g>
-              ))}
-            </svg>
-            {!map.nodes.length && (
-              <div className="absolute inset-0 flex items-center justify-center">
-                <EmptyState>Empty map — try another query or Refresh.</EmptyState>
+                    <div className={cn("max-h-[28rem] overflow-y-auto scrollbar-thin", pending && "opacity-60")}>
+
+            {byCluster.map((cl) => (
+
+              <div key={cl.id} className="border-b border-[var(--line)] px-5 py-4 last:border-0">
+
+                <div className="flex flex-wrap items-baseline justify-between gap-2">
+
+                  <div>
+
+                    <div className="text-[0.875rem] font-semibold">{cl.label}</div>
+
+                    <p className="mt-0.5 text-[0.75rem] text-[var(--muted)]">{cl.note}</p>
+
+                  </div>
+
+                  <div className="flex items-center gap-2 text-[0.7rem] text-[var(--faint)]">
+
+                    <span className="mono">{cl.count}</span>
+
+                    <span>avg {Math.round(cl.avg_score)}</span>
+
+                    {cl.white_space ? (
+
+                      <span className="label-caps text-[var(--signal)]">white space</span>
+
+                    ) : null}
+
+                  </div>
+
+                </div>
+
+                <div className="mt-3 space-y-2.5">
+
+                  {cl.nodes.map((n) => (
+
+                    <div key={n.company_id} className="flex gap-3">
+
+                      <div className="min-w-0 flex-1">
+
+                        <div className="flex flex-wrap items-center justify-between gap-2">
+
+                          <CoLink id={n.company_id} slug={n.slug} name={n.name} />
+
+                          <RecBadge rec={n.recommendation} />
+
+                        </div>
+
+                        <div className="mt-1 flex flex-wrap gap-2 text-[0.7rem] text-[var(--muted)]">
+
+                          <span className={tagClass(n.tag)}>{n.tag}</span>
+
+                          <span>{n.stage}</span>
+
+                          <span className="mono">score {n.thesis_score}</span>
+
+                          {n.hiring_velocity > 0 && <span>+{n.hiring_velocity}% hire</span>}
+
+                          {n.peer_heat > 0 && <span>{n.peer_heat} peers</span>}
+
+                        </div>
+
+                        <div className="mt-1.5 h-1 overflow-hidden rounded-full bg-[var(--panel-2)]">
+
+                          <div
+
+                            className="h-full rounded-full bg-gradient-to-r from-[var(--deep)] to-[var(--signal)]"
+
+                            style={{ width: `${Math.max(4, Math.min(100, n.thesis_score))}%` }}
+
+                          />
+
+                        </div>
+
+                      </div>
+
+                    </div>
+
+                  ))}
+
+                  {!cl.nodes.length && (
+
+                    <p className="text-[0.8rem] text-[var(--faint)]">No named companies in this cluster.</p>
+
+                  )}
+
+                </div>
+
               </div>
+
+            ))}
+
+            {!map.nodes.length && (
+
+              <div className="flex min-h-[12rem] items-center justify-center px-5 py-8">
+
+                <EmptyState>Empty map — try another query or Refresh.</EmptyState>
+
+              </div>
+
             )}
+
           </div>
+
           <p className="border-t border-[var(--line)] px-5 py-3 text-[0.8rem] text-[var(--muted)]">
             {map.counsel}
           </p>
@@ -468,6 +530,9 @@ function MapTab({
                   </div>
                 </div>
               ))}
+              {!map.shortlist.length && (
+                <EmptyState>No shortlist for this query.</EmptyState>
+              )}
             </div>
           </Panel>
           <Panel>

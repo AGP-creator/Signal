@@ -732,10 +732,164 @@ html.dark .seg-item[data-active="true"] {
   min-height: 11.5rem;
   display: flex;
   flex-direction: column;
+  transition:
+    border-color 0.18s var(--ease-out),
+    box-shadow 0.18s var(--ease-out);
+}
+
+.viz-card:hover {
+  border-color: color-mix(in srgb, var(--signal) 28%, var(--line));
+}
+
+html.dark .viz-card:hover {
+  box-shadow:
+    var(--shadow-panel),
+    0 0 24px color-mix(in srgb, var(--signal) 8%, transparent);
 }
 
 .viz-card .label-caps {
   margin-bottom: 0.35rem;
+}
+
+.chart-svg {
+  overflow: visible;
+}
+
+.chart-interactive .chart-hit {
+  transition: opacity 0.15s var(--ease-out);
+}
+
+.chart-bar-lit {
+  filter: brightness(1.12);
+}
+
+.chart-legend-row:disabled {
+  opacity: 1;
+}
+
+.mix-gauge-track {
+  position: relative;
+  height: 0.625rem;
+  overflow: visible;
+  border-radius: 999px;
+  background: var(--panel-2);
+}
+
+.mix-gauge-track > .flex {
+  overflow: hidden;
+  border-radius: 999px;
+}
+
+.mix-gauge-target {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  left: 60%;
+  z-index: 2;
+  width: 2px;
+  margin-left: -1px;
+  border-radius: 999px;
+  background: var(--text);
+  opacity: 0.55;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--panel) 80%, transparent);
+  pointer-events: none;
+}
+
+.score-bar-track {
+  height: 0.5rem;
+  overflow: hidden;
+  border-radius: 999px;
+  background: var(--panel-2);
+}
+
+.score-bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.5s var(--ease-out);
+}
+
+.score-bar-fill--ok {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--ok) 70%, var(--signal)), var(--ok));
+}
+
+.score-bar-fill--signal {
+  background: linear-gradient(90deg, var(--deep), var(--signal));
+}
+
+.score-bar-fill--warn {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--warn) 55%, var(--signal)), var(--warn));
+}
+
+.score-bar-fill--danger {
+  background: linear-gradient(90deg, color-mix(in srgb, var(--danger) 45%, var(--warn)), var(--danger));
+}
+
+.feed-row {
+  display: block;
+  margin: 0 -0.35rem;
+  padding: 0.7rem 0.35rem;
+  border-bottom: 1px solid var(--line);
+  border-radius: var(--radius);
+  transition: background 0.15s var(--ease-out);
+}
+
+.feed-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0.15rem;
+}
+
+.feed-row:hover {
+  background: color-mix(in srgb, var(--signal) 7%, transparent);
+}
+
+.agent-tile {
+  border-radius: var(--radius);
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--panel) 70%, transparent);
+  padding: 0.5rem 0.5rem;
+  transition:
+    border-color 0.15s var(--ease-out),
+    background 0.15s var(--ease-out);
+}
+
+.agent-tile:hover {
+  border-color: color-mix(in srgb, var(--signal) 35%, var(--line));
+  background: var(--signal-dim);
+}
+
+.deal-meta {
+  letter-spacing: 0.01em;
+}
+
+.deal-meta > span:not(:last-child)::after {
+  content: "·";
+  margin-left: 0.75rem;
+  color: color-mix(in srgb, var(--faint) 70%, transparent);
+  pointer-events: none;
+}
+
+.loading-mark {
+  width: 1.75rem;
+  height: 1.75rem;
+  border-radius: 9px;
+  background: linear-gradient(145deg, color-mix(in srgb, #fff 18%, var(--signal)), var(--signal));
+  box-shadow:
+    0 0 0 3px var(--signal-dim),
+    0 0 22px color-mix(in srgb, var(--signal) 40%, transparent);
+  animation: pulse-dot 1.8s var(--ease-out) infinite;
+}
+
+@media (min-width: 1280px) {
+  .desk-aside {
+    position: sticky;
+    top: calc(var(--header-h) + 1rem);
+    align-self: start;
+    max-height: calc(100dvh - var(--header-h) - 2rem);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: 0.15rem;
+    scrollbar-width: thin;
+  }
 }
 
 .chart-empty {
@@ -1177,19 +1331,16 @@ html.dark .gauge-card {
   color: var(--faint);
 }
 
-/* Soft brand mark */
+/* Soft brand mark — pulse beacon */
 .brand-mark {
   display: flex;
-  height: 1.75rem;
-  width: 1.75rem;
+  height: 1.85rem;
+  width: 1.85rem;
   align-items: center;
   justify-content: center;
-  border-radius: 8px;
+  border-radius: 9px;
   background: linear-gradient(145deg, color-mix(in srgb, #fff 18%, var(--signal)), var(--signal));
   color: var(--signal-ink);
-  font-size: 0.7rem;
-  font-weight: 700;
-  letter-spacing: -0.02em;
   box-shadow:
     0 1px 2px color-mix(in srgb, var(--signal) 40%, transparent),
     0 0 18px color-mix(in srgb, var(--signal) 35%, transparent);
@@ -1270,6 +1421,7 @@ html.dark .brand-mark {
 }
 
 .nav-strip {
+  position: relative;
   width: 100%;
   gap: 0.25rem;
   overflow-x: auto;
@@ -1279,6 +1431,13 @@ html.dark .brand-mark {
   scroll-snap-type: x proximity;
   scrollbar-width: thin;
   padding-bottom: 0.55rem;
+  mask-image: linear-gradient(
+    90deg,
+    transparent 0,
+    #000 12px,
+    #000 calc(100% - 12px),
+    transparent 100%
+  );
 }
 
 .nav-strip > .nav-link {
@@ -1434,6 +1593,26 @@ html.dark .deal-row:hover {
   animation: shimmer 1.15s ease-in-out infinite;
 }
 
+.nav-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 80;
+  height: 2px;
+  pointer-events: none;
+  background: transparent;
+}
+
+.nav-progress-bar {
+  height: 100%;
+  width: 40%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, transparent, var(--signal), transparent);
+  animation: shimmer 0.9s ease-in-out infinite;
+  box-shadow: 0 0 12px color-mix(in srgb, var(--signal) 55%, transparent);
+}
+
 /* ── Desk Command home ───────────────────────────────────────── */
 .desk-hero {
   position: relative;
@@ -1502,6 +1681,35 @@ html.dark .desk-ask {
   display: grid;
   gap: 0.5rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.desk-monday-rail {
+  border: 1px solid color-mix(in srgb, var(--signal) 22%, var(--line));
+  border-radius: var(--radius-xl);
+  background:
+    linear-gradient(
+      135deg,
+      color-mix(in srgb, var(--signal) 8%, transparent),
+      color-mix(in srgb, var(--panel-elevated) 92%, transparent)
+    );
+  padding: 0.9rem 1rem 1rem;
+}
+
+.desk-monday-move {
+  display: block;
+  border: 1px solid var(--line);
+  border-radius: var(--radius-lg);
+  background: color-mix(in srgb, var(--panel) 88%, transparent);
+  padding: 0.75rem 0.8rem;
+  transition:
+    border-color 160ms ease,
+    transform 160ms ease,
+    box-shadow 160ms ease;
+}
+
+.desk-monday-move:hover {
+  border-color: color-mix(in srgb, var(--signal) 40%, var(--line));
+  transform: translateY(-1px);
 }
 
 @media (min-width: 640px) {
@@ -1742,10 +1950,27 @@ html.dark .insight-card::before {
   padding-bottom: 0.5rem;
 }
 
+.palette-answer {
+  border-radius: var(--radius-lg);
+  border: 1px solid color-mix(in srgb, var(--signal) 18%, var(--line));
+  background:
+    linear-gradient(
+      160deg,
+      color-mix(in srgb, var(--signal) 8%, var(--panel)) 0%,
+      color-mix(in srgb, var(--panel-2) 70%, transparent) 100%
+    );
+  padding: 0.9rem 1rem;
+}
+
+html.dark .palette-answer {
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.04);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .animate-in,
   .stagger > *,
   .loading-bar::after,
+  .loading-mark,
   .live-dot {
     animation: none !important;
   }
@@ -1758,7 +1983,10 @@ html.dark .insight-card::before {
   .deal-row,
   .desk-module,
   .desk-feature,
-  .desk-metric {
+  .desk-metric,
+  .feed-row,
+  .viz-card,
+  .score-bar-fill {
     transition: none !important;
   }
 }

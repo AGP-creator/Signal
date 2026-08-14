@@ -3,6 +3,7 @@
  * Deterministic, grounded in pipeline + sector_calls (mirrors scripts/sector_scan.py).
  */
 
+import { layoutScatter, MAP_VIEWBOX } from "@/lib/mapLayout";
 import { THEME_HINTS } from "@/lib/thesis";
 import type { Commentary, Company, PeerActivity, SectorCall } from "@/lib/types";
 
@@ -38,7 +39,7 @@ export type RankedHit = {
   composite: number; // ranked sort key
   why: string[];
   facets: MatchFacet[];
-  x: number; // constellation coords 0–100
+  x: number; // constellation coords (MAP_VIEWBOX space)
   y: number;
   size: number;
   tag: "prime" | "emerging" | "watch" | "stretch";
@@ -343,6 +344,29 @@ function tagFor(relevance: number, score: number, rec: string): RankedHit["tag"]
   return "stretch";
 }
 
+/** Spread RankedHit bubbles across the shared map viewBox (never pile at center). */
+function placeHits(hits: RankedHit[]): RankedHit[] {
+  if (!hits.length) return hits;
+  const laid = layoutScatter(
+    hits.map((h) => ({
+      id: h.company_id,
+      xMetric: h.relevance,
+      yMetric: h.thesis_score,
+      r: clamp(2.4 + h.size / 5, 2.2, 5.2),
+    })),
+    { width: MAP_VIEWBOX.w, height: MAP_VIEWBOX.h },
+  );
+  const pos = new Map(laid.map((p) => [p.id, p]));
+  for (const h of hits) {
+    const p = pos.get(h.company_id);
+    if (p) {
+      h.x = p.x;
+      h.y = p.y;
+    }
+  }
+  return hits;
+}
+
 function peersFor(id: string, peers: PeerActivity[]) {
   return peers.filter((p) => p.company_id === id);
 }
@@ -595,12 +619,6 @@ export function runThesisScan(
 
     const composite = relevance * 0.62 + score * 0.38;
     const tag = tagFor(relevance, score, rec);
-
-    // Constellation: x = relevance, y = thesis score (jittered)
-    const jx = ((hash(c.id) % 7) - 3) * 1.2;
-    const jy = ((hash(c.name) % 7) - 3) * 1.1;
-    const x = clamp(8 + relevance * 0.84 + jx, 4, 96);
-    const y = clamp(92 - score * 0.84 + jy, 6, 96);
     const size = 6 + (tag === "prime" ? 6 : tag === "emerging" ? 4 : 2);
 
     if (!why.length) why.push(c.why_now?.slice(0, 90) || c.one_liner || "Pipeline match");
@@ -620,15 +638,15 @@ export function runThesisScan(
       composite,
       why: why.slice(0, 4),
       facets,
-      x,
-      y,
+      x: MAP_VIEWBOX.w / 2,
+      y: MAP_VIEWBOX.h / 2,
       size,
       tag,
     });
   }
 
   scored.sort((a, b) => b.composite - a.composite || b.relevance - a.relevance);
-  const hits = scored.slice(0, 24);
+  const hits = placeHits(scored.slice(0, 24));
   const shortlist = hits.filter((h) => h.tag === "prime" || h.tag === "emerging").slice(0, 8);
   const displayShort = shortlist.length ? shortlist : hits.slice(0, 6);
 
@@ -832,8 +850,8 @@ export function buildMomentumPack(
                 : null,
             ].filter(Boolean) as string[],
             facets: [],
-            x: 50,
-            y: 50,
+            x: MAP_VIEWBOX.w / 2,
+            y: MAP_VIEWBOX.h / 2,
             size: 8,
             tag: tagFor(relevance, score, c.recommendation || "Watch"),
           };
@@ -871,13 +889,15 @@ export function buildMomentumPack(
             composite: score,
             why: [c.why_now?.slice(0, 90) || `Adjacent to ${s.subsector}`],
             facets: [],
-            x: 50,
-            y: 50,
+            x: MAP_VIEWBOX.w / 2,
+            y: MAP_VIEWBOX.h / 2,
             size: 7,
             tag: tagFor(score, score, c.recommendation || "Watch"),
           });
         }
       }
+
+      placeHits(best_deals);
 
       return {
         id: s.id,
@@ -925,14 +945,16 @@ export function buildMomentumPack(
           c.why_now?.slice(0, 80) || null,
         ].filter(Boolean) as string[],
         facets: [],
-        x: 50,
-        y: 50,
+        x: MAP_VIEWBOX.w / 2,
+        y: MAP_VIEWBOX.h / 2,
         size: 8,
         tag: tagFor(relevance, score, c.recommendation || "Watch"),
       };
     })
     .sort((a, b) => b.composite - a.composite)
     .slice(0, 10);
+
+  placeHits(rising_deals);
 
   const top = sectorsRanked[0];
   return {
@@ -1231,8 +1253,8 @@ function dealsForSector(
         peerN <= 1 ? "Quiet peer tape" : `${peerN} peers circling`,
       ].filter(Boolean) as string[],
       facets: [],
-      x: 50,
-      y: 50,
+      x: MAP_VIEWBOX.w / 2,
+      y: MAP_VIEWBOX.h / 2,
       size: 8,
       tag: tagFor(relevance, score, c.recommendation || "Watch"),
     };
@@ -1274,15 +1296,15 @@ function dealsForSector(
         composite: score,
         why: [c.why_now?.slice(0, 90) || `Adjacent to ${sector.subsector}`],
         facets: [],
-        x: 50,
-        y: 50,
+        x: MAP_VIEWBOX.w / 2,
+        y: MAP_VIEWBOX.h / 2,
         size: 7,
         tag: tagFor(score, score, c.recommendation || "Watch"),
       });
     }
   }
 
-  return hits.sort((a, b) => b.composite - a.composite).slice(0, 4);
+  return placeHits(hits.sort((a, b) => b.composite - a.composite).slice(0, 4));
 }
 
 function quarterLabel(d = new Date()): string {

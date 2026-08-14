@@ -102,14 +102,35 @@ export async function POST(req: Request) {
     await saveMeta(map);
 
     // Stamp company so desks update before next full refresh — never delete
+    const status = statusFor(decision);
     const patch: Record<string, unknown> = {
-      review_status: statusFor(decision),
+      review_status: status,
       is_stale: decision === "refresh",
     };
     if (decision === "archive") patch.recommendation = "Pass";
     if (decision === "keep") patch.is_stale = false;
 
     try {
+      // Keep payload in sync with flat columns (Python readers merge both)
+      const existing = await restSelect<
+        { payload?: Record<string, unknown> | null; recommendation?: string | null }[]
+      >("companies", {
+        eq: { id: companyId },
+        select: "payload,recommendation",
+        limit: 1,
+      });
+      const prev = existing?.[0];
+      if (prev?.payload && typeof prev.payload === "object") {
+        const nextPayload: Record<string, unknown> = {
+          ...prev.payload,
+          review_status: status,
+          is_stale: patch.is_stale,
+          partner_decision: decision,
+        };
+        if (decision === "archive") nextPayload.recommendation = "Pass";
+        patch.payload = nextPayload;
+      }
+
       await restMutate("companies", {
         method: "PATCH",
         eq: { id: companyId },

@@ -5,23 +5,25 @@ import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { ChevronDown, Search } from "lucide-react";
 import { CommandPalette } from "@/components/CommandPalette";
+import { NavigationProgress } from "@/components/NavigationProgress";
 import { RefreshButton } from "@/components/RefreshButton";
 import { ShortcutsHelp } from "@/components/ShortcutsHelp";
+import { SignalLogo } from "@/components/SignalLogo";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { cn } from "@/lib/utils";
 
-/** High-traffic Monday path — unique intel first; keep short so the bar never wraps. */
+/** High-traffic path — keep short so the bar never wraps. */
 const PRIMARY = [
   { href: "/", label: "Desk" },
-  { href: "/meeting", label: "Meeting" },
   { href: "/pipeline", label: "Pipeline" },
-  { href: "/workbook", label: "Workbook" },
   { href: "/chat", label: "Chat" },
   { href: "/digest", label: "Digest" },
   { href: "/search", label: "Research" },
 ];
 
 const MORE = [
+  { href: "/meeting", label: "Meeting", group: "Partner", blurb: "Partner agenda" },
+  { href: "/workbook", label: "Workbook", group: "Partner", blurb: "Debate surface in Excel" },
   { href: "/deals", label: "Great deals", group: "Partner", blurb: "Noise vs outstanding" },
   { href: "/compare", label: "Compare", group: "Partner", blurb: "Side-by-side conviction" },
   { href: "/log", label: "Partner Log", group: "Partner", blurb: "Shared notes & threads" },
@@ -110,6 +112,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
 
   return (
     <div className="relative z-10 min-h-screen min-h-[100dvh]">
+      <NavigationProgress />
       <header
         className="sticky top-0 z-40 border-b border-[var(--line)] bg-[var(--header-bg)] shadow-[0_1px_0_color-mix(in_srgb,var(--signal)_12%,transparent)] backdrop-blur-2xl"
         style={{ paddingTop: "var(--safe-top)" }}
@@ -117,7 +120,7 @@ export function AppShell({ children }: { children: React.ReactNode }) {
         <div className="shell-rail flex h-[var(--header-h)] items-center gap-3 md:gap-5">
           <Link href="/" className="group flex shrink-0 items-center gap-2.5">
             <span className="brand-mark transition group-hover:brightness-110" aria-hidden>
-              S
+              <SignalLogo className="h-[1.05rem] w-[1.05rem]" />
             </span>
             <span className="flex items-baseline gap-2">
               <span className="display text-[1.15rem] leading-tight tracking-tight sm:text-[1.2rem]">
@@ -215,9 +218,10 @@ export function AppShell({ children }: { children: React.ReactNode }) {
           <div className="ml-auto flex shrink-0 items-center gap-1">
             <button
               type="button"
-              onClick={() => window.dispatchEvent(new Event("signal:open-command"))}
+              onClick={() => window.dispatchEvent(new Event("signal:toggle-command"))}
               className="btn btn-ghost btn-sm inline-flex"
               aria-label="Ask Signal"
+              aria-haspopup="dialog"
             >
               <Search className="h-3.5 w-3.5 sm:hidden" strokeWidth={2} aria-hidden />
               <span className="hidden sm:inline">Ask</span>

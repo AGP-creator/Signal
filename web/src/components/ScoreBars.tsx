@@ -1,4 +1,5 @@
 import { SCORE_DIM_META } from "@/lib/thirdbaseCriteria";
+import { cn } from "@/lib/utils";
 
 const DIM_ORDER = [
   "thesis_fit",
@@ -11,6 +12,13 @@ const DIM_ORDER = [
   "tam_exit",
   "timing",
 ];
+
+function barTone(score: number) {
+  if (score >= 80) return "ok";
+  if (score >= 65) return "signal";
+  if (score >= 50) return "warn";
+  return "danger";
+}
 
 export function ScoreBars({ breakdown }: { breakdown?: Record<string, number> | null }) {
   const entries = Object.entries(breakdown || {});
@@ -28,6 +36,7 @@ export function ScoreBars({ breakdown }: { breakdown?: Record<string, number> | 
         const label = meta?.label || k.replaceAll("_", " ");
         const weight = meta ? Math.round(meta.weight * 100) : null;
         const score = Number(v);
+        const tone = barTone(score);
         return (
           <div key={k} className="min-w-0">
             <div className="flex items-baseline justify-between gap-3">
@@ -37,16 +46,24 @@ export function ScoreBars({ breakdown }: { breakdown?: Record<string, number> | 
                   <span className="mono ml-1.5 text-[0.7rem] text-[var(--faint)]">{weight}%</span>
                 ) : null}
               </div>
-              <span className="mono shrink-0 tabular-nums text-[0.9375rem] font-medium text-[var(--text)]">
+              <span
+                className={cn(
+                  "mono shrink-0 tabular-nums text-[0.9375rem] font-medium",
+                  tone === "ok" && "text-[var(--ok)]",
+                  tone === "signal" && "text-[var(--text)]",
+                  tone === "warn" && "text-[var(--warn)]",
+                  tone === "danger" && "text-[var(--danger)]",
+                )}
+              >
                 {score.toFixed(0)}
               </span>
             </div>
             {meta?.criterion ? (
               <p className="mt-0.5 text-[0.7rem] leading-snug text-[var(--faint)]">{meta.criterion}</p>
             ) : null}
-            <div className="mt-2 h-2 overflow-hidden rounded-full bg-[var(--panel-2)]">
+            <div className="score-bar-track mt-2">
               <div
-                className="h-full rounded-full bg-gradient-to-r from-[var(--deep)] to-[var(--signal)] transition-[width] duration-500"
+                className={cn("score-bar-fill", `score-bar-fill--${tone}`)}
                 style={{ width: `${Math.max(4, Math.min(100, score))}%` }}
               />
             </div>

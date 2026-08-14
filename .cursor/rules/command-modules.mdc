@@ -1,0 +1,25 @@
+---
+description: Lock the home Command modules square-tile grid design
+globs: web/src/components/DeskCommand.tsx,web/src/app/globals.css
+alwaysApply: false
+---
+
+# Command modules — locked design
+
+The **Command modules** launcher on the home desk (`DeskCommand`) is a locked UI pattern.
+
+## Keep
+
+- Dense **square tile grid** (`.desk-module-grid` → 2/3/4/5 columns)
+- Each tile: icon, short title, one-line blurb
+- Subtle left-rail accent via `data-group` (no repeating DECIDE/PARTNER/AI text labels)
+- Hover lift + signal glow (dark)
+
+## Do not
+
+- Collapse modules into a list, accordion, or large stacked cards
+- Reintroduce category text labels under every tile (repetitive noise)
+- Replace the grid with a mega-menu or sidebar-only launcher
+- Soften into generic dashboard widget cards
+
+When adding modules, append to `MODULES` and keep the same tile anatomy.

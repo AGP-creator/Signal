@@ -116,7 +116,7 @@ export function PipelineTable({
       if (q && !blob.includes(q.toLowerCase())) return false;
       if (rec !== "All" && c.recommendation !== rec) return false;
       if (theme !== "All" && c.sector_theme !== theme) return false;
-      if (stage !== "All" && c.stage !== stage) return false;
+      if (stage !== "All" && (c.stage || "Unknown") !== stage) return false;
       return true;
     });
 
@@ -188,7 +188,20 @@ export function PipelineTable({
     <div className="space-y-5">
       <div className="viz-strip">
         <Panel className="viz-card !p-4">
-          <div className="label-caps">Recommendation</div>
+          <div className="flex items-center justify-between gap-2">
+            <div className="label-caps">Recommendation</div>
+            {rec !== "All" ? (
+              <button
+                type="button"
+                className="label-caps !normal-case !tracking-normal text-[var(--signal)] hover:underline"
+                onClick={() => setRec("All")}
+              >
+                Clear
+              </button>
+            ) : (
+              <span className="text-[0.65rem] text-[var(--faint)]">Click to filter</span>
+            )}
+          </div>
           <div className="mt-auto flex flex-1 flex-wrap items-center gap-x-4 gap-y-2 pt-2">
             <DonutChart
               size={108}
@@ -196,6 +209,8 @@ export function PipelineTable({
               centerValue={String(companies.length)}
               slices={viz.recSlices}
               className="!gap-3"
+              activeLabel={rec !== "All" ? rec : null}
+              onSliceClick={(label) => setRec(rec === label ? "All" : label)}
             />
           </div>
         </Panel>
@@ -204,8 +219,29 @@ export function PipelineTable({
           <BarChart height={148} className="mt-auto pt-2" series={viz.bands} color="var(--signal)" />
         </Panel>
         <Panel className="viz-card !p-4">
-          <div className="label-caps">Stage mix</div>
-          <BarChart height={148} className="mt-auto pt-2" series={viz.stages} color="var(--deep)" />
+          <div className="flex items-center justify-between gap-2">
+            <div className="label-caps">Stage mix</div>
+            {stage !== "All" ? (
+              <button
+                type="button"
+                className="label-caps !normal-case !tracking-normal text-[var(--signal)] hover:underline"
+                onClick={() => setStage("All")}
+              >
+                Clear
+              </button>
+            ) : (
+              <span className="text-[0.65rem] text-[var(--faint)]">Click to filter</span>
+            )}
+          </div>
+          <BarChart
+            height={148}
+            className="mt-auto pt-2"
+            series={viz.stages}
+            color="var(--deep)"
+            labelMax={8}
+            activeLabel={stage !== "All" ? stage : null}
+            onBarClick={(label) => setStage(stage === label ? "All" : label)}
+          />
         </Panel>
       </div>
 

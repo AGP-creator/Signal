@@ -1,6 +1,6 @@
 "use client";
 
-import { useId } from "react";
+import { useId, useState } from "react";
 import { cn } from "@/lib/utils";
 
 type Point = { label: string; value: number };
@@ -186,13 +186,20 @@ export function BarChart({
   className,
   color = "var(--signal)",
   formatValue = (v) => `${Math.round(v)}`,
+  onBarClick,
+  activeLabel,
+  labelMax = 9,
 }: {
   series: Point[];
   height?: number;
   className?: string;
   color?: string;
   formatValue?: (v: number) => string;
+  onBarClick?: (label: string) => void;
+  activeLabel?: string | null;
+  labelMax?: number;
 }) {
+  const [hover, setHover] = useState<string | null>(null);
   if (!series.length) return <ChartEmpty className={className} height={height} />;
   const w = 400;
   const h = height;
@@ -200,10 +207,15 @@ export function BarChart({
   const max = Math.max(...series.map((p) => p.value), 1);
   const gap = 8;
   const barW = (w - pad.l - pad.r - gap * (series.length - 1)) / series.length;
+  const interactive = Boolean(onBarClick);
 
   return (
     <div className={cn("w-full", className)}>
-      <svg viewBox={`0 0 ${w} ${h}`} className="h-auto w-full" role="img">
+      <svg
+        viewBox={`0 0 ${w} ${h}`}
+        className={cn("chart-svg h-auto w-full", interactive && "chart-interactive")}
+        role="img"
+      >
         <line
           x1={pad.l}
           x2={w - pad.r}
@@ -216,9 +228,19 @@ export function BarChart({
           const bh = ((p.value / max) * (h - pad.t - pad.b)) || 2;
           const x = pad.l + i * (barW + gap);
           const y = h - pad.b - bh;
+          const lit = hover === p.label || activeLabel === p.label;
+          const dimmed = (hover || activeLabel) && !lit;
           return (
-            <g key={p.label}>
-              <title>{`${p.label}: ${formatValue(p.value)}`}</title>
+            <g
+              key={p.label}
+              className={cn("chart-bar", interactive && "chart-hit")}
+              opacity={dimmed ? 0.38 : 0.92 - Math.min(i, 6) * 0.04}
+              onMouseEnter={() => setHover(p.label)}
+              onMouseLeave={() => setHover(null)}
+              onClick={interactive ? () => onBarClick?.(p.label) : undefined}
+              style={interactive ? { cursor: "pointer" } : undefined}
+            >
+              <title>{`${p.label}: ${formatValue(p.value)}${interactive ? " · click to filter" : ""}`}</title>
               <rect
                 x={x}
                 y={y}
@@ -226,7 +248,7 @@ export function BarChart({
                 height={bh}
                 rx="4"
                 fill={color}
-                opacity={0.9 - Math.min(i, 6) * 0.04}
+                className={lit ? "chart-bar-lit" : undefined}
               />
               <text
                 x={x + barW / 2}
@@ -238,8 +260,14 @@ export function BarChart({
               >
                 {formatValue(p.value)}
               </text>
-              <text x={x + barW / 2} y={h - 8} textAnchor="middle" className="fill-[var(--muted)]" fontSize="9.5">
-                {shortLabel(p.label, 9)}
+              <text
+                x={x + barW / 2}
+                y={h - 8}
+                textAnchor="middle"
+                className={lit ? "fill-[var(--text)]" : "fill-[var(--muted)]"}
+                fontSize="9.5"
+              >
+                {shortLabel(p.label, labelMax)}
               </text>
             </g>
           );
@@ -255,13 +283,18 @@ export function DonutChart({
   className,
   centerLabel,
   centerValue,
+  onSliceClick,
+  activeLabel,
 }: {
   slices: { label: string; pct: number; color: string }[];
   size?: number;
   className?: string;
   centerLabel?: string;
   centerValue?: string;
+  onSliceClick?: (label: string) => void;
+  activeLabel?: string | null;
 }) {
+  const [hover, setHover] = useState<string | null>(null);
   const r = 56;
   const cx = 80;
   const cy = 80;
@@ -269,13 +302,22 @@ export function DonutChart({
   let offset = 0;
   const visible = slices.filter((s) => s.pct > 0);
   if (!visible.length) return <ChartEmpty className={className} label="No mix yet" />;
+  const interactive = Boolean(onSliceClick);
 
   return (
     <div className={cn("flex flex-wrap items-center gap-5", className)}>
-      <svg width={size} height={size} viewBox="0 0 160 160" className="shrink-0" role="img">
+      <svg
+        width={size}
+        height={size}
+        viewBox="0 0 160 160"
+        className={cn("chart-svg shrink-0", interactive && "chart-interactive")}
+        role="img"
+      >
         <circle cx={cx} cy={cy} r={r} fill="none" stroke="var(--panel-2)" strokeWidth="18" />
         {visible.map((s) => {
           const len = (s.pct / 100) * circ;
+          const lit = hover === s.label || activeLabel === s.label;
+          const dimmed = (hover || activeLabel) && !lit;
           const el = (
             <circle
               key={s.label}
@@ -284,13 +326,19 @@ export function DonutChart({
               r={r}
               fill="none"
               stroke={s.color}
-              strokeWidth="18"
+              strokeWidth={lit ? 20 : 18}
               strokeDasharray={`${len} ${circ - len}`}
               strokeDashoffset={-offset}
               transform={`rotate(-90 ${cx} ${cy})`}
               strokeLinecap="butt"
+              opacity={dimmed ? 0.35 : 1}
+              className={cn(interactive && "chart-hit")}
+              style={interactive ? { cursor: "pointer", transition: "stroke-width 0.15s, opacity 0.15s" } : undefined}
+              onMouseEnter={() => setHover(s.label)}
+              onMouseLeave={() => setHover(null)}
+              onClick={interactive ? () => onSliceClick?.(s.label) : undefined}
             >
-              <title>{`${s.label}: ${s.pct}%`}</title>
+              <title>{`${s.label}: ${s.pct}%${interactive ? " · click to filter" : ""}`}</title>
             </circle>
           );
           offset += len;
@@ -307,16 +355,35 @@ export function DonutChart({
           </text>
         ) : null}
       </svg>
-      <div className="min-w-[10rem] space-y-2">
-        {visible.map((s) => (
-          <div key={s.label} className="flex items-center justify-between gap-3 text-[0.8125rem]">
-            <span className="inline-flex items-center gap-2 text-[var(--muted)]">
-              <span className="inline-block h-2.5 w-2.5 rounded-sm" style={{ background: s.color }} />
-              {s.label}
-            </span>
-            <span className="mono text-[var(--text)]">{s.pct}%</span>
-          </div>
-        ))}
+      <div className="min-w-[10rem] space-y-1.5">
+        {visible.map((s) => {
+          const lit = hover === s.label || activeLabel === s.label;
+          return (
+            <button
+              key={s.label}
+              type="button"
+              disabled={!interactive}
+              className={cn(
+                "chart-legend-row flex w-full items-center justify-between gap-3 rounded-[var(--radius-sm)] px-1.5 py-1 text-left text-[0.8125rem] transition",
+                interactive && "cursor-pointer hover:bg-[var(--soft)]",
+                lit && "bg-[var(--soft)]",
+                !interactive && "cursor-default",
+              )}
+              onMouseEnter={() => setHover(s.label)}
+              onMouseLeave={() => setHover(null)}
+              onClick={interactive ? () => onSliceClick?.(s.label) : undefined}
+            >
+              <span className="inline-flex min-w-0 items-center gap-2 text-[var(--muted)]">
+                <span
+                  className="inline-block h-2.5 w-2.5 shrink-0 rounded-sm"
+                  style={{ background: s.color, boxShadow: lit ? `0 0 0 2px color-mix(in srgb, ${s.color} 35%, transparent)` : undefined }}
+                />
+                <span className={cn("truncate", lit && "font-medium text-[var(--text)]")}>{s.label}</span>
+              </span>
+              <span className="mono shrink-0 text-[var(--text)]">{s.pct}%</span>
+            </button>
+          );
+        })}
       </div>
     </div>
   );

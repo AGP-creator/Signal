@@ -7,6 +7,7 @@ import {
   Bot,
   Briefcase,
   Calendar,
+  ClipboardCopy,
   Compass,
   Crosshair,
   FileSpreadsheet,
@@ -16,6 +17,7 @@ import {
   Layers,
   Library,
   MessageSquare,
+  Network,
   Radar,
   Scale,
   Search,
@@ -42,6 +44,7 @@ import {
   ToneBadge,
 } from "@/components/ui";
 import { buildAiOsPack } from "@/lib/aiOs";
+import { buildForgePack, moveKindLabel } from "@/lib/forge";
 import { type DealTrail } from "@/lib/icTrail";
 import { loadMergedTrails } from "@/lib/icStore";
 import { NEWS_KIND_META, selectNewsWorthReading } from "@/lib/newsWorthReading";
@@ -152,7 +155,7 @@ const MODULES: {
     label: "Competitor OS",
     blurb: "Peer heat & syndicates",
     group: "Intel",
-    icon: <Radar className="h-4 w-4" strokeWidth={1.75} />,
+    icon: <Network className="h-4 w-4" strokeWidth={1.75} />,
   },
   {
     href: "/sectors",
@@ -255,7 +258,7 @@ const MODULES: {
   {
     href: "/meeting",
     label: "Partner Meeting",
-    blurb: "Monday agenda (~90m)",
+    blurb: "Agenda (~90m)",
     group: "Partner",
     icon: <Calendar className="h-4 w-4" strokeWidth={1.75} />,
   },
@@ -268,25 +271,13 @@ const MODULES: {
   },
 ];
 
-/** Hero feature rail — Monday path first, then stretch desks. */
+/** Hero feature rail — stretch desks only (Forge lives in Monday moves above). */
 const FEATURED = [
   {
-    href: "/forge",
-    label: "Forge",
-    blurb: "Win reality × attention",
-    icon: <Crosshair className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
     href: "/meeting",
-    label: "Monday agenda",
-    blurb: "~90m partner meeting",
+    label: "Meeting",
+    blurb: "Partner agenda ~90m",
     icon: <Calendar className="h-3.5 w-3.5" strokeWidth={1.75} />,
-  },
-  {
-    href: "/workbook",
-    label: "Workbook",
-    blurb: "Debate surface in Excel",
-    icon: <FileSpreadsheet className="h-3.5 w-3.5" strokeWidth={1.75} />,
   },
   {
     href: "/chat",
@@ -305,6 +296,12 @@ const FEATURED = [
     label: "Digest",
     blurb: "M/W/F priority mail",
     icon: <Radar className="h-3.5 w-3.5" strokeWidth={1.75} />,
+  },
+  {
+    href: "/pipeline",
+    label: "Pipeline",
+    blurb: "Live deal book",
+    icon: <Target className="h-3.5 w-3.5" strokeWidth={1.75} />,
   },
 ] as const;
 
@@ -346,6 +343,7 @@ export function DeskCommand({
   const [trails, setTrails] = useState<DealTrail[]>([]);
   const [askDraft, setAskDraft] = useState("");
   const [staleTick, setStaleTick] = useState(0);
+  const [forgeCopied, setForgeCopied] = useState(false);
 
   useEffect(() => {
     const sync = () => setTrails(loadMergedTrails(companies));
@@ -377,6 +375,18 @@ export function DeskCommand({
   const aiOs = useMemo(
     () => buildAiOsPack({ companies: reviewed, peers, commentary, news, alerts, sectors }),
     [reviewed, peers, commentary, news, alerts, sectors],
+  );
+
+  const forge = useMemo(
+    () =>
+      buildForgePack({
+        companies: reviewed,
+        peers,
+        commentary,
+        sectors,
+        alerts,
+      }),
+    [reviewed, peers, commentary, sectors, alerts],
   );
 
   const hot = reviewed
@@ -421,10 +431,18 @@ export function DeskCommand({
     },
     { label: "<70", value: reviewed.filter((c) => (c.thesis_score ?? 0) < 70).length },
   ];
-  const sectorBars = topSectors.map((s) => ({
-    label: (s.subsector || "—").slice(0, 10),
-    value: s.heat_score ?? 0,
-  }));
+  const sectorBars = topSectors.map((s) => {
+    const raw = s.subsector || "—";
+    const label =
+      raw.length <= 14
+        ? raw
+        : raw
+            .split(/[\s/]+/)
+            .map((w) => w.slice(0, 6))
+            .join(" ")
+            .slice(0, 14);
+    return { label, value: s.heat_score ?? 0 };
+  });
 
   return (
     <div className="desk-command space-y-8">
@@ -477,22 +495,71 @@ export function DeskCommand({
           </div>
 
           <div className="mt-5 flex flex-wrap items-center gap-2.5">
-            <Link href="/forge" className="btn btn-primary btn-sm">
-              Open Forge
-            </Link>
-            <Link href="/meeting" className="btn btn-soft btn-sm">
-              Open Monday agenda
-            </Link>
-            <a href="/api/workbook" className="btn btn-soft btn-sm">
-              Download Excel
-            </a>
-            <Link href="/pipeline?rec=Pass" className="btn btn-ghost btn-sm">
+            <Link href="/pipeline?rec=Pass" className="btn btn-soft btn-sm">
               Show a Pass
             </Link>
-            <span className="hidden text-[0.75rem] text-[var(--faint)] sm:inline">
-              Forge → Meeting → Excel
-            </span>
+            <a href="/api/workbook" className="btn btn-ghost btn-sm">
+              Download Excel
+            </a>
           </div>
+
+          {forge.monday_moves.length > 0 && (
+            <div className="desk-monday-rail mt-6">
+              <div className="flex flex-wrap items-end justify-between gap-2">
+                <div>
+                  <Eyebrow>This week’s irreversible commits</Eyebrow>
+                  <p className="mt-1 max-w-xl text-[0.8125rem] leading-relaxed text-[var(--muted)]">
+                    {forge.headline} · {forge.punchline}
+                  </p>
+                </div>
+                <div className="flex shrink-0 items-center gap-2">
+                  <button
+                    type="button"
+                    className="btn btn-ghost btn-sm"
+                    onClick={async () => {
+                      try {
+                        await navigator.clipboard.writeText(forge.markdown);
+                        setForgeCopied(true);
+                        window.setTimeout(() => setForgeCopied(false), 1800);
+                      } catch {
+                        /* ignore */
+                      }
+                    }}
+                  >
+                    <ClipboardCopy className="h-3.5 w-3.5" strokeWidth={1.75} />
+                    {forgeCopied ? "Copied" : "Copy brief"}
+                  </button>
+                  <Link href="/forge" className="btn btn-primary btn-sm">
+                    Forge →
+                  </Link>
+                </div>
+              </div>
+              <div className="mt-3 grid gap-2 sm:grid-cols-3">
+                {forge.monday_moves.slice(0, 3).map((m) => (
+                  <Link
+                    key={m.id}
+                    href={m.href || "/forge"}
+                    className="desk-monday-move panel-interactive"
+                  >
+                    <div className="flex items-center justify-between gap-2">
+                      <span className="mono text-[0.65rem] text-[var(--faint)]">#{m.rank}</span>
+                      <span className="label-caps !text-[0.6rem] text-[var(--signal)]">
+                        {moveKindLabel(m.kind)}
+                      </span>
+                    </div>
+                    <div className="mt-1.5 text-[0.8125rem] font-semibold leading-snug">{m.title}</div>
+                    <div className="mt-1 line-clamp-2 text-[0.7rem] leading-snug text-[var(--muted)]">
+                      {m.why}
+                    </div>
+                    <div className="mt-2 flex flex-wrap items-center gap-2 text-[0.65rem] text-[var(--faint)]">
+                      <span className="mono">{m.hours}h</span>
+                      {m.win_prob != null && <span className="mono">win {m.win_prob}%</span>}
+                    </div>
+                  </Link>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="desk-feature-rail mt-6">
             {FEATURED.map((f) => (
@@ -541,7 +608,10 @@ export function DeskCommand({
           <MixGauge dominantPct={mix.dominantPct} tacticalPct={mix.tacticalPct} />
         </Panel>
         <Panel className="viz-card !p-4 md:!p-5">
-          <div className="label-caps">Recommendation mix</div>
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="label-caps">Recommendation mix</div>
+            <span className="mono text-[0.7rem] text-[var(--faint)]">{reviewed.length}</span>
+          </div>
           <div className="mt-auto pt-2">
             <DonutChart
               size={132}
@@ -568,16 +638,27 @@ export function DeskCommand({
           </div>
         </Panel>
         <Panel className="viz-card !p-4 md:!p-5">
-          <div className="label-caps">Score distribution</div>
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="label-caps">Score distribution</div>
+            <span className="mono text-[0.7rem] text-[var(--faint)]">
+              {scoreBands.reduce((n, b) => n + b.value, 0)}
+            </span>
+          </div>
           <BarChart height={156} className="mt-auto pt-2" series={scoreBands} />
         </Panel>
         <Panel className="viz-card !p-4 md:!p-5">
-          <div className="label-caps">Sector heat</div>
+          <div className="flex items-baseline justify-between gap-2">
+            <div className="label-caps">Sector heat</div>
+            <Link href="/sectors" className="link-quiet text-[0.7rem] font-semibold">
+              Map →
+            </Link>
+          </div>
           <BarChart
             height={156}
             className="mt-auto pt-2"
             series={sectorBars}
             color="var(--warn)"
+            labelMax={12}
             formatValue={(v) => String(Math.round(v))}
           />
         </Panel>
@@ -668,7 +749,36 @@ export function DeskCommand({
           </div>
         </div>
 
-        <aside className="space-y-4">
+        <aside className="desk-aside space-y-4">
+          <Panel className="panel-rail !p-5" data-urgency={work.items.some((i) => i.risk === "high") ? "now" : "monitor"}>
+            <div className="flex items-center justify-between gap-3">
+              <Eyebrow live={work.items.some((i) => i.risk === "high")}>Work queue</Eyebrow>
+              <Link href="/work" className="link-quiet text-[0.75rem] font-semibold">
+                Board →
+              </Link>
+            </div>
+            <p className="mt-2 text-[0.8125rem] text-[var(--muted)]">{work.headline}</p>
+            <div className="mt-4 space-y-0">
+              {work.items.slice(0, 4).map((item) => (
+                <Link key={item.id} href={item.href} className="feed-row">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <ToneBadge
+                      tone={
+                        item.risk === "high" ? "now" : item.risk === "medium" ? "this_week" : "monitor"
+                      }
+                    >
+                      {item.risk}
+                    </ToneBadge>
+                    <span className="text-[0.7rem] text-[var(--faint)]">{item.area}</span>
+                  </div>
+                  <div className="mt-1.5 text-[0.875rem] font-semibold leading-snug">{item.title}</div>
+                  <div className="mt-0.5 text-[0.75rem] text-[var(--muted)]">{item.company_name}</div>
+                </Link>
+              ))}
+              {!work.items.length && <EmptyState>No open diligence items.</EmptyState>}
+            </div>
+          </Panel>
+
           <Panel className="os-banner !p-5">
             <div className="flex items-center justify-between gap-2">
               <Eyebrow live className="!text-[var(--signal)]">
@@ -681,7 +791,7 @@ export function DeskCommand({
             <p className="mt-3 text-[0.8125rem] leading-relaxed text-[var(--muted)]">{aiOs.headline}</p>
             <div className="mt-4 grid grid-cols-3 gap-2">
               {aiOs.agents.slice(0, 6).map((a) => (
-                <div key={a.id} className="rounded-[var(--radius)] border border-[var(--line)] bg-[var(--panel)]/60 px-2 py-2">
+                <div key={a.id} className="agent-tile">
                   <div className="truncate text-[0.7rem] font-semibold">{a.name}</div>
                   <div
                     className={cn(
@@ -711,39 +821,6 @@ export function DeskCommand({
               <Link href="/judgment" className="btn btn-ghost btn-sm">
                 Judgment
               </Link>
-            </div>
-          </Panel>
-
-          <Panel>
-            <div className="flex items-center justify-between gap-3">
-              <Eyebrow>Work queue</Eyebrow>
-              <Link href="/work" className="link-quiet text-[0.75rem] font-semibold">
-                Board →
-              </Link>
-            </div>
-            <p className="mt-2 text-[0.8125rem] text-[var(--muted)]">{work.headline}</p>
-            <div className="mt-4 space-y-3">
-              {work.items.slice(0, 4).map((item) => (
-                <Link
-                  key={item.id}
-                  href={item.href}
-                  className="block border-b border-[var(--line)] pb-3 last:border-0 last:pb-0"
-                >
-                  <div className="flex flex-wrap items-center gap-2">
-                    <ToneBadge
-                      tone={
-                        item.risk === "high" ? "now" : item.risk === "medium" ? "this_week" : "monitor"
-                      }
-                    >
-                      {item.risk}
-                    </ToneBadge>
-                    <span className="text-[0.7rem] text-[var(--faint)]">{item.area}</span>
-                  </div>
-                  <div className="mt-1.5 text-[0.875rem] font-semibold leading-snug">{item.title}</div>
-                  <div className="mt-0.5 text-[0.75rem] text-[var(--muted)]">{item.company_name}</div>
-                </Link>
-              ))}
-              {!work.items.length && <EmptyState>No open diligence items.</EmptyState>}
             </div>
           </Panel>
 
