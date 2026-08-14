@@ -85,6 +85,19 @@ function exportPipelineCsv(rows: Company[]) {
   URL.revokeObjectURL(url);
 }
 
+const SCORE_BANDS = [
+  { label: "90+", min: 90, max: 101 },
+  { label: "80–89", min: 80, max: 90 },
+  { label: "70–79", min: 70, max: 80 },
+  { label: "<70", min: 0, max: 70 },
+] as const;
+
+function scoreInBand(score: number, label: string) {
+  const band = SCORE_BANDS.find((b) => b.label === label);
+  if (!band) return true;
+  return score >= band.min && score < band.max;
+}
+
 export function PipelineTable({
   companies,
   initialRec,
@@ -96,6 +109,7 @@ export function PipelineTable({
   const [rec, setRec] = useState(() => normalizeRec(initialRec));
   const [theme, setTheme] = useState("All");
   const [stage, setStage] = useState("All");
+  const [scoreBand, setScoreBand] = useState<string | null>(null);
   const [sort, setSort] = useState<SortId>("score");
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const knownIds = useMemo(() => companies.map((c) => c.id), [companies]);
@@ -117,6 +131,7 @@ export function PipelineTable({
       if (rec !== "All" && c.recommendation !== rec) return false;
       if (theme !== "All" && c.sector_theme !== theme) return false;
       if (stage !== "All" && (c.stage || "Unknown") !== stage) return false;
+      if (scoreBand && !scoreInBand(c.thesis_score ?? 0, scoreBand)) return false;
       return true;
     });
 
@@ -129,10 +144,15 @@ export function PipelineTable({
       return (b.thesis_score ?? -1) - (a.thesis_score ?? -1);
     });
     return sorted;
-  }, [companies, q, rec, theme, stage, sort]);
+  }, [companies, q, rec, theme, stage, scoreBand, sort]);
 
   const hasFilters =
-    Boolean(q) || rec !== "All" || theme !== "All" || stage !== "All" || sort !== "score";
+    Boolean(q) ||
+    rec !== "All" ||
+    theme !== "All" ||
+    stage !== "All" ||
+    Boolean(scoreBand) ||
+    sort !== "score";
 
   function toggleCompare(id: string) {
     setCompareIds((prev) => {
@@ -157,12 +177,7 @@ export function PipelineTable({
       })
       .filter((s) => s.n > 0);
 
-    const bands = [
-      { label: "90+", min: 90, max: 101 },
-      { label: "80–89", min: 80, max: 90 },
-      { label: "70–79", min: 70, max: 80 },
-      { label: "<70", min: 0, max: 70 },
-    ].map((b) => ({
+    const bands = SCORE_BANDS.map((b) => ({
       label: b.label,
       value: companies.filter((c) => {
         const s = c.thesis_score ?? 0;
@@ -215,8 +230,28 @@ export function PipelineTable({
           </div>
         </Panel>
         <Panel className="viz-card !p-4">
-          <div className="label-caps">Score bands</div>
-          <BarChart height={148} className="mt-auto pt-2" series={viz.bands} color="var(--signal)" />
+          <div className="flex items-center justify-between gap-2">
+            <div className="label-caps">Score bands</div>
+            {scoreBand ? (
+              <button
+                type="button"
+                className="label-caps !normal-case !tracking-normal text-[var(--signal)] hover:underline"
+                onClick={() => setScoreBand(null)}
+              >
+                Clear
+              </button>
+            ) : (
+              <span className="text-[0.65rem] text-[var(--faint)]">Click to filter</span>
+            )}
+          </div>
+          <BarChart
+            height={148}
+            className="mt-auto pt-2"
+            series={viz.bands}
+            color="var(--signal)"
+            activeLabel={scoreBand}
+            onBarClick={(label) => setScoreBand(scoreBand === label ? null : label)}
+          />
         </Panel>
         <Panel className="viz-card !p-4">
           <div className="flex items-center justify-between gap-2">
@@ -349,6 +384,7 @@ export function PipelineTable({
                       setRec("All");
                       setTheme("All");
                       setStage("All");
+                      setScoreBand(null);
                       setSort("score");
                     }}
                   >
@@ -358,7 +394,7 @@ export function PipelineTable({
               }
             >
               {hasFilters
-                ? "Widen search or clear recommendation / sector / stage filters."
+                ? "Widen search or clear recommendation / score / sector / stage filters."
                 : "Run Refresh pipeline to score the book."}
             </EmptyState>
           </div>

@@ -168,7 +168,7 @@ export function GpDashboard({
         }
         actions={
           <>
-            <Link href="/meeting" className="btn btn-ghost btn-sm">
+            <Link href="/meeting" className="btn btn-primary btn-sm">
               Partner agenda
             </Link>
             <button type="button" onClick={copyBrief} className="btn btn-ghost btn-sm">
